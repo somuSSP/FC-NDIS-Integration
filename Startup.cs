@@ -1,3 +1,7 @@
+using FC_NDIS.Action;
+using FC_NDIS.ActionInterface;
+using Hangfire;
+using Hangfire.MemoryStorage;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -29,14 +33,39 @@ namespace FC_NDIS
             var section = Configuration.GetSection(nameof(IntegrationAppSettings));
             var integrationAppSettings = section.Get<IntegrationAppSettings>();
             services.AddSingleton(integrationAppSettings);
+            services.AddScoped<ISFDC, SFDCAction>();
+            services.AddScoped<IConnex, ConnexServiceAction>();
+            services.AddScoped<IFleetComplete, FleetCompleteAction>();
             services.AddSwaggerGen();
             services.Configure<IISServerOptions>(options => { options.AllowSynchronousIO = true; });
+            services.AddHangfire(config =>
+                config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseDefaultTypeSerializer()
+                .UseMemoryStorage());
+            //.UseSqlServerStorage(Configuration.GetConnectionString("sqlConnection")));
+
+
+            services.AddHangfireServer();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager recurringJobManager,
+            IServiceProvider serviceProvider)
         {
-           
+            var section = Configuration.GetSection(nameof(IntegrationAppSettings));
+            var integrationAppSettings = section.Get<IntegrationAppSettings>();
+
+            string userlist;
+            List<string> UserNames = new List<string>();
+            SFDCAction sfdca = new SFDCAction(integrationAppSettings);
+            UserNames = sfdca.GetAllDriverInfo_NotMappedSFDC();
+            userlist = "'" + string.Join("','", UserNames.Where(k => !string.IsNullOrEmpty(k))) + "'";
+
+            FleetCompleteAction fca = new FleetCompleteAction(integrationAppSettings);
+            var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + integrationAppSettings.UserName + "&userPassword=" + integrationAppSettings.Password;
+            var tokeninfo = fca.GetAccessToken(url);
+
             if (env.IsDevelopment() || env.IsProduction()||env.IsStaging())
             {
                 app.UseDeveloperExceptionPage();
@@ -46,12 +75,39 @@ namespace FC_NDIS
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
+            app.UseHangfireDashboard();
             app.UseRouting();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            recurringJobManager.AddOrUpdate(
+                "SF Customer Service Line",
+                () => serviceProvider.GetService<ISFDC>().IntegerateSfCustServiceLine(integrationAppSettings.SFDCUserName,integrationAppSettings.SFDCUserPassword),
+                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                );
+            recurringJobManager.AddOrUpdate(
+                "SF Customer List",
+                () => serviceProvider.GetService<ISFDC>().IntegerateSfCustomeList(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
+                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                );
+            recurringJobManager.AddOrUpdate(
+                "SF Driver",
+                () => serviceProvider.GetService<ISFDC>().IntegrateSFDCId_OperatortoDB(userlist, integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
+                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                );
+            recurringJobManager.AddOrUpdate(
+                "Fleet complete asset",
+                () => serviceProvider.GetService<IFleetComplete>().IntegrateAsset(integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token),
+                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                );
+            recurringJobManager.AddOrUpdate(
+                "Connx Driver",
+                () => serviceProvider.GetService<IConnex>().IntegrateDriverDetails(integrationAppSettings.ConnexUserName, integrationAppSettings.ConnexUserPassword),
+                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                );
         }
     }
 }

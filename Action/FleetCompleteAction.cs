@@ -12,6 +12,7 @@ using FC_NDIS.DBAccess;
 using Microsoft.Extensions.Logging;
 using System.Dynamic;
 using FC_NDIS.JsonModels;
+using NLog;
 
 namespace FC_NDIS.Action
 {
@@ -20,6 +21,7 @@ namespace FC_NDIS.Action
         public string URL = "";
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly IntegrationAppSettings _integrationAppSettings;
+        private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
         public FleetCompleteAction(IntegrationAppSettings integrationAppSettings)
         {
             this._integrationAppSettings = integrationAppSettings;
@@ -43,6 +45,7 @@ namespace FC_NDIS.Action
         public void IntegrateAsset(string ClientID, string UserID, string Token)
         {
             // _logger.LogInformation("Method IntegrateAsset");
+            logger.Info("Scheduled Fleet complete asset job triggered");
 
             var client = new RestClient(_integrationAppSettings.AssetURL);
             client.Timeout = -1;

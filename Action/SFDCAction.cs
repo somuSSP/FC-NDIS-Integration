@@ -3,6 +3,7 @@ using FC_NDIS.ApplicationIntegartionModels;
 using FC_NDIS.DBAccess;
 using FC_NDIS.Models;
 using Microsoft.Extensions.Configuration;
+using NLog;
 using SfServiceRef;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace FC_NDIS.Action
         private string serverUrl = null;
         private object createClient;
         private readonly IntegrationAppSettings _integrationAppSettings;
+        private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
         public SFDCAction(IntegrationAppSettings integrationAppSettings)
         {
             _configurationBuilder = new ConfigurationBuilder();
@@ -30,6 +32,7 @@ namespace FC_NDIS.Action
 
         public bool IntegerateSfCustServiceLine(string userName, string password)
         {
+            logger.Info("Scheduled Customer Service Line job triggered");
             DBAction dba = new DBAction(_integrationAppSettings);
             string filterstring = dba.GetSalesforceInformation().Replace("\n", "");
             bool result = false;
@@ -186,6 +189,7 @@ namespace FC_NDIS.Action
 
         public bool IntegerateSfCustomeList(string userName, string password)
         {
+            logger.Info("Scheduled Customer List job triggered");
             List<Customer> lstCus = new List<Customer>();
             bool result = false;
 
@@ -270,6 +274,7 @@ namespace FC_NDIS.Action
 
         public bool IntegrateSFDCId_OperatortoDB(string Usernames, string UserName, string Password)
         {
+            logger.Info("Scheduled Driver job triggered");
             bool result = false;
             SoapClient ss = new SoapClient();
             LoginResult lr = new LoginResult();

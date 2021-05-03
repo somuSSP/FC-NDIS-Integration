@@ -84,29 +84,29 @@ namespace FC_NDIS
             });
 
             recurringJobManager.AddOrUpdate(
-                "SF Customer Service Line",
+                "Scheduled Customer Service Line",
                 () => serviceProvider.GetService<ISFDC>().IntegerateSfCustServiceLine(integrationAppSettings.SFDCUserName,integrationAppSettings.SFDCUserPassword),
-                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                integrationAppSettings.CSLineScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
             recurringJobManager.AddOrUpdate(
-                "SF Customer List",
+                "Scheduled Customer List",
                 () => serviceProvider.GetService<ISFDC>().IntegerateSfCustomeList(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                integrationAppSettings.CustomerListScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
             recurringJobManager.AddOrUpdate(
-                "SF Driver",
+                "Scheduled Driver",
                 () => serviceProvider.GetService<ISFDC>().IntegrateSFDCId_OperatortoDB(userlist, integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                integrationAppSettings.DriverScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
             recurringJobManager.AddOrUpdate(
-                "Fleet complete asset",
+                "Scheduled Fleet complete asset",
                 () => serviceProvider.GetService<IFleetComplete>().IntegrateAsset(integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token),
-                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                integrationAppSettings.FCAssetScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
             recurringJobManager.AddOrUpdate(
-                "Connx Driver",
+                "Scheduled Connx Driver",
                 () => serviceProvider.GetService<IConnex>().IntegrateDriverDetails(integrationAppSettings.ConnexUserName, integrationAppSettings.ConnexUserPassword),
-                Cron.Daily(9, 0), TimeZoneInfo.FindSystemTimeZoneById("India Standard Time")
+                integrationAppSettings.ConnxScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
         }
     }

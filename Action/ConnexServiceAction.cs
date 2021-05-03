@@ -4,6 +4,7 @@ using FC_NDIS.DBAccess;
 using FC_NDIS.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,7 @@ namespace FC_NDIS.Action
                 
         private readonly IntegrationAppSettings _integrationAppSettings;
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
         public ConnexServiceAction(IntegrationAppSettings integrationAppSettings)
         {
             this._integrationAppSettings = integrationAppSettings;
@@ -31,7 +33,8 @@ namespace FC_NDIS.Action
         }
 
         public bool IntegrateDriverDetails(string userName, string Password)
-        {           
+        {
+            logger.Info("Scheduled Connx Driver job triggered");
             ConnXServiceClient CSC = new ConnXServiceClient();
             CSC.InnerChannel.OperationTimeout = new TimeSpan(0, 10, 0);
             var emppersonalDetails = CSC.GetEmployeePersonalDetail(userName, Password, null, string.Empty, string.Empty, string.Empty, null);

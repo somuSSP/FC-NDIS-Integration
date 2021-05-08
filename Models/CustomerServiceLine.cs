@@ -25,13 +25,13 @@ namespace FC_NDIS.Models
         public string SiteServiceProgramId { get; set; }
         public string ServiceId { get; set; }
         public string ServiceName { get; set; }
-        public string RateId { get; set; }
-        public string RateName { get; set; }
-        public string RateType { get; set; }
-        public float? RateAmount { get; set; }
         public bool? AllowRateNegotiation { get; set; }
         public int CustomerServiceLineId { get; set; }
         public bool? Default { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
+        public string TravelServiceId { get; set; }
+        public string TransportServiceId { get; set; }
 
         public virtual ItemOverclaimStatus ItemOverclaimNavigation { get; set; }
         public virtual Customer ServiceAgreementCustomer { get; set; }

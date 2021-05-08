@@ -23,6 +23,8 @@ namespace FC_NDIS.Models
         public bool? TripReason { get; set; }
         public bool? ISdeleted { get; set; }
         public bool? Onboard { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         public virtual CostCentre DefaultCostCenterNavigation { get; set; }
         public virtual ICollection<BillingLine> BillingLines { get; set; }

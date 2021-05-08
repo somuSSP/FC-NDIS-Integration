@@ -36,11 +36,11 @@ namespace FC_NDIS.DBAccess
                         vehinfo.Make = veh.Make;
                         vehinfo.Model = veh.Model;
                         vehinfo.Type = veh.Type;
-                        vehinfo.Category = veh.Category;                       
+                        vehinfo.Category = veh.Category;
                         vehinfo.DriverId = veh.DriverId;
                     }
                     dbc.SaveChanges();
-                }               
+                }
             }
             return true;
         }
@@ -56,7 +56,7 @@ namespace FC_NDIS.DBAccess
             {
                 foreach (var csl in cslines)
                 {
-                    var cslinfo = dbc.CustomerServiceLines.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId==csl.ServiceAgreementCustomerId);
+                    var cslinfo = dbc.CustomerServiceLines.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);
                     if (cslinfo == null)
                     {
                         dbc.CustomerServiceLines.Add(csl);
@@ -79,13 +79,10 @@ namespace FC_NDIS.DBAccess
                         cslinfo.SiteName = csl.SiteName;
                         cslinfo.SiteServiceProgramId = csl.SiteServiceProgramId;
                         cslinfo.ServiceId = csl.ServiceId;
-                        cslinfo.ServiceName = csl.ServiceName;
-                        cslinfo.RateId = csl.RateId;
-                        cslinfo.RateName = csl.RateName;
-                        cslinfo.RateType = csl.RateType;
-                        cslinfo.RateAmount = csl.RateAmount;
+                        cslinfo.ServiceName = csl.ServiceName;                        
+                        cslinfo.TravelServiceId = csl.TravelServiceId;
+                        cslinfo.TransportServiceId = csl.TransportServiceId;
                         cslinfo.AllowRateNegotiation = csl.AllowRateNegotiation;
-
                         dbc.SaveChanges();
                     }
 
@@ -197,13 +194,13 @@ namespace FC_NDIS.DBAccess
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
                 var objs = dbc.BillingLines.Where(k => k.Approved == true).ToList();
-               
+
                 var objBillingLinesList = dbc.BillingLines.Where(k => k.Approved == true).ToList();
                 var objCustomerList = dbc.Customers.ToList();
                 var objCustomerServiceLineList = dbc.CustomerServiceLines.ToList();
                 var objTripList = dbc.Trips.ToList();
                 var objDriverList = dbc.Drivers.ToList();
-                foreach(var bl in objBillingLinesList)
+                foreach (var bl in objBillingLinesList)
                 {
                     var trip = objTripList.FirstOrDefault(k => k.TripId == bl.TripId);
                     var cslines = objCustomerServiceLineList.FirstOrDefault(k => k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId);
@@ -212,14 +209,14 @@ namespace FC_NDIS.DBAccess
 
                     bls.enrtcr__Client__c = bl.CustomerId.ToString();
                     bls.enrtcr__Date__c = trip?.StartDate.ToString();// Automatic from Trip
-                     bls.enrtcr__Quantity__c =(int) (trip?.TotalKm??0);//Actual Distance (Km) from Trip
+                    bls.enrtcr__Quantity__c = (int)(trip?.TotalKm ?? 0);//Actual Distance (Km) from Trip
 
-                    bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementId??"";
-                    bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementItemId??"";
-                    bls.enrtcr__Site__c = cslines?.SiteId??null;//site
+                    bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementId ?? "";
+                    bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementItemId ?? "";
+                    bls.enrtcr__Site__c = cslines?.SiteId ?? null;//site
 
-                    bls.enrtcr__Support_CategoryId__c = cslines?.ServiceId??"";//service
-                    bls.enrtcr__Site_Service_Program__c = cslines?.ServiceName??"";//Site Service Program;
+                    bls.enrtcr__Support_CategoryId__c = cslines?.ServiceId ?? "";//service
+                    bls.enrtcr__Site_Service_Program__c = cslines?.ServiceName ?? "";//Site Service Program;
                     bls.enrtcr__Rate__c = bl?.Rate.ToString();//ob.UnitOfMeasure.ToString();
 
                     bls.enrtcr__Worker__c = drivers?.SalesForceUserId;//worker
@@ -229,7 +226,7 @@ namespace FC_NDIS.DBAccess
                     bls.enrtcr__Negotiated_Rate_Ex_GST__c = (decimal)(00.00);//Nogotiated Rate GST
                     bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
                     result.Add(bls);
-                }           
+                }
             }
             return result;
         }
@@ -278,7 +275,7 @@ namespace FC_NDIS.DBAccess
 
                     }
                     dbc.SaveChanges();
-                                     
+
                 }
                 result = true;
             }
@@ -319,6 +316,40 @@ namespace FC_NDIS.DBAccess
                     dbc.SaveChanges();
                 }
 
+            }
+            result = true;
+            return result;
+        }
+
+
+        public bool IntegrateTravelandTransportRateInfotoDB(List<SalesforceRate> TTRates)
+        {
+            bool result = false;
+
+            foreach (var TTR in TTRates)
+            {
+                using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+                {
+                    var existingrecord = dbc.SalesforceRates.FirstOrDefault(k => k.ServiceId == TTR.ServiceId && k.RateId == TTR.RateId);
+                    if (existingrecord == null)
+                    {
+                        dbc.SalesforceRates.Add(TTR);
+                    }
+                    else
+                    {
+                        existingrecord.RateId = TTR.RateId;
+                        existingrecord.ServiceId = TTR.ServiceId;
+                        existingrecord.RateName = TTR.RateName;
+                        existingrecord.Negotiation = TTR.Negotiation;
+                        existingrecord.Rate = TTR.Rate;
+                        existingrecord.StartDate = TTR.StartDate;
+                        existingrecord.EndDate = TTR.EndDate;
+                        existingrecord.RateType = TTR.RateType;
+
+                    }
+                    dbc.SaveChanges();
+                }
+                result = true;
             }
             result = true;
             return result;

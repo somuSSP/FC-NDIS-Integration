@@ -30,7 +30,7 @@ namespace FC_NDIS.Controllers
             Response rs = new Response();
             try
             {   
-                SFDCAction sfdca = new SFDCAction(_integrationAppSettings);
+                SFDCAction sfdca = new SFDCAction(_integrationAppSettings);              
                 var result = sfdca.IntegerateSfCustServiceLine(_integrationAppSettings.SFDCUserName, _integrationAppSettings.SFDCUserPassword);
                 rs.ResponseCode = 200;
                 rs.Message = "Integrated Successfully";
@@ -43,6 +43,50 @@ namespace FC_NDIS.Controllers
             }
             return rs;
         }
+
+
+        [HttpGet("IntegerateTransportRate")]
+        public Response TransportRateGet()
+        {
+            _logger.LogInformation("IntegerateTransportRate");
+            Response rs = new Response();
+            try
+            {
+                SFDCAction sfdca = new SFDCAction(_integrationAppSettings);
+                var result = sfdca.IntegerateSfTransportRate(_integrationAppSettings.SFDCUserName, _integrationAppSettings.SFDCUserPassword);
+                rs.ResponseCode = 200;
+                rs.Message = "Integrated Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 200;
+                rs.Message = "Internal Server Error Occur";
+            }
+            return rs;
+        }
+
+        [HttpGet("IntegerateTraveltRate")]
+        public Response TravelRateGet()
+        {
+            _logger.LogInformation("IntegerateTraveltRate");
+            Response rs = new Response();
+            try
+            {
+                SFDCAction sfdca = new SFDCAction(_integrationAppSettings);
+                var result = sfdca.IntegerateSfTravelRate(_integrationAppSettings.SFDCUserName, _integrationAppSettings.SFDCUserPassword);
+                rs.ResponseCode = 200;
+                rs.Message = "Integrated Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 200;
+                rs.Message = "Internal Server Error Occur";
+            }
+            return rs;
+        }
+
 
         [HttpGet("IntegerateCustomer")]
         public Response IntegerateSfCustomeList()

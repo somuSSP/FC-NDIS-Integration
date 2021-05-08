@@ -5,13 +5,8 @@ using System.Collections.Generic;
 
 namespace FC_NDIS.Models
 {
-    public partial class CustomerTrip
+    public partial class HistoricalCustomerTrip
     {
-        public CustomerTrip()
-        {
-            BillingLines = new HashSet<BillingLine>();
-        }
-
         public int CustomerTripId { get; set; }
         public int? TripId { get; set; }
         public int? CustomerId { get; set; }
@@ -44,12 +39,7 @@ namespace FC_NDIS.Models
         public float? ResumeKm { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public int? CustomerTripCategory { get; set; }
 
-        public virtual Customer Customer { get; set; }
-        public virtual CustomerTripCategory CustomerTripCategoryNavigation { get; set; }
-        public virtual Trip Trip { get; set; }
-        public virtual TripStatus TripStatusNavigation { get; set; }
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
+        public virtual HistoricalDriverTrip Trip { get; set; }
     }
 }

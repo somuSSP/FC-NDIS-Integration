@@ -21,6 +21,8 @@ namespace FC_NDIS.Models
         public bool? Availability { get; set; }
         public int? DriverId { get; set; }
         public int VehicleId { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         public virtual VehicleCategory CategoryNavigation { get; set; }
         public virtual Driver Driver { get; set; }

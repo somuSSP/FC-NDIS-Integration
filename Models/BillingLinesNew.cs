@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace FC_NDIS.Models
 {
-    public partial class BillingLine
+    public partial class BillingLinesNew
     {
         public int BillingId { get; set; }
         public int? TripId { get; set; }
@@ -18,31 +18,19 @@ namespace FC_NDIS.Models
         public bool? Approved { get; set; }
         public int? CustomerTripId { get; set; }
         public bool? SentToSalesForce { get; set; }
-        public int? DriverId { get; set; }
-        public int? CustomerId { get; set; }
-        public int? TripTypeId { get; set; }
-        public string CustomerTripDescription { get; set; }
-        public float? CustomerTripDistance { get; set; }
-        public float? CustomerTripSharedDistance { get; set; }
-        public TimeSpan? CustomerTripDuration { get; set; }
-        public int? CostCentre { get; set; }
         public float? Cost { get; set; }
         public float? BlendedRate { get; set; }
         public int? UserId { get; set; }
         public DateTime? ApprovedDate { get; set; }
-        public string SalesForceUserId { get; set; }
         public bool? Validated { get; set; }
         public DateTime? ValidatedDate { get; set; }
         public bool? IsDeleted { get; set; }
         public string ChangedHistory { get; set; }
-        public string VehicleRegistrationNumber { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public bool? Billable { get; set; }
+        public string LumaryId { get; set; }
 
-        public virtual CostCentre CostCentreNavigation { get; set; }
-        public virtual Customer Customer { get; set; }
-        public virtual CustomerTrip CustomerTrip { get; set; }
-        public virtual Driver Driver { get; set; }
-        public virtual Trip Trip { get; set; }
-        public virtual TripType TripType { get; set; }
+        public virtual BillingCustomerTrip CustomerTrip { get; set; }
+        public virtual BillingDriverTrip Trip { get; set; }
     }
 }

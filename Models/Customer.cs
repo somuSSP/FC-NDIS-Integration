@@ -26,6 +26,8 @@ namespace FC_NDIS.Models
         public int? Status { get; set; }
         public bool? Active { get; set; }
         public bool? OnHold { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         public virtual CustomerStatus StatusNavigation { get; set; }
         public virtual ICollection<BillingLine> BillingLines { get; set; }

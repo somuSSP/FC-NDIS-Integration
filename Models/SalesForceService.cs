@@ -12,5 +12,7 @@ namespace FC_NDIS.Models
         public bool? Active { get; set; }
         public int? UnitOfMeasure { get; set; }
         public int SalesForceServiceId { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
     }
 }

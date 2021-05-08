@@ -11,6 +11,8 @@ namespace FC_NDIS.Models
         public bool? IsPaused { get; set; }
         public DateTime? Time { get; set; }
         public string Gps { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
         public virtual Trip Trip { get; set; }
     }

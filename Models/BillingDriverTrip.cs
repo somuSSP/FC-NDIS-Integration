@@ -5,14 +5,12 @@ using System.Collections.Generic;
 
 namespace FC_NDIS.Models
 {
-    public partial class Trip
+    public partial class BillingDriverTrip
     {
-        public Trip()
+        public BillingDriverTrip()
         {
-            BillingLines = new HashSet<BillingLine>();
-            CustomerTrips = new HashSet<CustomerTrip>();
-            SharedTrips = new HashSet<SharedTrip>();
-            TripCoordinates = new HashSet<TripCoordinate>();
+            BillingCustomerTrips = new HashSet<BillingCustomerTrip>();
+            BillingLinesNews = new HashSet<BillingLinesNew>();
         }
 
         public int TripId { get; set; }
@@ -49,16 +47,7 @@ namespace FC_NDIS.Models
         public DateTime? ModifiedDate { get; set; }
         public bool? Reimbursable { get; set; }
 
-        public virtual CostCentre CostCenterNavigation { get; set; }
-        public virtual Driver Driver { get; set; }
-        public virtual TripStatus TripStatusNavigation { get; set; }
-        public virtual TripType TripType { get; set; }
-        public virtual Vehicle Vehicle { get; set; }
-        public virtual VehicleCategory VehicleCategoryNavigation { get; set; }
-        public virtual VehicleType VehicleTypeNavigation { get; set; }
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
-        public virtual ICollection<CustomerTrip> CustomerTrips { get; set; }
-        public virtual ICollection<SharedTrip> SharedTrips { get; set; }
-        public virtual ICollection<TripCoordinate> TripCoordinates { get; set; }
+        public virtual ICollection<BillingCustomerTrip> BillingCustomerTrips { get; set; }
+        public virtual ICollection<BillingLinesNew> BillingLinesNews { get; set; }
     }
 }

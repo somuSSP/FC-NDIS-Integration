@@ -5,20 +5,18 @@ using System.Collections.Generic;
 
 namespace FC_NDIS.Models
 {
-    public partial class TripStatus
+    public partial class CustomerTripCategory
     {
-        public TripStatus()
+        public CustomerTripCategory()
         {
             CustomerTrips = new HashSet<CustomerTrip>();
-            Trips = new HashSet<Trip>();
         }
 
-        public int TripStatusId { get; set; }
-        public string Status { get; set; }
+        public int CustomerTripCategoryId { get; set; }
+        public string Value { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
 
         public virtual ICollection<CustomerTrip> CustomerTrips { get; set; }
-        public virtual ICollection<Trip> Trips { get; set; }
     }
 }

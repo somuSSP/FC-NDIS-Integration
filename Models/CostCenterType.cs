@@ -9,5 +9,7 @@ namespace FC_NDIS.Models
     {
         public int CostCenterTypeId { get; set; }
         public string Type { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
     }
 }

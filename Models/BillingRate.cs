@@ -13,5 +13,7 @@ namespace FC_NDIS.Models
         public int UnitOfMeasure { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
     }
 }

@@ -32,7 +32,10 @@ namespace FC_NDIS.Models
         public int DriverId { get; set; }
         public int? Otp { get; set; }
         public bool? IsTerminated { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? ModifiedDate { get; set; }
 
+        public virtual CostCentre CostCenterNavigation { get; set; }
         public virtual ICollection<BillingLine> BillingLines { get; set; }
         public virtual ICollection<Trip> Trips { get; set; }
         public virtual ICollection<Vehicle> Vehicles { get; set; }

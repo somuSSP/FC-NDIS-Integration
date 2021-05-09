@@ -32,6 +32,8 @@ namespace FC_NDIS.Models
         public DateTime? ModifiedDate { get; set; }
         public string TravelServiceId { get; set; }
         public string TransportServiceId { get; set; }
+        public string SiteGlcode { get; set; }
+        public string CategoryItemId { get; set; }
 
         public virtual ItemOverclaimStatus ItemOverclaimNavigation { get; set; }
         public virtual Customer ServiceAgreementCustomer { get; set; }

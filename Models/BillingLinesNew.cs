@@ -29,8 +29,10 @@ namespace FC_NDIS.Models
         public DateTime? ModifiedDate { get; set; }
         public bool? Billable { get; set; }
         public string LumaryId { get; set; }
+        public int? SalesforceRatesId { get; set; }
 
         public virtual BillingCustomerTrip CustomerTrip { get; set; }
+        public virtual SalesforceRate SalesforceRates { get; set; }
         public virtual BillingDriverTrip Trip { get; set; }
     }
 }

@@ -75,6 +75,8 @@ namespace FC_NDIS.DBAccess
                         cslinfo.SupportCategoryDelivered = csl.SupportCategoryDelivered;
                         cslinfo.FundsRemaining = csl.FundsRemaining;
                         cslinfo.ItemOverclaim = csl.ItemOverclaim;
+                        cslinfo.SiteGlcode = csl.SiteGlcode;
+                        cslinfo.CategoryItemId = csl.CategoryItemId;
                         cslinfo.SiteId = csl.SiteId;
                         cslinfo.SiteName = csl.SiteName;
                         cslinfo.SiteServiceProgramId = csl.SiteServiceProgramId;

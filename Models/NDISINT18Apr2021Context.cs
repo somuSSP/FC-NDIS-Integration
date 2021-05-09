@@ -361,6 +361,8 @@ namespace FC_NDIS.Models
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
+                entity.Property(e => e.SalesforceRatesId).HasColumnName("SalesforceRatesID");
+
                 entity.Property(e => e.ServiceAgreementId)
                     .HasMaxLength(100)
                     .HasColumnName("ServiceAgreementID");
@@ -379,6 +381,11 @@ namespace FC_NDIS.Models
                     .WithMany(p => p.BillingLinesNews)
                     .HasForeignKey(d => d.CustomerTripId)
                     .HasConstraintName("FK_BillingLinesNew_CustomerTripID");
+
+                entity.HasOne(d => d.SalesforceRates)
+                    .WithMany(p => p.BillingLinesNews)
+                    .HasForeignKey(d => d.SalesforceRatesId)
+                    .HasConstraintName("FK_BillingLinesNew_SalesforceRateID");
 
                 entity.HasOne(d => d.Trip)
                     .WithMany(p => p.BillingLinesNews)
@@ -570,6 +577,10 @@ namespace FC_NDIS.Models
             {
                 entity.Property(e => e.CustomerServiceLineId).HasColumnName("CustomerServiceLineID");
 
+                entity.Property(e => e.CategoryItemId)
+                    .HasMaxLength(50)
+                    .HasColumnName("CategoryItemID");
+
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
@@ -612,6 +623,10 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.ServiceName)
                     .IsRequired()
                     .HasMaxLength(200);
+
+                entity.Property(e => e.SiteGlcode)
+                    .HasMaxLength(50)
+                    .HasColumnName("SiteGLCode");
 
                 entity.Property(e => e.SiteId)
                     .IsRequired()
@@ -1309,8 +1324,6 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Negotiation).HasMaxLength(100);
-
-                entity.Property(e => e.PostalCode).HasMaxLength(30);
 
                 entity.Property(e => e.RateId)
                     .HasMaxLength(75)

@@ -287,13 +287,13 @@ namespace FC_NDIS.Action
 
                         csl.SiteId = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Site__c;
                         csl.SiteName = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Site__r.Name;
-                        // csl.SiteGlCode = "";
+                        csl.SiteGlcode = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Site__r.enrtcr__Site_GL_Code__c;
                         csl.SiteServiceProgramId = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Site_Service_Program__c;
                         csl.ServiceId = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Service__c;
                         csl.ServiceName = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Service__r.Name;
                         csl.TravelServiceId = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Service__r.enrtcr__Travel_Service__c;
                         csl.TransportServiceId = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Service__r.enrtcr__Transport_Service__c==null?"": ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Service__r.enrtcr__Transport_Service__c;
-                       
+                        csl.CategoryItemId= ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Support_Category__c;
                         // csl.RateId = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Rate__c;
                         // csl.RateName = ((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Rate__r.Name;
                         //csl.RateAmount = (float?)((SfServiceRef.enrtcr__Support_Contract_Item__c)qr.records[i]).enrtcr__Rate__r.enrtcr__Amount_Ex_GST__c;
@@ -382,8 +382,7 @@ namespace FC_NDIS.Action
                         tr.EndDate = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__End_Date__c;
                         tr.RateName = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).Name;
                         tr.ServiceId = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Service__c;
-                        tr.Negotiation = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Allow_Rate_Negotiation__c;
-                        tr.PostalCode ="";
+                        tr.Negotiation = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Allow_Rate_Negotiation__c;                       
                         tr.Rate = (float)((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Amount_Ex_GST__c;
                         tr.RateType = 1;
 
@@ -476,8 +475,7 @@ namespace FC_NDIS.Action
                         tr.EndDate = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__End_Date__c;
                         tr.RateName = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).Name;
                         tr.ServiceId = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Service__c;
-                        tr.Negotiation = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Allow_Rate_Negotiation__c;
-                        tr.PostalCode = "";
+                        tr.Negotiation = ((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Allow_Rate_Negotiation__c;                      
                         tr.Rate = (float)((SfServiceRef.enrtcr__Rate__c)qr.records[i]).enrtcr__Amount_Ex_GST__c;
                         tr.RateType = 1;
 

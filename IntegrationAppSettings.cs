@@ -19,12 +19,13 @@ namespace FC_NDIS
         public string ConnexUserName { get; set; }
         public string ConnexUserPassword { get; set; }
         public string AppConnection { get; set; }
-        public string CSLineScheduleTime { get; set; }
-        public string CustomerListScheduleTime { get; set; }
+        public string CustomerScheduleTime { get; set; }
+        public string CustomerServiceLineScheduleTime { get; set; }
         public string DriverScheduleTime { get; set; }
         public string FCAssetScheduleTime { get; set; }
-        public string ConnxScheduleTime { get; set; }
-
+        public string SFDCIDScheduleTime { get; set; }
+        public string TravelTime { get; set; }
+        public string TransportTime { get; set; }
 
     }
 }

@@ -43,7 +43,7 @@ namespace FC_NDIS
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseDefaultTypeSerializer()
                 .UseMemoryStorage());
-            //.UseSqlServerStorage(Configuration.GetConnectionString("sqlConnection")));
+           // .UseSqlServerStorage(Configuration.GetConnectionString("sqlConnection")));
 
 
             services.AddHangfireServer();
@@ -52,6 +52,8 @@ namespace FC_NDIS
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IRecurringJobManager recurringJobManager,
             IServiceProvider serviceProvider)
+        //public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+        //  IServiceProvider serviceProvider)
         {
             var section = Configuration.GetSection(nameof(IntegrationAppSettings));
             var integrationAppSettings = section.Get<IntegrationAppSettings>();
@@ -82,45 +84,49 @@ namespace FC_NDIS
             {
                 endpoints.MapControllers();
             });
+            //Integrate Vehicles -1
             recurringJobManager.AddOrUpdate(
                 "Scheduled Fleet complete asset",
                 () => serviceProvider.GetService<IFleetComplete>().IntegrateAsset(integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token),
                 integrationAppSettings.FCAssetScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
+            //Integrate Drivers -2 time take atleast 30 - 45 Minutes
             recurringJobManager.AddOrUpdate(
                 "Scheduled Connx Driver",
                 () => serviceProvider.GetService<IConnex>().IntegrateDriverDetails(integrationAppSettings.ConnexUserName, integrationAppSettings.ConnexUserPassword),
-                integrationAppSettings.ConnxScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
+                integrationAppSettings.DriverScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
-            recurringJobManager.AddOrUpdate(
-               "Scheduled  Transport Rate",
-               () => serviceProvider.GetService<ISFDC>().IntegerateSfTransportRate(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-               integrationAppSettings.CSLineScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
-               );
-            recurringJobManager.AddOrUpdate(
-               "Scheduled Travel rate",
-               () => serviceProvider.GetService<ISFDC>().IntegerateSfTravelRate(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-               integrationAppSettings.CSLineScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
-               );
+            //Integrate Customer -3
             recurringJobManager.AddOrUpdate(
                 "Scheduled Customer List",
                 () => serviceProvider.GetService<ISFDC>().IntegerateSfCustomeList(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-                integrationAppSettings.CustomerListScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
+                integrationAppSettings.CustomerScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
+            //Integrate Transport -4
+            recurringJobManager.AddOrUpdate(
+               "Scheduled  Transport Rate",
+               () => serviceProvider.GetService<ISFDC>().IntegerateSfTransportRate(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
+               integrationAppSettings.TransportTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
+               );
+            //Integrate Travel -5
+            recurringJobManager.AddOrUpdate(
+               "Scheduled Travel rate",
+               () => serviceProvider.GetService<ISFDC>().IntegerateSfTravelRate(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
+               integrationAppSettings.TravelTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
+               );
+          
+            //Integrate Customer Service Line -6
             recurringJobManager.AddOrUpdate(
                 "Scheduled Customer Service Line",
                 () => serviceProvider.GetService<ISFDC>().IntegerateSfCustServiceLine(integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-                integrationAppSettings.CSLineScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
+                integrationAppSettings.CustomerServiceLineScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
-
-
+            //Integrate SFDC Id into Driver -7
             recurringJobManager.AddOrUpdate(
                 "Scheduled Driver",
                 () => serviceProvider.GetService<ISFDC>().IntegrateSFDCId_OperatortoDB(userlist, integrationAppSettings.SFDCUserName, integrationAppSettings.SFDCUserPassword),
-                integrationAppSettings.DriverScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
+                integrationAppSettings.SFDCIDScheduleTime, TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time")
                 );
-
-
         }
     }
 }

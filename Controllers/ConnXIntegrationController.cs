@@ -35,17 +35,17 @@ namespace FC_NDIS.Controllers
                 _logger.LogInformation("IntegrateDrivers");
                 //Validate the Environment 
                 ConnexServiceAction csa = new ConnexServiceAction(_integrationAppSettings);
-                if (csa.validator(_integrationAppSettings.ConnexUserName, _integrationAppSettings.ConnexUserPassword, 0))
-                {
+                //if (csa.validator(_integrationAppSettings.ConnexUserName, _integrationAppSettings.ConnexUserPassword, 0))
+                //{
                     csa.IntegrateDriverDetails(_integrationAppSettings.ConnexUserName, _integrationAppSettings.ConnexUserPassword);
                     rs.ResponseCode = 200;
                     rs.Message = "Integrated Successfully";
-                }
-                else
-                {
-                    rs.ResponseCode = 500;
-                    rs.Message = "provide valid credential";
-                }
+                //}
+                //else
+                //{
+                //    rs.ResponseCode = 500;
+                //    rs.Message = "provide valid credential";
+                //}
             }
             catch (Exception ex)
             {

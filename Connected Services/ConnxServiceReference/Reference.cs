@@ -4147,277 +4147,139 @@ namespace ConnxServiceReference
     {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetATOTermReasons", ReplyAction="http://connx.com.au/cws/IConnXService/GetATOTermReasonsResponse")]
-        ConnxServiceReference.ConnxWsListItemCollection GetATOTermReasons(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetATOTermReasons", ReplyAction="http://connx.com.au/cws/IConnXService/GetATOTermReasonsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetATOTermReasonsAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetBSBCodes", ReplyAction="http://connx.com.au/cws/IConnXService/GetBSBCodesResponse")]
-        ConnxServiceReference.ConnxWsBSBCollection GetBSBCodes(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetBSBCodes", ReplyAction="http://connx.com.au/cws/IConnXService/GetBSBCodesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsBSBCollection> GetBSBCodesAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetCostAccounts", ReplyAction="http://connx.com.au/cws/IConnXService/GetCostAccountsResponse")]
-        ConnxServiceReference.ConnxWsCostAccountCollection GetCostAccounts(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetCostAccounts", ReplyAction="http://connx.com.au/cws/IConnXService/GetCostAccountsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsCostAccountCollection> GetCostAccountsAsync(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetCountries", ReplyAction="http://connx.com.au/cws/IConnXService/GetCountriesResponse")]
-        ConnxServiceReference.ConnxWsCountryCollection GetCountries(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetCountries", ReplyAction="http://connx.com.au/cws/IConnXService/GetCountriesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsCountryCollection> GetCountriesAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetCountriesOfBirth", ReplyAction="http://connx.com.au/cws/IConnXService/GetCountriesOfBirthResponse")]
-        ConnxServiceReference.ConnxWsListItemCollection GetCountriesOfBirth(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetCountriesOfBirth", ReplyAction="http://connx.com.au/cws/IConnXService/GetCountriesOfBirthResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetCountriesOfBirthAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetDBVersion", ReplyAction="http://connx.com.au/cws/IConnXService/GetDBVersionResponse")]
-        ConnxServiceReference.ConnxWsResult GetDBVersion();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetDBVersion", ReplyAction="http://connx.com.au/cws/IConnXService/GetDBVersionResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> GetDBVersionAsync();
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetDepartments", ReplyAction="http://connx.com.au/cws/IConnXService/GetDepartmentsResponse")]
-        ConnxServiceReference.ConnxWsDepartmentCollection GetDepartments(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetDepartments", ReplyAction="http://connx.com.au/cws/IConnXService/GetDepartmentsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsDepartmentCollection> GetDepartmentsAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEFTCodes", ReplyAction="http://connx.com.au/cws/IConnXService/GetEFTCodesResponse")]
-        ConnxServiceReference.ConnxWsEFTCodeCollection GetEFTCodes(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEFTCodes", ReplyAction="http://connx.com.au/cws/IConnXService/GetEFTCodesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsEFTCodeCollection> GetEFTCodesAsync(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeAdditionalInfo", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeAdditionalInfoResponse")]
-        ConnxServiceReference.ResponseMessageOfEmployeeAdditionalInfouvRMCnOo GetEmployeeAdditionalInfo(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeAdditionalInfo", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeAdditionalInfoResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeAdditionalInfouvRMCnOo> GetEmployeeAdditionalInfoAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeCurrentPosition", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeCurrentPositionResponse")]
-        ConnxServiceReference.ResponseMessageOfEmployeeCurrentPositionuvRMCnOo GetEmployeeCurrentPosition(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeCurrentPosition", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeCurrentPositionResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeCurrentPositionuvRMCnOo> GetEmployeeCurrentPositionAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeDepartments", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeDepartmentsResponse")]
-        ConnxServiceReference.ResponseMessageOfEmployeeDepartmentuvRMCnOo GetEmployeeDepartments(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeDepartments", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeDepartmentsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeDepartmentuvRMCnOo> GetEmployeeDepartmentsAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeEmploymentDetail", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeEmploymentDetailResponse")]
-        ConnxServiceReference.ResponseMessageOfEmployeeEmploymentDetailuvRMCnOo GetEmployeeEmploymentDetail(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated, string primaryDepartmentCode);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeeEmploymentDetail", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeeEmploymentDetailResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeEmploymentDetailuvRMCnOo> GetEmployeeEmploymentDetailAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated, string primaryDepartmentCode);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeePersonalDetail", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeePersonalDetailResponse")]
-        ConnxServiceReference.ResponseMessageOfEmployeePersonalDetailuvRMCnOo GetEmployeePersonalDetail(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployeePersonalDetail", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeePersonalDetailResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeePersonalDetailuvRMCnOo> GetEmployeePersonalDetailAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployees", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeesResponse")]
-        ConnxServiceReference.ConnxWsEmployeeCollection GetEmployees(string strUserName, string strPassword, System.Nullable<bool> bIsTerminated, string strEmpCode, System.Nullable<int> intEmpID, string strGivenName, string strMiddleNames, string strSurname, System.Nullable<System.DateTime> datDateOfBirth);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmployees", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmployeesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsEmployeeCollection> GetEmployeesAsync(string strUserName, string strPassword, System.Nullable<bool> bIsTerminated, string strEmpCode, System.Nullable<int> intEmpID, string strGivenName, string strMiddleNames, string strSurname, System.Nullable<System.DateTime> datDateOfBirth);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmploymentTypes", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmploymentTypesResponse")]
-        ConnxServiceReference.ConnxWsEmploymentTypeCollection GetEmploymentTypes(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetEmploymentTypes", ReplyAction="http://connx.com.au/cws/IConnXService/GetEmploymentTypesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsEmploymentTypeCollection> GetEmploymentTypesAsync(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetErrors", ReplyAction="http://connx.com.au/cws/IConnXService/GetErrorsResponse")]
-        ConnxServiceReference.ConnxWsErrorListCollection GetErrors(string strUserName, string strPassword, int intErrorListID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetErrors", ReplyAction="http://connx.com.au/cws/IConnXService/GetErrorsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsErrorListCollection> GetErrorsAsync(string strUserName, string strPassword, int intErrorListID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetJobDescriptions", ReplyAction="http://connx.com.au/cws/IConnXService/GetJobDescriptionsResponse")]
-        ConnxServiceReference.ConnxWsJobDescriptionCollection GetJobDescriptions(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetJobDescriptions", ReplyAction="http://connx.com.au/cws/IConnXService/GetJobDescriptionsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsJobDescriptionCollection> GetJobDescriptionsAsync(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetMaritalStatuses", ReplyAction="http://connx.com.au/cws/IConnXService/GetMaritalStatusesResponse")]
-        ConnxServiceReference.ConnxWsMaritalStatusCollection GetMaritalStatuses(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetMaritalStatuses", ReplyAction="http://connx.com.au/cws/IConnXService/GetMaritalStatusesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsMaritalStatusCollection> GetMaritalStatusesAsync(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetNationalities", ReplyAction="http://connx.com.au/cws/IConnXService/GetNationalitiesResponse")]
-        ConnxServiceReference.ConnxWsListItemCollection GetNationalities(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetNationalities", ReplyAction="http://connx.com.au/cws/IConnXService/GetNationalitiesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetNationalitiesAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetOrganisationTermReasons", ReplyAction="http://connx.com.au/cws/IConnXService/GetOrganisationTermReasonsResponse")]
-        ConnxServiceReference.ConnxWsListItemCollection GetOrganisationTermReasons(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetOrganisationTermReasons", ReplyAction="http://connx.com.au/cws/IConnXService/GetOrganisationTermReasonsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetOrganisationTermReasonsAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayClasses", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayClassesResponse")]
-        ConnxServiceReference.ConnxWsPayClassCollection GetPayClasses(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayClasses", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayClassesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayClassCollection> GetPayClassesAsync(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayFrequencyGroups", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayFrequencyGroupsResponse")]
-        ConnxServiceReference.ConnxWsPayFrequencyGroupCollection GetPayFrequencyGroups(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayFrequencyGroups", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayFrequencyGroupsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayFrequencyGroupCollection> GetPayFrequencyGroupsAsync(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayLocations", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayLocationsResponse")]
-        ConnxServiceReference.ConnxWsPayLocationCollection GetPayLocations(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayLocations", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayLocationsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayLocationCollection> GetPayLocationsAsync(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayPoints", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayPointsResponse")]
-        ConnxServiceReference.ConnxWsPayPointCollection GetPayPoints(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayPoints", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayPointsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayPointCollection> GetPayPointsAsync(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayrollCompanies", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayrollCompaniesResponse")]
-        ConnxServiceReference.ConnxWsPayrollCompanyCollection GetPayrollCompanies(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayrollCompanies", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayrollCompaniesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayrollCompanyCollection> GetPayrollCompaniesAsync(string strUserName, string strPassword, int intCoId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayrollDatabases", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayrollDatabasesResponse")]
-        ConnxServiceReference.ConnxWsPayrollDatabaseCollection GetPayrollDatabases(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayrollDatabases", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayrollDatabasesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayrollDatabaseCollection> GetPayrollDatabasesAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayrollDatabasesByABN", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayrollDatabasesByABNResponse")]
-        ConnxServiceReference.ConnxWsPayrollDatabaseCollection GetPayrollDatabasesByABN(string strUserName, string strPassword, string strABN);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPayrollDatabasesByABN", ReplyAction="http://connx.com.au/cws/IConnXService/GetPayrollDatabasesByABNResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayrollDatabaseCollection> GetPayrollDatabasesByABNAsync(string strUserName, string strPassword, string strABN);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPositions", ReplyAction="http://connx.com.au/cws/IConnXService/GetPositionsResponse")]
-        ConnxServiceReference.ConnxWsPositionCollection GetPositions(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetPositions", ReplyAction="http://connx.com.au/cws/IConnXService/GetPositionsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPositionCollection> GetPositionsAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetRegions", ReplyAction="http://connx.com.au/cws/IConnXService/GetRegionsResponse")]
-        ConnxServiceReference.ConnxWsRegionCollection GetRegions(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetRegions", ReplyAction="http://connx.com.au/cws/IConnXService/GetRegionsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsRegionCollection> GetRegionsAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetRoles", ReplyAction="http://connx.com.au/cws/IConnXService/GetRolesResponse")]
-        ConnxServiceReference.ConnxWsRoleCollection GetRoles(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetRoles", ReplyAction="http://connx.com.au/cws/IConnXService/GetRolesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsRoleCollection> GetRolesAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetStates", ReplyAction="http://connx.com.au/cws/IConnXService/GetStatesResponse")]
-        ConnxServiceReference.ConnxWsStateCollection GetStates(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetStates", ReplyAction="http://connx.com.au/cws/IConnXService/GetStatesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsStateCollection> GetStatesAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetSuperFunds", ReplyAction="http://connx.com.au/cws/IConnXService/GetSuperFundsResponse")]
-        ConnxServiceReference.ConnxWsSuperFundCollection GetSuperFunds(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetSuperFunds", ReplyAction="http://connx.com.au/cws/IConnXService/GetSuperFundsResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsSuperFundCollection> GetSuperFundsAsync(string strUserName, string strPassword, int intCoId);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetTaxScales", ReplyAction="http://connx.com.au/cws/IConnXService/GetTaxScalesResponse")]
-        ConnxServiceReference.ConnxWsTaxScaleCollection GetTaxScales(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetTaxScales", ReplyAction="http://connx.com.au/cws/IConnXService/GetTaxScalesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsTaxScaleCollection> GetTaxScalesAsync(string strUserName, string strPassword);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetTitles", ReplyAction="http://connx.com.au/cws/IConnXService/GetTitlesResponse")]
-        ConnxServiceReference.ConnxWsListItemCollection GetTitles(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetTitles", ReplyAction="http://connx.com.au/cws/IConnXService/GetTitlesResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetTitlesAsync(string strUserName, string strPassword);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetWSVersion", ReplyAction="http://connx.com.au/cws/IConnXService/GetWSVersionResponse")]
-        string GetWSVersion();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/GetWSVersion", ReplyAction="http://connx.com.au/cws/IConnXService/GetWSVersionResponse")]
         System.Threading.Tasks.Task<string> GetWSVersionAsync();
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertEmployee", ReplyAction="http://connx.com.au/cws/IConnXService/InsertEmployeeResponse")]
-        ConnxServiceReference.ConnxWsResult InsertEmployee(string strUserName, string strPassword, string strXMLEmployeeInserts);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertEmployee", ReplyAction="http://connx.com.au/cws/IConnXService/InsertEmployeeResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertEmployeeAsync(string strUserName, string strPassword, string strXMLEmployeeInserts);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertEmploymentType", ReplyAction="http://connx.com.au/cws/IConnXService/InsertEmploymentTypeResponse")]
-        ConnxServiceReference.ConnxWsResult InsertEmploymentType(string strUserName, string strPassword, int intCoId, string strCode, string strDescription);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertEmploymentType", ReplyAction="http://connx.com.au/cws/IConnXService/InsertEmploymentTypeResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertEmploymentTypeAsync(string strUserName, string strPassword, int intCoId, string strCode, string strDescription);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertJobDescription", ReplyAction="http://connx.com.au/cws/IConnXService/InsertJobDescriptionResponse")]
-        ConnxServiceReference.ConnxWsResult InsertJobDescription(string strUserName, string strPassword, int intCoId, string strJobDescription);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertJobDescription", ReplyAction="http://connx.com.au/cws/IConnXService/InsertJobDescriptionResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertJobDescriptionAsync(string strUserName, string strPassword, int intCoId, string strJobDescription);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertOrganisationTermReason", ReplyAction="http://connx.com.au/cws/IConnXService/InsertOrganisationTermReasonResponse")]
-        ConnxServiceReference.ConnxWsResult InsertOrganisationTermReason(string strUserName, string strPassword, string strCode, string strOrgTermReason);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertOrganisationTermReason", ReplyAction="http://connx.com.au/cws/IConnXService/InsertOrganisationTermReasonResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertOrganisationTermReasonAsync(string strUserName, string strPassword, string strCode, string strOrgTermReason);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertPayLocation", ReplyAction="http://connx.com.au/cws/IConnXService/InsertPayLocationResponse")]
-        ConnxServiceReference.ConnxWsResult InsertPayLocation(string strUserName, string strPassword, int intCoId, string strPayLocation);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertPayLocation", ReplyAction="http://connx.com.au/cws/IConnXService/InsertPayLocationResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertPayLocationAsync(string strUserName, string strPassword, int intCoId, string strPayLocation);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertPayPoint", ReplyAction="http://connx.com.au/cws/IConnXService/InsertPayPointResponse")]
-        ConnxServiceReference.ConnxWsResult InsertPayPoint(string strUserName, string strPassword, int intCoId, string strPayPoint);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertPayPoint", ReplyAction="http://connx.com.au/cws/IConnXService/InsertPayPointResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertPayPointAsync(string strUserName, string strPassword, int intCoId, string strPayPoint);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertRegion", ReplyAction="http://connx.com.au/cws/IConnXService/InsertRegionResponse")]
-        ConnxServiceReference.ConnxWsResult InsertRegion(string strUserName, string strPassword, string strRegion, string strStateCode);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/InsertRegion", ReplyAction="http://connx.com.au/cws/IConnXService/InsertRegionResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertRegionAsync(string strUserName, string strPassword, string strRegion, string strStateCode);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/PayEndProcess", ReplyAction="http://connx.com.au/cws/IConnXService/PayEndProcessResponse")]
-        ConnxServiceReference.ConnxWsResult PayEndProcess(string strUserName, string strPassword, int intCo_Id, System.DateTime datPeriodEndDate, string strPayFrequencyCode);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/PayEndProcess", ReplyAction="http://connx.com.au/cws/IConnXService/PayEndProcessResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> PayEndProcessAsync(string strUserName, string strPassword, int intCo_Id, System.DateTime datPeriodEndDate, string strPayFrequencyCode);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/TerminateEmployee", ReplyAction="http://connx.com.au/cws/IConnXService/TerminateEmployeeResponse")]
-        ConnxServiceReference.ConnxWsResult TerminateEmployee(string strUserName, string strPassword, string strXMLEmployeeTerminations);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/TerminateEmployee", ReplyAction="http://connx.com.au/cws/IConnXService/TerminateEmployeeResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> TerminateEmployeeAsync(string strUserName, string strPassword, string strXMLEmployeeTerminations);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/UpdateEmployee", ReplyAction="http://connx.com.au/cws/IConnXService/UpdateEmployeeResponse")]
-        ConnxServiceReference.ConnxWsResult UpdateEmployee(string strUserName, string strPassword, string strXMLEmployeeUpdates);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/UpdateEmployee", ReplyAction="http://connx.com.au/cws/IConnXService/UpdateEmployeeResponse")]
         System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> UpdateEmployeeAsync(string strUserName, string strPassword, string strXMLEmployeeUpdates);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/ValidateCaller", ReplyAction="http://connx.com.au/cws/IConnXService/ValidateCallerResponse")]
-        ConnxServiceReference.ValidateCallerResponse ValidateCaller(ConnxServiceReference.ValidateCallerRequest request);
         
         // CODEGEN: Generating message contract since the operation has multiple return values.
         [System.ServiceModel.OperationContractAttribute(Action="http://connx.com.au/cws/IConnXService/ValidateCaller", ReplyAction="http://connx.com.au/cws/IConnXService/ValidateCallerResponse")]
@@ -4524,19 +4386,9 @@ namespace ConnxServiceReference
         {
         }
         
-        public ConnxServiceReference.ConnxWsListItemCollection GetATOTermReasons(string strUserName, string strPassword)
-        {
-            return base.Channel.GetATOTermReasons(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetATOTermReasonsAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetATOTermReasonsAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsBSBCollection GetBSBCodes(string strUserName, string strPassword)
-        {
-            return base.Channel.GetBSBCodes(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsBSBCollection> GetBSBCodesAsync(string strUserName, string strPassword)
@@ -4544,19 +4396,9 @@ namespace ConnxServiceReference
             return base.Channel.GetBSBCodesAsync(strUserName, strPassword);
         }
         
-        public ConnxServiceReference.ConnxWsCostAccountCollection GetCostAccounts(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetCostAccounts(strUserName, strPassword, intCoId);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsCostAccountCollection> GetCostAccountsAsync(string strUserName, string strPassword, int intCoId)
         {
             return base.Channel.GetCostAccountsAsync(strUserName, strPassword, intCoId);
-        }
-        
-        public ConnxServiceReference.ConnxWsCountryCollection GetCountries(string strUserName, string strPassword)
-        {
-            return base.Channel.GetCountries(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsCountryCollection> GetCountriesAsync(string strUserName, string strPassword)
@@ -4564,19 +4406,9 @@ namespace ConnxServiceReference
             return base.Channel.GetCountriesAsync(strUserName, strPassword);
         }
         
-        public ConnxServiceReference.ConnxWsListItemCollection GetCountriesOfBirth(string strUserName, string strPassword)
-        {
-            return base.Channel.GetCountriesOfBirth(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetCountriesOfBirthAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetCountriesOfBirthAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsResult GetDBVersion()
-        {
-            return base.Channel.GetDBVersion();
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> GetDBVersionAsync()
@@ -4584,19 +4416,9 @@ namespace ConnxServiceReference
             return base.Channel.GetDBVersionAsync();
         }
         
-        public ConnxServiceReference.ConnxWsDepartmentCollection GetDepartments(string strUserName, string strPassword)
-        {
-            return base.Channel.GetDepartments(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsDepartmentCollection> GetDepartmentsAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetDepartmentsAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsEFTCodeCollection GetEFTCodes(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetEFTCodes(strUserName, strPassword, intCoId);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsEFTCodeCollection> GetEFTCodesAsync(string strUserName, string strPassword, int intCoId)
@@ -4604,19 +4426,9 @@ namespace ConnxServiceReference
             return base.Channel.GetEFTCodesAsync(strUserName, strPassword, intCoId);
         }
         
-        public ConnxServiceReference.ResponseMessageOfEmployeeAdditionalInfouvRMCnOo GetEmployeeAdditionalInfo(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated)
-        {
-            return base.Channel.GetEmployeeAdditionalInfo(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname, isTerminated);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeAdditionalInfouvRMCnOo> GetEmployeeAdditionalInfoAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated)
         {
             return base.Channel.GetEmployeeAdditionalInfoAsync(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname, isTerminated);
-        }
-        
-        public ConnxServiceReference.ResponseMessageOfEmployeeCurrentPositionuvRMCnOo GetEmployeeCurrentPosition(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname)
-        {
-            return base.Channel.GetEmployeeCurrentPosition(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeCurrentPositionuvRMCnOo> GetEmployeeCurrentPositionAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname)
@@ -4624,19 +4436,9 @@ namespace ConnxServiceReference
             return base.Channel.GetEmployeeCurrentPositionAsync(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname);
         }
         
-        public ConnxServiceReference.ResponseMessageOfEmployeeDepartmentuvRMCnOo GetEmployeeDepartments(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname)
-        {
-            return base.Channel.GetEmployeeDepartments(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeDepartmentuvRMCnOo> GetEmployeeDepartmentsAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname)
         {
             return base.Channel.GetEmployeeDepartmentsAsync(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname);
-        }
-        
-        public ConnxServiceReference.ResponseMessageOfEmployeeEmploymentDetailuvRMCnOo GetEmployeeEmploymentDetail(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated, string primaryDepartmentCode)
-        {
-            return base.Channel.GetEmployeeEmploymentDetail(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname, isTerminated, primaryDepartmentCode);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeeEmploymentDetailuvRMCnOo> GetEmployeeEmploymentDetailAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated, string primaryDepartmentCode)
@@ -4644,19 +4446,9 @@ namespace ConnxServiceReference
             return base.Channel.GetEmployeeEmploymentDetailAsync(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname, isTerminated, primaryDepartmentCode);
         }
         
-        public ConnxServiceReference.ResponseMessageOfEmployeePersonalDetailuvRMCnOo GetEmployeePersonalDetail(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated)
-        {
-            return base.Channel.GetEmployeePersonalDetail(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname, isTerminated);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ResponseMessageOfEmployeePersonalDetailuvRMCnOo> GetEmployeePersonalDetailAsync(string strUserName, string strPassword, System.Nullable<int> intCoId, string strEmpCode, string strGivenName, string strSurname, System.Nullable<bool> isTerminated)
         {
             return base.Channel.GetEmployeePersonalDetailAsync(strUserName, strPassword, intCoId, strEmpCode, strGivenName, strSurname, isTerminated);
-        }
-        
-        public ConnxServiceReference.ConnxWsEmployeeCollection GetEmployees(string strUserName, string strPassword, System.Nullable<bool> bIsTerminated, string strEmpCode, System.Nullable<int> intEmpID, string strGivenName, string strMiddleNames, string strSurname, System.Nullable<System.DateTime> datDateOfBirth)
-        {
-            return base.Channel.GetEmployees(strUserName, strPassword, bIsTerminated, strEmpCode, intEmpID, strGivenName, strMiddleNames, strSurname, datDateOfBirth);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsEmployeeCollection> GetEmployeesAsync(string strUserName, string strPassword, System.Nullable<bool> bIsTerminated, string strEmpCode, System.Nullable<int> intEmpID, string strGivenName, string strMiddleNames, string strSurname, System.Nullable<System.DateTime> datDateOfBirth)
@@ -4664,19 +4456,9 @@ namespace ConnxServiceReference
             return base.Channel.GetEmployeesAsync(strUserName, strPassword, bIsTerminated, strEmpCode, intEmpID, strGivenName, strMiddleNames, strSurname, datDateOfBirth);
         }
         
-        public ConnxServiceReference.ConnxWsEmploymentTypeCollection GetEmploymentTypes(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetEmploymentTypes(strUserName, strPassword, intCoId);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsEmploymentTypeCollection> GetEmploymentTypesAsync(string strUserName, string strPassword, int intCoId)
         {
             return base.Channel.GetEmploymentTypesAsync(strUserName, strPassword, intCoId);
-        }
-        
-        public ConnxServiceReference.ConnxWsErrorListCollection GetErrors(string strUserName, string strPassword, int intErrorListID)
-        {
-            return base.Channel.GetErrors(strUserName, strPassword, intErrorListID);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsErrorListCollection> GetErrorsAsync(string strUserName, string strPassword, int intErrorListID)
@@ -4684,19 +4466,9 @@ namespace ConnxServiceReference
             return base.Channel.GetErrorsAsync(strUserName, strPassword, intErrorListID);
         }
         
-        public ConnxServiceReference.ConnxWsJobDescriptionCollection GetJobDescriptions(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetJobDescriptions(strUserName, strPassword, intCoId);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsJobDescriptionCollection> GetJobDescriptionsAsync(string strUserName, string strPassword, int intCoId)
         {
             return base.Channel.GetJobDescriptionsAsync(strUserName, strPassword, intCoId);
-        }
-        
-        public ConnxServiceReference.ConnxWsMaritalStatusCollection GetMaritalStatuses(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetMaritalStatuses(strUserName, strPassword, intCoId);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsMaritalStatusCollection> GetMaritalStatusesAsync(string strUserName, string strPassword, int intCoId)
@@ -4704,19 +4476,9 @@ namespace ConnxServiceReference
             return base.Channel.GetMaritalStatusesAsync(strUserName, strPassword, intCoId);
         }
         
-        public ConnxServiceReference.ConnxWsListItemCollection GetNationalities(string strUserName, string strPassword)
-        {
-            return base.Channel.GetNationalities(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetNationalitiesAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetNationalitiesAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsListItemCollection GetOrganisationTermReasons(string strUserName, string strPassword)
-        {
-            return base.Channel.GetOrganisationTermReasons(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetOrganisationTermReasonsAsync(string strUserName, string strPassword)
@@ -4724,19 +4486,9 @@ namespace ConnxServiceReference
             return base.Channel.GetOrganisationTermReasonsAsync(strUserName, strPassword);
         }
         
-        public ConnxServiceReference.ConnxWsPayClassCollection GetPayClasses(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetPayClasses(strUserName, strPassword, intCoId);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayClassCollection> GetPayClassesAsync(string strUserName, string strPassword, int intCoId)
         {
             return base.Channel.GetPayClassesAsync(strUserName, strPassword, intCoId);
-        }
-        
-        public ConnxServiceReference.ConnxWsPayFrequencyGroupCollection GetPayFrequencyGroups(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetPayFrequencyGroups(strUserName, strPassword, intCoId);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayFrequencyGroupCollection> GetPayFrequencyGroupsAsync(string strUserName, string strPassword, int intCoId)
@@ -4744,19 +4496,9 @@ namespace ConnxServiceReference
             return base.Channel.GetPayFrequencyGroupsAsync(strUserName, strPassword, intCoId);
         }
         
-        public ConnxServiceReference.ConnxWsPayLocationCollection GetPayLocations(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetPayLocations(strUserName, strPassword, intCoId);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayLocationCollection> GetPayLocationsAsync(string strUserName, string strPassword, int intCoId)
         {
             return base.Channel.GetPayLocationsAsync(strUserName, strPassword, intCoId);
-        }
-        
-        public ConnxServiceReference.ConnxWsPayPointCollection GetPayPoints(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetPayPoints(strUserName, strPassword, intCoId);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayPointCollection> GetPayPointsAsync(string strUserName, string strPassword, int intCoId)
@@ -4764,19 +4506,9 @@ namespace ConnxServiceReference
             return base.Channel.GetPayPointsAsync(strUserName, strPassword, intCoId);
         }
         
-        public ConnxServiceReference.ConnxWsPayrollCompanyCollection GetPayrollCompanies(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetPayrollCompanies(strUserName, strPassword, intCoId);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayrollCompanyCollection> GetPayrollCompaniesAsync(string strUserName, string strPassword, int intCoId)
         {
             return base.Channel.GetPayrollCompaniesAsync(strUserName, strPassword, intCoId);
-        }
-        
-        public ConnxServiceReference.ConnxWsPayrollDatabaseCollection GetPayrollDatabases(string strUserName, string strPassword)
-        {
-            return base.Channel.GetPayrollDatabases(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayrollDatabaseCollection> GetPayrollDatabasesAsync(string strUserName, string strPassword)
@@ -4784,19 +4516,9 @@ namespace ConnxServiceReference
             return base.Channel.GetPayrollDatabasesAsync(strUserName, strPassword);
         }
         
-        public ConnxServiceReference.ConnxWsPayrollDatabaseCollection GetPayrollDatabasesByABN(string strUserName, string strPassword, string strABN)
-        {
-            return base.Channel.GetPayrollDatabasesByABN(strUserName, strPassword, strABN);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPayrollDatabaseCollection> GetPayrollDatabasesByABNAsync(string strUserName, string strPassword, string strABN)
         {
             return base.Channel.GetPayrollDatabasesByABNAsync(strUserName, strPassword, strABN);
-        }
-        
-        public ConnxServiceReference.ConnxWsPositionCollection GetPositions(string strUserName, string strPassword)
-        {
-            return base.Channel.GetPositions(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsPositionCollection> GetPositionsAsync(string strUserName, string strPassword)
@@ -4804,19 +4526,9 @@ namespace ConnxServiceReference
             return base.Channel.GetPositionsAsync(strUserName, strPassword);
         }
         
-        public ConnxServiceReference.ConnxWsRegionCollection GetRegions(string strUserName, string strPassword)
-        {
-            return base.Channel.GetRegions(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsRegionCollection> GetRegionsAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetRegionsAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsRoleCollection GetRoles(string strUserName, string strPassword)
-        {
-            return base.Channel.GetRoles(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsRoleCollection> GetRolesAsync(string strUserName, string strPassword)
@@ -4824,19 +4536,9 @@ namespace ConnxServiceReference
             return base.Channel.GetRolesAsync(strUserName, strPassword);
         }
         
-        public ConnxServiceReference.ConnxWsStateCollection GetStates(string strUserName, string strPassword)
-        {
-            return base.Channel.GetStates(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsStateCollection> GetStatesAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetStatesAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsSuperFundCollection GetSuperFunds(string strUserName, string strPassword, int intCoId)
-        {
-            return base.Channel.GetSuperFunds(strUserName, strPassword, intCoId);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsSuperFundCollection> GetSuperFundsAsync(string strUserName, string strPassword, int intCoId)
@@ -4844,19 +4546,9 @@ namespace ConnxServiceReference
             return base.Channel.GetSuperFundsAsync(strUserName, strPassword, intCoId);
         }
         
-        public ConnxServiceReference.ConnxWsTaxScaleCollection GetTaxScales(string strUserName, string strPassword)
-        {
-            return base.Channel.GetTaxScales(strUserName, strPassword);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsTaxScaleCollection> GetTaxScalesAsync(string strUserName, string strPassword)
         {
             return base.Channel.GetTaxScalesAsync(strUserName, strPassword);
-        }
-        
-        public ConnxServiceReference.ConnxWsListItemCollection GetTitles(string strUserName, string strPassword)
-        {
-            return base.Channel.GetTitles(strUserName, strPassword);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsListItemCollection> GetTitlesAsync(string strUserName, string strPassword)
@@ -4864,19 +4556,9 @@ namespace ConnxServiceReference
             return base.Channel.GetTitlesAsync(strUserName, strPassword);
         }
         
-        public string GetWSVersion()
-        {
-            return base.Channel.GetWSVersion();
-        }
-        
         public System.Threading.Tasks.Task<string> GetWSVersionAsync()
         {
             return base.Channel.GetWSVersionAsync();
-        }
-        
-        public ConnxServiceReference.ConnxWsResult InsertEmployee(string strUserName, string strPassword, string strXMLEmployeeInserts)
-        {
-            return base.Channel.InsertEmployee(strUserName, strPassword, strXMLEmployeeInserts);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertEmployeeAsync(string strUserName, string strPassword, string strXMLEmployeeInserts)
@@ -4884,19 +4566,9 @@ namespace ConnxServiceReference
             return base.Channel.InsertEmployeeAsync(strUserName, strPassword, strXMLEmployeeInserts);
         }
         
-        public ConnxServiceReference.ConnxWsResult InsertEmploymentType(string strUserName, string strPassword, int intCoId, string strCode, string strDescription)
-        {
-            return base.Channel.InsertEmploymentType(strUserName, strPassword, intCoId, strCode, strDescription);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertEmploymentTypeAsync(string strUserName, string strPassword, int intCoId, string strCode, string strDescription)
         {
             return base.Channel.InsertEmploymentTypeAsync(strUserName, strPassword, intCoId, strCode, strDescription);
-        }
-        
-        public ConnxServiceReference.ConnxWsResult InsertJobDescription(string strUserName, string strPassword, int intCoId, string strJobDescription)
-        {
-            return base.Channel.InsertJobDescription(strUserName, strPassword, intCoId, strJobDescription);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertJobDescriptionAsync(string strUserName, string strPassword, int intCoId, string strJobDescription)
@@ -4904,19 +4576,9 @@ namespace ConnxServiceReference
             return base.Channel.InsertJobDescriptionAsync(strUserName, strPassword, intCoId, strJobDescription);
         }
         
-        public ConnxServiceReference.ConnxWsResult InsertOrganisationTermReason(string strUserName, string strPassword, string strCode, string strOrgTermReason)
-        {
-            return base.Channel.InsertOrganisationTermReason(strUserName, strPassword, strCode, strOrgTermReason);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertOrganisationTermReasonAsync(string strUserName, string strPassword, string strCode, string strOrgTermReason)
         {
             return base.Channel.InsertOrganisationTermReasonAsync(strUserName, strPassword, strCode, strOrgTermReason);
-        }
-        
-        public ConnxServiceReference.ConnxWsResult InsertPayLocation(string strUserName, string strPassword, int intCoId, string strPayLocation)
-        {
-            return base.Channel.InsertPayLocation(strUserName, strPassword, intCoId, strPayLocation);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertPayLocationAsync(string strUserName, string strPassword, int intCoId, string strPayLocation)
@@ -4924,19 +4586,9 @@ namespace ConnxServiceReference
             return base.Channel.InsertPayLocationAsync(strUserName, strPassword, intCoId, strPayLocation);
         }
         
-        public ConnxServiceReference.ConnxWsResult InsertPayPoint(string strUserName, string strPassword, int intCoId, string strPayPoint)
-        {
-            return base.Channel.InsertPayPoint(strUserName, strPassword, intCoId, strPayPoint);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertPayPointAsync(string strUserName, string strPassword, int intCoId, string strPayPoint)
         {
             return base.Channel.InsertPayPointAsync(strUserName, strPassword, intCoId, strPayPoint);
-        }
-        
-        public ConnxServiceReference.ConnxWsResult InsertRegion(string strUserName, string strPassword, string strRegion, string strStateCode)
-        {
-            return base.Channel.InsertRegion(strUserName, strPassword, strRegion, strStateCode);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> InsertRegionAsync(string strUserName, string strPassword, string strRegion, string strStateCode)
@@ -4944,19 +4596,9 @@ namespace ConnxServiceReference
             return base.Channel.InsertRegionAsync(strUserName, strPassword, strRegion, strStateCode);
         }
         
-        public ConnxServiceReference.ConnxWsResult PayEndProcess(string strUserName, string strPassword, int intCo_Id, System.DateTime datPeriodEndDate, string strPayFrequencyCode)
-        {
-            return base.Channel.PayEndProcess(strUserName, strPassword, intCo_Id, datPeriodEndDate, strPayFrequencyCode);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> PayEndProcessAsync(string strUserName, string strPassword, int intCo_Id, System.DateTime datPeriodEndDate, string strPayFrequencyCode)
         {
             return base.Channel.PayEndProcessAsync(strUserName, strPassword, intCo_Id, datPeriodEndDate, strPayFrequencyCode);
-        }
-        
-        public ConnxServiceReference.ConnxWsResult TerminateEmployee(string strUserName, string strPassword, string strXMLEmployeeTerminations)
-        {
-            return base.Channel.TerminateEmployee(strUserName, strPassword, strXMLEmployeeTerminations);
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> TerminateEmployeeAsync(string strUserName, string strPassword, string strXMLEmployeeTerminations)
@@ -4964,31 +4606,9 @@ namespace ConnxServiceReference
             return base.Channel.TerminateEmployeeAsync(strUserName, strPassword, strXMLEmployeeTerminations);
         }
         
-        public ConnxServiceReference.ConnxWsResult UpdateEmployee(string strUserName, string strPassword, string strXMLEmployeeUpdates)
-        {
-            return base.Channel.UpdateEmployee(strUserName, strPassword, strXMLEmployeeUpdates);
-        }
-        
         public System.Threading.Tasks.Task<ConnxServiceReference.ConnxWsResult> UpdateEmployeeAsync(string strUserName, string strPassword, string strXMLEmployeeUpdates)
         {
             return base.Channel.UpdateEmployeeAsync(strUserName, strPassword, strXMLEmployeeUpdates);
-        }
-        
-        [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        ConnxServiceReference.ValidateCallerResponse ConnxServiceReference.IConnXService.ValidateCaller(ConnxServiceReference.ValidateCallerRequest request)
-        {
-            return base.Channel.ValidateCaller(request);
-        }
-        
-        public ConnxServiceReference.ConnxWsResult ValidateCaller(string strUserName, string strPassword, ref int intStagingSourceID)
-        {
-            ConnxServiceReference.ValidateCallerRequest inValue = new ConnxServiceReference.ValidateCallerRequest();
-            inValue.strUserName = strUserName;
-            inValue.strPassword = strPassword;
-            inValue.intStagingSourceID = intStagingSourceID;
-            ConnxServiceReference.ValidateCallerResponse retVal = ((ConnxServiceReference.IConnXService)(this)).ValidateCaller(inValue);
-            intStagingSourceID = retVal.intStagingSourceID;
-            return retVal.ValidateCallerResult;
         }
         
         public System.Threading.Tasks.Task<ConnxServiceReference.ValidateCallerResponse> ValidateCallerAsync(ConnxServiceReference.ValidateCallerRequest request)

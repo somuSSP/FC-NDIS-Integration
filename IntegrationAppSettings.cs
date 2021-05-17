@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FC_NDIS
 {
-      public class IntegrationAppSettings
+    public class IntegrationAppSettings
     {
         public string ClientID { get; set; }
         public string UserID { get; set; }
@@ -16,6 +16,10 @@ namespace FC_NDIS
         public string AssetURL { get; set; }
         public string SFDCUserName { get; set; }
         public string SFDCUserPassword { get; set; }
+        public string SFDCClientId { get; set; }
+        public string SFDCClientSecret { get; set; }
+        public string SFDCLoginEndpoint { get; set; }
+        public string SFDCApiEndpoint { get; set; }
         public string ConnexUserName { get; set; }
         public string ConnexUserPassword { get; set; }
         public string AppConnection { get; set; }

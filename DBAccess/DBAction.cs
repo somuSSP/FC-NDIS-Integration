@@ -161,7 +161,7 @@ namespace FC_NDIS.DBAccess
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-                var objs = dbc.Drivers.Where(k => k.SalesForceUserId != null && k.SalesForceUserId == "" && k.Username != "").ToList();
+                var objs = dbc.Drivers.Where(k => k.SalesForceUserId != null && k.SalesForceUserId == "" && k.Username != "").Take(500).ToList();
                 foreach (var ob in objs)
                 {
                     if (!string.IsNullOrEmpty(ob.Username))
@@ -195,21 +195,25 @@ namespace FC_NDIS.DBAccess
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-                var objs = dbc.BillingLines.Where(k => k.Approved == true).ToList();
+               // var objs = dbc.BillingLines.Where(k => k.Approved == true).ToList();
 
-                var objBillingLinesList = dbc.BillingLines.Where(k => k.Approved == true).ToList();
+                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
                 var objCustomerList = dbc.Customers.ToList();
                 var objCustomerServiceLineList = dbc.CustomerServiceLines.ToList();
                 var objTripList = dbc.Trips.ToList();
                 var objDriverList = dbc.Drivers.ToList();
                 foreach (var bl in objBillingLinesList)
                 {
-                    var trip = objTripList.FirstOrDefault(k => k.TripId == bl.TripId);
+                   
+                    var CustomerId = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault().CustomerId;
+                 
+                       var trip = objTripList.FirstOrDefault(k => k.TripId == bl.TripId);
                     var cslines = objCustomerServiceLineList.FirstOrDefault(k => k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId);
-                    var drivers = objDriverList.FirstOrDefault(k => k.DriverId == bl.DriverId);
+                    var trips = objTripList.Where(k => k.TripId == bl.TripId).FirstOrDefault();
+                    var drivers = objDriverList.FirstOrDefault(k => k.DriverId == trip.DriverId);
                     SFDCBillingLines bls = new SFDCBillingLines();
 
-                    bls.enrtcr__Client__c = bl.CustomerId.ToString();
+                    bls.enrtcr__Client__c = CustomerId.ToString();
                     bls.enrtcr__Date__c = trip?.StartDate.ToString();// Automatic from Trip
                     bls.enrtcr__Quantity__c = (int)(trip?.TotalKm ?? 0);//Actual Distance (Km) from Trip
 

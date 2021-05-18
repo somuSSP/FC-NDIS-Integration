@@ -195,21 +195,21 @@ namespace FC_NDIS.DBAccess
             List<SFDCBillingLines> result = new List<SFDCBillingLines>();
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
-            {               
+            {
 
-                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true && k.SentToSalesForce==false ||k.SentToSalesForceStatus==false).ToList();
-                
-                foreach (var bl in objBillingLinesList)
+                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
+                var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false).ToList();
+                foreach (var bl in objFinalBillingLinesList)
                 {
                     var customerTrip = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault();//done
                     var customer = dbc.Customers.Where(k => k.CustId == customerTrip.CustomerId).FirstOrDefault();
                     var Trip = dbc.Trips.Where(k => k.TripId == bl.TripId).FirstOrDefault();
-                    var drivers = dbc.Drivers.Where(k => k.DriverId == Trip.DriverId).FirstOrDefault();
+                    var drivers = dbc.Drivers.Where(k => k.DriverId == (Trip.DriverId ?? 0)).FirstOrDefault();
                     var cslines = dbc.CustomerServiceLines.Where(k => k.ServiceAgreementCustomerId == customerTrip.CustomerId && k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId).FirstOrDefault();
                     var SFRate = dbc.SalesforceRates.Where(k => k.SalesforceRatesId == bl.SalesforceRatesId).FirstOrDefault();
                     SFDCBillingLines bls = new SFDCBillingLines();
                     bls.BillingID = bl.BillingId;
-                  
+
                     bls.enrtcr__Client__c = customer.CustomerId.ToString();
                     bls.enrtcr__Date__c = customerTrip?.StartDate.ToString();// Automatic from Trip
                     bls.enrtcr__Quantity__c = (int)(Trip?.TotalKm ?? 0);//Actual Distance (Km) from Trip
@@ -217,7 +217,7 @@ namespace FC_NDIS.DBAccess
                     bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementItemId ?? "";
                     bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementId ?? "";
                     bls.enrtcr__Site__c = cslines?.SiteId ?? null;//site
-                  
+
                     bls.enrtcr__Support_CategoryId__c = cslines?.CategoryItemId ?? "";//CategoryItem
                     bls.enrtcr__Site_Service_Program__c = cslines?.SiteServiceProgramId ?? "";//Site Service Program;
                     bls.enrtcr__Rate__c = SFRate?.RateId.ToString();//ob.UnitOfMeasure.ToString();
@@ -228,8 +228,8 @@ namespace FC_NDIS.DBAccess
 
                     bls.enrtcr__Negotiated_Rate_Ex_GST__c = (decimal)(00.00);//Nogotiated Rate GST
                     bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
-                    if(drivers?.SalesForceUserId!="121")
-                    result.Add(bls);
+                    if (drivers?.SalesForceUserId != "121")
+                        result.Add(bls);
                 }
             }
             return result;
@@ -251,32 +251,27 @@ namespace FC_NDIS.DBAccess
                     var existingrecord = dbc.Drivers.FirstOrDefault(k => k.EmployeeCode == drv.EmployeeCode);
                     if (existingrecord == null)
                     {
-                        dbc.Drivers.Add(drv);
+                        if (drv.IsTerminated == false)
+                            dbc.Drivers.Add(drv);
                     }
                     else
                     {
-                        if (drv.Disabled == true)
-                        {
-                            existingrecord.Disabled = true;
-                        }
-                        else
-                        {
-                            existingrecord.FirstName = drv.FirstName;
-                            existingrecord.LastName = drv.LastName;
-                            existingrecord.CostCenter = drv.CostCenter;
-                            existingrecord.Username = drv.Username;
-                            existingrecord.Disabled = drv.Disabled;
-                            existingrecord.Type = drv.Type;
-                            existingrecord.JobDescription = drv.JobDescription;
-                            existingrecord.Department = drv.Department;
-                            existingrecord.ManagerName = drv.ManagerName;
-                            existingrecord.IsPortalUser = drv.IsPortalUser;
-                            existingrecord.JobNumber = drv.JobNumber;
-                            existingrecord.PreferedName = drv.PreferedName;
-                            if (existingrecord.SalesForceUserId != "" && drv.SalesForceUserId != "")
-                                existingrecord.SalesForceUserId = drv.SalesForceUserId;
-                        }
-
+                        existingrecord.FirstName = drv.FirstName;
+                        existingrecord.LastName = drv.LastName;
+                        existingrecord.CostCenter = drv.CostCenter;
+                        existingrecord.Username = drv.Username;
+                        existingrecord.Disabled = drv.Disabled;
+                        existingrecord.Type = drv.Type;
+                        existingrecord.JobDescription = drv.JobDescription;
+                        existingrecord.Department = drv.Department;
+                        existingrecord.ManagerName = drv.ManagerName;
+                        existingrecord.IsPortalUser = drv.IsPortalUser;
+                        existingrecord.JobNumber = drv.JobNumber;
+                        existingrecord.IsTerminated = drv.IsTerminated;
+                        existingrecord.PreferedName = drv.PreferedName;
+                        existingrecord.ModifiedDate = drv.ModifiedDate;
+                        if (existingrecord.SalesForceUserId != "" && drv.SalesForceUserId != "")
+                            existingrecord.SalesForceUserId = drv.SalesForceUserId;
                     }
                     dbc.SaveChanges();
 
@@ -316,7 +311,8 @@ namespace FC_NDIS.DBAccess
                     var csinfo = dbc.Customers.FirstOrDefault(k => k.CustomerId == cs.CustomerId);
                     if (csinfo == null)
                     {
-                        dbc.Customers.Add(cs);
+                        if (cs.Status == 1)
+                            dbc.Customers.Add(cs);
                     }
                     else
                     {
@@ -328,11 +324,11 @@ namespace FC_NDIS.DBAccess
                         csinfo.State = cs.State;
                         csinfo.PostalCode = cs.PostalCode;
                         csinfo.Status = cs.Status;
+                        cs.ModifiedDate = DateTime.Now;
 
                     }
                     dbc.SaveChanges();
                 }
-
             }
             result = true;
             return result;

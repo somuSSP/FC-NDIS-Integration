@@ -4,11 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace FC_NDIS.APIModels.AccessResult
-{
-      public class Root
+{  
+    public class Result
     {
+        public string referenceId { get; set; }
         public string id { get; set; }
-        public bool success { get; set; }
-        public List<object> errors { get; set; }
+    }
+
+    public class Root
+    {
+        public bool hasErrors { get; set; }
+        public List<Result> results { get; set; }
     }
 }

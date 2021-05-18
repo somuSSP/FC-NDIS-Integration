@@ -268,10 +268,10 @@ namespace FC_NDIS.Action
             Login();
             logger.Info("Integrate Customer Informations");
             var result = true;
-            //var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
-            //           AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
+            var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
+                       AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
 
-            var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' and enrtcr__Status__c='Current'";
+            //var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' and enrtcr__Status__c='Current'";
             var APIResponse = QueryAllRecord(Client, queryCustomer);
             var settings = new JsonSerializerSettings
             {
@@ -313,6 +313,8 @@ namespace FC_NDIS.Action
                         }
                         cs.Active = true;
                         cs.OnHold = false;
+                        cs.CreatedDate = DateTime.Now;
+                        cs.ModifiedDate = DateTime.Now;
                         lstCus.Add(cs);
                     }
                     FinalCustomer.AddRange(lstCus);
@@ -378,7 +380,7 @@ namespace FC_NDIS.Action
                     }
                 }
                 FinalCustomer.AddRange(lstCus);
-                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl!=null)
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
                     RemainingRecord(rootObject.nextRecordsUrl);
                 }
@@ -409,25 +411,22 @@ namespace FC_NDIS.Action
             var request = new RestRequest(Method.POST);
             request.AddHeader("Authorization", "Bearer " + AuthToken);
             request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Cookie", "BrowserId=PKL0iaQ7EeuiBTHeCDDibQ");
             request.AddParameter("application/json", createMessage, ParameterType.RequestBody);
             IRestResponse responses = clienttest.Execute(request);
             return responses.Content;
         }
 
-        private string CreatePatchRecord(HttpClient client, string createMessage, string recordType)
+        private string CreatePatchRecord(HttpClient clients, string createMessage, string entpointURL)
         {
-            HttpContent contentCreate = new StringContent(createMessage, Encoding.UTF8, "application/xml");
-            string uri = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}sobjects/{recordType}";
-            var clienttest = new RestClient(uri);
-            clienttest.Timeout = -1;
-            var request = new RestRequest(Method.PATCH);
+            string uri = $"{ServiceUrl}{entpointURL}";
+            var client = new RestClient(uri);
+            client.Timeout = -1;
+            var request = new RestRequest(Method.POST);
             request.AddHeader("Authorization", "Bearer " + AuthToken);
             request.AddHeader("Content-Type", "application/json");
-            request.AddHeader("Cookie", "BrowserId=PKL0iaQ7EeuiBTHeCDDibQ");
             request.AddParameter("application/json", createMessage, ParameterType.RequestBody);
-            IRestResponse responses = clienttest.Execute(request);
-            return responses.Content;
+            IRestResponse response = client.Execute(request);
+            return response.Content;
         }
 
 
@@ -471,7 +470,6 @@ namespace FC_NDIS.Action
             List<ClsUsersList> ObjList = new List<ClsUsersList>();
             logger.Info("Scheduled SFDC ID to Drivers");
             Login();
-
             var queryCustomer = @"Select Id,EmployeeNumber,UserRoleID,IsActive,Username,CompanyName From User WHERE Username IN (" + Usernames + ")";
             HttpClient cl = new HttpClient();
             cl.Timeout = new TimeSpan(0, 5, 0);
@@ -520,87 +518,60 @@ namespace FC_NDIS.Action
             List<Customer> lstCus = new List<Customer>();
             List<int> ErrorCount = new List<int>();
             DBAction dba = new DBAction(_integrationAppSettings);
-            List<APIModels.BllingLines.enrtcr__Support_Delivered__c> Batchobject = new List<enrtcr__Support_Delivered__c>();
-            int count = 0;
+            List<APIModels.BllingLines.enrtcr__Support_Delivered__c> Data = new List<enrtcr__Support_Delivered__c>();
+
+            FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
+            PatchRoot.records = new List<APIModels.Patch.Record>();
             foreach (var bl in bllist)
             {
-               // Login();
-                count++;
-                APIModels.BllingLines.enrtcr__Support_Delivered__c inputObj = new enrtcr__Support_Delivered__c();
-                inputObj.Batch_Created__c = true;
-                inputObj.enrtcr__Client__c = bl.enrtcr__Client__c;
-                inputObj.enrtcr__Date__c =Convert.ToDateTime(bl.enrtcr__Date__c).ToString("yyyy-MM-dd");
-                inputObj.enrtcr__Quantity__c = bl.enrtcr__Quantity__c;
-                inputObj.enrtcr__Support_Contract_Item__c = bl.enrtcr__Support_Contract_Item__c;
-                inputObj.enrtcr__Support_Contract__c = bl.enrtcr__Support_Contract__c;
-                inputObj.enrtcr__Site__c = bl.enrtcr__Site__c;
-                inputObj.enrtcr__Support_CategoryId__c = bl.enrtcr__Support_CategoryId__c;
-                inputObj.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
-                inputObj.enrtcr__Rate__c = bl.enrtcr__Rate__c;
-                inputObj.enrtcr__Worker__c = bl.enrtcr__Worker__c;
-                inputObj.enrtcr__Client_Rep_Accepted__c = true;
-                inputObj.enrtcr__Use_Negotiated_Rate__c = true;
-                inputObj.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
-                inputObj.enrtcr__Negotiated_Rate_GST__c = bl.enrtcr__Negotiated_Rate_GST__c;
-                Batchobject.Add(inputObj);
-                //try
-                //{                    
-                //    var json = JsonConvert.SerializeObject(inputObj);
-                //    var response = CreateRecord(Client, json, "enrtcr__Support_Delivered__c");
-                //    var settings = new JsonSerializerSettings
-                //    {
-                //        NullValueHandling = NullValueHandling.Ignore,
-                //        MissingMemberHandling = MissingMemberHandling.Ignore
-                //    };
-                //    var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
-                //    if (rootObject.success)
-                //    {
-                //        dba.SFDCActionStatus(bl.BillingID, rootObject.success, "Success");
-                //        Result = true;
-                //    }
-                //    else
-                //    {
-                //        dba.SFDCActionStatus(bl.BillingID, false, rootObject.errors[0].ToString());
-                //        Result = false;
-                //    }
-
-                //}
-                //catch (Exception ex)
-                //{
-                //    ErrorCount.Add(count);
-                //    dba.SFDCActionStatus(bl.BillingID, false, ex.Message.ToString());
-                //    Result = false;
-                //}
+                FC_NDIS.APIModels.Patch.Record record = new APIModels.Patch.Record();
+                record.attributes = new FC_NDIS.APIModels.Patch.Attributes();
+                record.attributes.referenceId = "ref" + bl.BillingID.ToString(); ;
+                record.attributes.type = "enrtcr__Support_Delivered__c";
+                record.Batch_Created__c = true;
+                record.enrtcr__Client__c = bl.enrtcr__Client__c;
+                record.enrtcr__Date__c = Convert.ToDateTime(bl.enrtcr__Date__c).ToString("yyyy-MM-dd");
+                record.enrtcr__Quantity__c = bl.enrtcr__Quantity__c;
+                record.enrtcr__Support_Contract_Item__c = bl.enrtcr__Support_Contract_Item__c;
+                record.enrtcr__Support_Contract__c = bl.enrtcr__Support_Contract__c;
+                record.enrtcr__Site__c = bl.enrtcr__Site__c;
+                record.enrtcr__Support_CategoryId__c = bl.enrtcr__Support_CategoryId__c;
+                record.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
+                record.enrtcr__Rate__c = bl.enrtcr__Rate__c;
+                record.enrtcr__Worker__c = bl.enrtcr__Worker__c;
+                record.enrtcr__Client_Rep_Accepted__c = true;
+                record.enrtcr__Use_Negotiated_Rate__c = true;
+                record.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
+                record.enrtcr__Negotiated_Rate_GST__c = bl.enrtcr__Negotiated_Rate_GST__c;
+                PatchRoot.records.Add(record);
             }
 
-            try
+            Login();
+            var json = JsonConvert.SerializeObject(PatchRoot);
+            var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/tree/enrtcr__Support_Delivered__c/");
+            var settings = new JsonSerializerSettings
             {
-                Login();
-                var json = JsonConvert.SerializeObject(Batchobject);
-                var response = CreatePatchRecord(Client, json, "enrtcr__Support_Delivered__c");
-                var settings = new JsonSerializerSettings
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
+            if (!rootObject.hasErrors)
+            {
+                foreach (var res in rootObject.results)
                 {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-                var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
-                if (rootObject.success)
-                {
-                   // dba.SFDCActionStatus(bl.BillingID, rootObject.success, "Success");
-                    Result = true;
+                    var id = res.referenceId.Remove(0, 3);
+                    dba.SFDCActionStatus(Convert.ToInt16(id), true, "Success");
                 }
-                else
-                {
-                    //dba.SFDCActionStatus(bl.BillingID, false, rootObject.errors[0].ToString());
-                    Result = false;
-                }
-
+                Result = true;
             }
-            catch (Exception ex)
+            else
             {
-                ErrorCount.Add(count);
-              //  dba.SFDCActionStatus(bl.BillingID, false, ex.Message.ToString());
-                Result = false;
+                foreach (var res in rootObject.results)
+                {
+                    var id = res.referenceId.Remove(0, 3);
+                    dba.SFDCActionStatus(Convert.ToInt16(id), false, "Failed");
+                }
+                Result = true;
             }
 
             return Result; ;

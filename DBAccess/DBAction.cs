@@ -259,19 +259,16 @@ namespace FC_NDIS.DBAccess
                         existingrecord.FirstName = drv.FirstName;
                         existingrecord.LastName = drv.LastName;
                         existingrecord.CostCenter = drv.CostCenter;
-                        existingrecord.Username = drv.Username;
-                        existingrecord.Disabled = drv.Disabled;
+                        existingrecord.Username = drv.Username;                       
                         existingrecord.Type = drv.Type;
                         existingrecord.JobDescription = drv.JobDescription;
                         existingrecord.Department = drv.Department;
-                        existingrecord.ManagerName = drv.ManagerName;
-                        existingrecord.IsPortalUser = drv.IsPortalUser;
+                        existingrecord.ManagerName = drv.ManagerName;                       
                         existingrecord.JobNumber = drv.JobNumber;
                         existingrecord.IsTerminated = drv.IsTerminated;
                         existingrecord.PreferedName = drv.PreferedName;
                         existingrecord.ModifiedDate = drv.ModifiedDate;
-                        if (existingrecord.SalesForceUserId != "" && drv.SalesForceUserId != "")
-                            existingrecord.SalesForceUserId = drv.SalesForceUserId;
+                        
                     }
                     dbc.SaveChanges();
 

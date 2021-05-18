@@ -102,8 +102,8 @@ namespace FC_NDIS.Action
                         if (rootObject.records[i]?.enrtcr__Category_Item__r?.enrtcr__Support_Category_Amount__c == null)
                             csl.SupportCategoryAmount = 0;
                         else
-                            csl.SupportCategoryAmount = (float)rootObject.records[i].enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c;
-                        csl.SupportCategoryDelivered = (float?)rootObject.records[i]?.enrtcr__Category_Item__r.enrtcr__Delivered__c ?? 0;
+                            csl.SupportCategoryAmount = (float)rootObject.records[i].enrtcr__Category_Item__r?.enrtcr__Support_Category_Amount__c;
+                        csl.SupportCategoryDelivered = (float?)rootObject.records[i]?.enrtcr__Category_Item__r?.enrtcr__Delivered__c ?? 0;
                         csl.FundsRemaining = (float?)rootObject.records[i].enrtcr__Remaining__c;
 
                         if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Allow")
@@ -502,7 +502,7 @@ namespace FC_NDIS.Action
                     }
                     else
                     {
-                        result = false;
+                        result = true;
                     }
                 }
             }

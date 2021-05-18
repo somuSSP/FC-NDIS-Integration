@@ -81,7 +81,7 @@ namespace FC_NDIS.DBAccess
                         cslinfo.SiteName = csl.SiteName;
                         cslinfo.SiteServiceProgramId = csl.SiteServiceProgramId;
                         cslinfo.ServiceId = csl.ServiceId;
-                        cslinfo.ServiceName = csl.ServiceName;                        
+                        cslinfo.ServiceName = csl.ServiceName;
                         cslinfo.TravelServiceId = csl.TravelServiceId;
                         cslinfo.TransportServiceId = csl.TransportServiceId;
                         cslinfo.AllowRateNegotiation = csl.AllowRateNegotiation;
@@ -161,13 +161,14 @@ namespace FC_NDIS.DBAccess
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-                var objs = dbc.Drivers.Where(k => k.SalesForceUserId != null && k.SalesForceUserId == "" && k.Username != "").Take(500).ToList();
+                var objs = dbc.Drivers.Where(k => k.SalesForceUserId != null && k.SalesForceUserId == "" && k.Username != "" && k.IsTerminated == false).ToList();
                 foreach (var ob in objs)
                 {
                     if (!string.IsNullOrEmpty(ob.Username))
                     {
                         if (!ob.Username.Contains("'"))
-                            result.Add(ob.Username + ".newacuat");
+                            // result.Add(ob.Username + ".newacuat");
+                            result.Add(ob.Username);
                     }
                 }
             }
@@ -194,36 +195,32 @@ namespace FC_NDIS.DBAccess
             List<SFDCBillingLines> result = new List<SFDCBillingLines>();
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
-            {
-               // var objs = dbc.BillingLines.Where(k => k.Approved == true).ToList();
+            {               
 
                 var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
-                var objCustomerList = dbc.Customers.ToList();
-                var objCustomerServiceLineList = dbc.CustomerServiceLines.ToList();
-                var objTripList = dbc.Trips.ToList();
-                var objDriverList = dbc.Drivers.ToList();
+                
                 foreach (var bl in objBillingLinesList)
                 {
-                   
-                    var CustomerId = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault().CustomerId;
-                 
-                       var trip = objTripList.FirstOrDefault(k => k.TripId == bl.TripId);
-                    var cslines = objCustomerServiceLineList.FirstOrDefault(k => k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId);
-                    var trips = objTripList.Where(k => k.TripId == bl.TripId).FirstOrDefault();
-                    var drivers = objDriverList.FirstOrDefault(k => k.DriverId == trip.DriverId);
+                    var customerTrip = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault();//done
+                    var customer = dbc.Customers.Where(k => k.CustId == customerTrip.CustomerId).FirstOrDefault();
+                    var Trip = dbc.Trips.Where(k => k.TripId == bl.TripId).FirstOrDefault();
+                    var drivers = dbc.Drivers.Where(k => k.DriverId == Trip.DriverId).FirstOrDefault();
+                    var cslines = dbc.CustomerServiceLines.Where(k => k.ServiceAgreementCustomerId == customerTrip.CustomerId && k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId).FirstOrDefault();
+                    var SFRate = dbc.SalesforceRates.Where(k => k.SalesforceRatesId == bl.SalesforceRatesId).FirstOrDefault();
                     SFDCBillingLines bls = new SFDCBillingLines();
+                    bls.BillingID = bl.BillingId;
+                  
+                    bls.enrtcr__Client__c = customer.CustomerId.ToString();
+                    bls.enrtcr__Date__c = customerTrip?.StartDate.ToString();// Automatic from Trip
+                    bls.enrtcr__Quantity__c = (int)(Trip?.TotalKm ?? 0);//Actual Distance (Km) from Trip
 
-                    bls.enrtcr__Client__c = CustomerId.ToString();
-                    bls.enrtcr__Date__c = trip?.StartDate.ToString();// Automatic from Trip
-                    bls.enrtcr__Quantity__c = (int)(trip?.TotalKm ?? 0);//Actual Distance (Km) from Trip
-
-                    bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementId ?? "";
-                    bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementItemId ?? "";
+                    bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementItemId ?? "";
+                    bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementId ?? "";
                     bls.enrtcr__Site__c = cslines?.SiteId ?? null;//site
-
-                    bls.enrtcr__Support_CategoryId__c = cslines?.ServiceId ?? "";//service
-                    bls.enrtcr__Site_Service_Program__c = cslines?.ServiceName ?? "";//Site Service Program;
-                    bls.enrtcr__Rate__c = bl?.Rate.ToString();//ob.UnitOfMeasure.ToString();
+                  
+                    bls.enrtcr__Support_CategoryId__c = cslines?.CategoryItemId ?? "";//CategoryItem
+                    bls.enrtcr__Site_Service_Program__c = cslines?.SiteServiceProgramId ?? "";//Site Service Program;
+                    bls.enrtcr__Rate__c = SFRate?.RateId.ToString();//ob.UnitOfMeasure.ToString();
 
                     bls.enrtcr__Worker__c = drivers?.SalesForceUserId;//worker
                     bls.enrtcr__Client_Rep_Accepted__c = true;//client rep accepted
@@ -231,6 +228,7 @@ namespace FC_NDIS.DBAccess
 
                     bls.enrtcr__Negotiated_Rate_Ex_GST__c = (decimal)(00.00);//Nogotiated Rate GST
                     bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
+                    if(drivers?.SalesForceUserId!="121")
                     result.Add(bls);
                 }
             }
@@ -288,7 +286,20 @@ namespace FC_NDIS.DBAccess
             return result;
         }
 
-
+        public bool SFDCActionStatus(int BillingId, bool SentToSalesForceStatus, string SentToSalesForceDescription)
+        {
+            bool result = false;
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                var billlineNew = dbc.BillingLinesNews.FirstOrDefault(k => k.BillingId == BillingId);
+                billlineNew.SentToSalesForce = true;
+                billlineNew.SentToSalesForceStatus = SentToSalesForceStatus;
+                billlineNew.SentToSalesForceDescription = SentToSalesForceDescription;
+                dbc.SaveChanges();
+                result = true;
+            }
+            return result;
+        }
 
         /// <summary>
         /// Customer information pushed to customer table

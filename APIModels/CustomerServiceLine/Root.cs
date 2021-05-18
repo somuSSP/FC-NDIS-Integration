@@ -67,6 +67,7 @@ namespace FC_NDIS.APIModels.CustomerServiceLine
     {
         public int totalSize { get; set; }
         public bool done { get; set; }
+        public string nextRecordsUrl { get; set; }
         public List<Record> records { get; set; }
     }
 

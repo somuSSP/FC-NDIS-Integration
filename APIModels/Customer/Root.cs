@@ -40,6 +40,7 @@ namespace FC_NDIS.RestAPIModels.Customer
     {
         public int totalSize { get; set; }
         public bool done { get; set; }
+        public string nextRecordsUrl { get; set; }
         public List<Record> records { get; set; }
     }
 

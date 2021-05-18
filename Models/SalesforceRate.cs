@@ -24,6 +24,7 @@ namespace FC_NDIS.Models
         public bool? IsDeleted { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public string PostalCode { get; set; }
 
         public virtual SalesforceRateType RateTypeNavigation { get; set; }
         public virtual ICollection<BillingLinesNew> BillingLinesNews { get; set; }

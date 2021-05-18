@@ -48,6 +48,8 @@ namespace FC_NDIS.Models
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public bool? Reimbursable { get; set; }
+        public float? PauseKm { get; set; }
+        public float? ResumeKm { get; set; }
 
         public virtual CostCentre CostCenterNavigation { get; set; }
         public virtual Driver Driver { get; set; }

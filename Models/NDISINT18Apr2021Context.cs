@@ -53,6 +53,9 @@ namespace FC_NDIS.Models
         public virtual DbSet<Hash> Hashes { get; set; }
         public virtual DbSet<HistoricalCustomerTrip> HistoricalCustomerTrips { get; set; }
         public virtual DbSet<HistoricalDriverTrip> HistoricalDriverTrips { get; set; }
+        public virtual DbSet<IntegrationActivity> IntegrationActivities { get; set; }
+        public virtual DbSet<IntegrationActivityList> IntegrationActivityLists { get; set; }
+        public virtual DbSet<IntegrationActivityStatus> IntegrationActivityStatuses { get; set; }
         public virtual DbSet<ItemOverclaimStatus> ItemOverclaimStatuses { get; set; }
         public virtual DbSet<Job> Jobs { get; set; }
         public virtual DbSet<JobParameter> JobParameters { get; set; }
@@ -85,7 +88,6 @@ namespace FC_NDIS.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                // optionsBuilder.UseSqlServer("Server=10.200.2.116;Database=PerfectDay21Apr;Integrated Security=false;User Id=sa;Password=Sw0rd@2020;MultipleActiveResultSets=true;");
                 optionsBuilder.UseSqlServer(this._integrationAppSettings.AppConnection);
             }
         }
@@ -363,6 +365,8 @@ namespace FC_NDIS.Models
 
                 entity.Property(e => e.SalesforceRatesId).HasColumnName("SalesforceRatesID");
 
+                entity.Property(e => e.SentToSalesForceDescription).HasMaxLength(750);
+
                 entity.Property(e => e.ServiceAgreementId)
                     .HasMaxLength(100)
                     .HasColumnName("ServiceAgreementID");
@@ -370,6 +374,10 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.ServiceAgreementItemId)
                     .HasMaxLength(50)
                     .HasColumnName("ServiceAgreementItemID");
+
+                entity.Property(e => e.SiteGlcode)
+                    .HasMaxLength(50)
+                    .HasColumnName("SiteGLCode");
 
                 entity.Property(e => e.TripId).HasColumnName("TripID");
 
@@ -1195,6 +1203,62 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.VehicleRegistrationNumber).HasMaxLength(100);
             });
 
+            modelBuilder.Entity<IntegrationActivity>(entity =>
+            {
+                entity.ToTable("IntegrationActivity");
+
+                entity.Property(e => e.IntegrationActivityId).HasColumnName("IntegrationActivityID");
+
+                entity.Property(e => e.EndDateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.FailedException).HasMaxLength(500);
+
+                entity.Property(e => e.StartDateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Username).HasMaxLength(50);
+
+                entity.HasOne(d => d.IntegrationActivityNameNavigation)
+                    .WithMany(p => p.IntegrationActivities)
+                    .HasForeignKey(d => d.IntegrationActivityName)
+                    .HasConstraintName("FK_IANameID");
+
+                entity.HasOne(d => d.StatusNavigation)
+                    .WithMany(p => p.IntegrationActivities)
+                    .HasForeignKey(d => d.Status)
+                    .HasConstraintName("FK_IAStatusID");
+            });
+
+            modelBuilder.Entity<IntegrationActivityList>(entity =>
+            {
+                entity.HasKey(e => e.IntegrationActivityNameId)
+                    .HasName("PK__Integrat__48E8AFA5F9FC62AB");
+
+                entity.ToTable("IntegrationActivityList");
+
+                entity.Property(e => e.IntegrationActivityNameId).HasColumnName("IntegrationActivityNameID");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.IntegrationActivityName).HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<IntegrationActivityStatus>(entity =>
+            {
+                entity.ToTable("IntegrationActivityStatus");
+
+                entity.Property(e => e.IntegrationActivityStatusId).HasColumnName("IntegrationActivityStatusID");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.IntegrationActivityStatus1)
+                    .HasMaxLength(100)
+                    .HasColumnName("IntegrationActivityStatus");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
             modelBuilder.Entity<ItemOverclaimStatus>(entity =>
             {
                 entity.ToTable("ItemOverclaimStatus");
@@ -1324,6 +1388,8 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Negotiation).HasMaxLength(100);
+
+                entity.Property(e => e.PostalCode).HasMaxLength(30);
 
                 entity.Property(e => e.RateId)
                     .HasMaxLength(75)
@@ -1514,6 +1580,10 @@ namespace FC_NDIS.Models
 
                 entity.Property(e => e.OnHold).HasDefaultValueSql("((0))");
 
+                entity.Property(e => e.PauseKm).HasColumnName("PauseKM");
+
+                entity.Property(e => e.ResumeKm).HasColumnName("ResumeKM");
+
                 entity.Property(e => e.SalesForceUserId)
                     .HasMaxLength(50)
                     .HasColumnName("SalesForceUserID");
@@ -1581,6 +1651,8 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.CreateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(500);
 
                 entity.Property(e => e.Latitude).HasMaxLength(50);
 

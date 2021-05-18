@@ -14,6 +14,7 @@ namespace FC_NDIS.Models
         public DateTime? CreateTime { get; set; }
         public bool? IsProcess { get; set; }
         public float? Accuracy { get; set; }
+        public string Description { get; set; }
 
         public virtual Trip Trip { get; set; }
     }

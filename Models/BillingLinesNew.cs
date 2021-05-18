@@ -30,6 +30,10 @@ namespace FC_NDIS.Models
         public bool? Billable { get; set; }
         public string LumaryId { get; set; }
         public int? SalesforceRatesId { get; set; }
+        public string SiteGlcode { get; set; }
+        public bool? AllowNegotiation { get; set; }
+        public bool? SentToSalesForceStatus { get; set; }
+        public string SentToSalesForceDescription { get; set; }
 
         public virtual BillingCustomerTrip CustomerTrip { get; set; }
         public virtual SalesforceRate SalesforceRates { get; set; }

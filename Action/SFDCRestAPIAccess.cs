@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using FC_NDIS.RestAPIModels;
 using FC_NDIS.APIModels.BllingLines;
+using RestSharp;
 
 namespace FC_NDIS.Action
 {
@@ -35,6 +36,7 @@ namespace FC_NDIS.Action
 
         private readonly IntegrationAppSettings _integrationAppSettings;
         private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
+        public List<Customer> FinalCustomer;
 
 
         public SFDCRestAPIAccess(IntegrationAppSettings integrationAppSettings)
@@ -54,52 +56,11 @@ namespace FC_NDIS.Action
 
             Login();
             logger.Info("Scheduled Customer Service Line job triggered");
-            var queryCustomer = @"SELECT Id
-                                                    ,Name
-                                                    ,enrtcr__Remaining__c
-                                                    ,enrtcr__Item_Overclaim__c
-                                                    ,enrtcr__Support_Contract__c
-                                                    ,enrtcr__Support_Contract__r.Name
-                                                    ,enrtcr__Support_Contract__r.enrtcr__End_Date__c
-                                                    ,enrtcr__Support_Contract__r.enrtcr__Status__c
-                                                    ,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c
-                                                    ,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c
-                                                    ,enrtcr__Support_Contract__r.enrtcr__Client__c
-                                                    ,enrtcr__Support_Category__c
-                                                    ,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c
-                                                    ,enrtcr__Category_Item__r.enrtcr__Delivered__c
-                                                    ,enrtcr__Site__c
-                                                    ,enrtcr__Site__r.Name
-                                                    ,enrtcr__Site__r.enrtcr__Site_GL_Code__c
-                                                    ,enrtcr__Service__c
-                                                    ,enrtcr__Service__r.Name
-                                                    ,enrtcr__Service__r.enrtcr__Travel_Service__c
-                                                    ,enrtcr__Service__r.enrtcr__Transport_Service__c
-                                                    ,enrtcr__Site_Service_Program__c
-                                                FROM enrtcr__Support_Contract_Item__c
-                                                WHERE (
-                                                        ( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
-                                                        AND enrtcr__Service__r.enrtcr__Transport_Service__c != null
-                                                        AND (
-                                                                (
-                                                                enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'                                                               
-                                                                )
-                                                                OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
-                                                           )
-                                                        )
-                                                    OR
-                                                        ( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true
-                                                        AND enrtcr__Service__r.enrtcr__Travel_Service__c != null
-                                                        AND (
-                                                                (
-                                                                enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'                                                               
-                                                                )
-                                                                OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
-                                                           )
-                                                        )
-                                                    )
-                                                ";
-            var APIResponse = QueryRecord(Client, queryCustomer);
+            var queryCustomer = @"SELECT Id,Name,enrtcr__Remaining__c,enrtcr__Item_Overclaim__c,enrtcr__Support_Contract__c,enrtcr__Support_Contract__r.Name,enrtcr__Support_Contract__r.enrtcr__End_Date__c,enrtcr__Support_Contract__r.enrtcr__Status__c,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c,enrtcr__Support_Contract__r.enrtcr__Client__c,enrtcr__Support_Category__c,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c,enrtcr__Category_Item__r.enrtcr__Delivered__c,enrtcr__Site__c,enrtcr__Site__r.Name,enrtcr__Site__r.enrtcr__Site_GL_Code__c,enrtcr__Service__c,enrtcr__Service__r.Name,enrtcr__Service__r.enrtcr__Travel_Service__c,enrtcr__Service__r.enrtcr__Transport_Service__c,enrtcr__Site_Service_Program__c FROM enrtcr__Support_Contract_Item__c WHERE (( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true AND enrtcr__Service__r.enrtcr__Transport_Service__c != null AND (
+( enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS') OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'))OR( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true AND enrtcr__Service__r.enrtcr__Travel_Service__c != null AND ((enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'       
+)OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+) ))";
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
             var settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -202,7 +163,7 @@ namespace FC_NDIS.Action
                                                 WHERE enrtcr__Effective_Date__c <= TODAY
                                                     AND enrtcr__End_Date__c >= TODAY
                                                     AND (
-                                                            (Name LIKE '%WA%' AND enrtcr__Funding_Type__c = 'NDIS')
+                                                            (Name LIKE '%25WA%25' AND enrtcr__Funding_Type__c = 'NDIS')
                                                             OR enrtcr__Funding_Type__c != 'NDIS'
                                                         )
                                                     AND enrtcr__Service__c IN (
@@ -213,7 +174,7 @@ namespace FC_NDIS.Action
                                                     )
                                                 ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc
                                                 ";
-            var APIResponse = QueryRecord(Client, queryCustomer);
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
             var settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -244,7 +205,13 @@ namespace FC_NDIS.Action
                     }
                 }
                 //Insert record to Database
-                dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                if (rootObject.records.Count > 0)
+                {
+                    dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                    result = true;
+                }
+                else
+                    result = true;
             }
 
             return result;
@@ -259,31 +226,9 @@ namespace FC_NDIS.Action
             Login();
 
 
-            //var queryCustomer = @"SELECT Id
-            //                                        ,enrtcr__Effective_Date__c
-            //                                        ,enrtcr__End_Date__c
-            //                                        ,Name
-            //                                        ,enrtcr__Service__c
-            //                                        ,enrtcr__Allow_Rate_Negotiation__c
-            //                                        ,enrtcr__Amount_Ex_GST__c
-            //                                        ,enrtcr__Quantity_Type__c
-            //                                    FROM enrtcr__Rate__c
-            //                                    WHERE enrtcr__Effective_Date__c <= TODAY
-            //                                        AND enrtcr__End_Date__c >= TODAY
-            //                                        AND (
-            //                                            (Name LIKE '%WA%' AND enrtcr__Funding_Type__c = 'NDIS')
-            //                                            OR enrtcr__Funding_Type__c != 'NDIS'
-            //                                        )
-            //                                        AND enrtcr__Service__c IN (
-            //                                            SELECT enrtcr__Travel_Service__c
-            //                                            FROM enrtcr__Service__c
-            //                                            WHERE enrtcr__Travel_Service__c != null
-            //                                                AND enrtcr__Allow_Non_Labour_Travel__c = true
-            //                                        )
-            //                                    ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc
-            //                                    ";
-            var queryCustomer = @"SELECT Id,enrtcr__Effective_Date__c,enrtcr__End_Date__c,Name,enrtcr__Service__c,enrtcr__Allow_Rate_Negotiation__c,enrtcr__Amount_Ex_GST__c,enrtcr__Quantity_Type__c FROM enrtcr__Rate__c ";
-            var APIResponse = QueryRecord(Client, queryCustomer);
+            var queryCustomer = @"SELECT Id ,enrtcr__Effective_Date__c,enrtcr__End_Date__c,Name,enrtcr__Service__c,enrtcr__Allow_Rate_Negotiation__c,enrtcr__Amount_Ex_GST__c,enrtcr__Quantity_Type__c FROM enrtcr__Rate__c WHERE enrtcr__Effective_Date__c <= TODAY AND enrtcr__End_Date__c >= TODAY AND ((Name LIKE '%25WA%25' AND enrtcr__Funding_Type__c = 'NDIS') OR enrtcr__Funding_Type__c != 'NDIS') AND enrtcr__Service__c IN ( SELECT enrtcr__Travel_Service__c FROM enrtcr__Service__c WHERE enrtcr__Travel_Service__c != null AND enrtcr__Allow_Non_Labour_Travel__c = true )ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc";
+
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
             var settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -323,9 +268,72 @@ namespace FC_NDIS.Action
             Login();
             logger.Info("Integrate Customer Informations");
             var result = true;
-            var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
-                       AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
-            var APIResponse = QueryRecord(Client, queryCustomer);
+            //var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
+            //           AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
+
+            var queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE enrtcr__Status__c='Current'";
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.RestAPIModels.Customer.Root>(APIResponse, settings);
+            FinalCustomer = new List<Customer>();
+            List<Customer> lstCus = new List<Customer>();
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        Customer cs = new Customer();
+                        cs.CustomerId = rootObject.records[i].Id;
+                        cs.Name = rootObject.records[i].Name;
+                        cs.Street = rootObject.records[i].OtherStreet;
+                        cs.City = rootObject.records[i].OtherCity;
+                        cs.State = rootObject.records[i].OtherState;
+                        cs.PostalCode = rootObject.records[i].OtherPostalCode;
+                        cs.LumaryId = rootObject.records[i].Enrite_Care_Auto_Number__c;
+                        if (rootObject.records[i].enrtcr__Status__c != null)
+                        {
+                            cs.Active = false;
+                            if (rootObject.records[i].enrtcr__Status__c == "Current")
+                            {
+                                cs.Status = 1;
+                            }
+                            if (rootObject.records[i].enrtcr__Status__c == "Deceased")
+                            {
+                                cs.Status = 2;
+                            }
+                            if (rootObject.records[i].enrtcr__Status__c == "Inactive")
+                            {
+                                cs.Status = 3;
+                            }
+                        }
+                        cs.Active = true;
+                        cs.OnHold = false;
+                        lstCus.Add(cs);
+                    }
+                    FinalCustomer.AddRange(lstCus);
+                }
+
+            }
+            if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+            {
+                RemainingRecord(rootObject.nextRecordsUrl);
+            }
+            if (lstCus.Count > 0)
+            {
+                DBAction dba = new DBAction(_integrationAppSettings);
+                dba.IntegrateCustomerInfotoDB(FinalCustomer);
+            }
+            return result;
+        }
+
+        public void RemainingRecord(string NextURL)
+        {
+            var APIResponse = QueryNextRecord(Client, NextURL);
             var settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -363,21 +371,31 @@ namespace FC_NDIS.Action
                             {
                                 cs.Status = 3;
                             }
-
                         }
                         cs.Active = true;
                         cs.OnHold = false;
                         lstCus.Add(cs);
                     }
                 }
-                DBAction dba = new DBAction(_integrationAppSettings);
-                dba.IntegrateCustomerInfotoDB(lstCus);
+                FinalCustomer.AddRange(lstCus);
+                if (rootObject.nextRecordsUrl != "")
+                {
+                    RemainingRecord(rootObject.nextRecordsUrl);
+                }
             }
-            return result;
         }
-        private string QueryRecord(HttpClient client, string queryMessage)
+
+        private string QueryAllRecord(HttpClient client, string queryMessage)
         {
-            string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}query?q={queryMessage}";            
+            string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
+            HttpResponseMessage response = client.GetAsync(restQuery).Result;
+            return response.Content.ReadAsStringAsync().Result;
+        }
+
+        private string QueryNextRecord(HttpClient client, string NextURL)
+        {
+            string restQuery = $"{ServiceUrl}" + NextURL;//{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
             client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
             HttpResponseMessage response = client.GetAsync(restQuery).Result;
             return response.Content.ReadAsStringAsync().Result;
@@ -389,12 +407,30 @@ namespace FC_NDIS.Action
             string uri = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}sobjects/{recordType}";
 
             HttpRequestMessage requestCreate = new HttpRequestMessage(HttpMethod.Post, uri);
-            requestCreate.Headers.Add("Authorization", "Bearer Token " + AuthToken);
+            requestCreate.Headers.Add("Authorization", "Bearer " + AuthToken);
             requestCreate.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/xml"));
             requestCreate.Content = contentCreate;
+            //client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
+            //HttpResponseMessage response = client.PostAsync(uri, contentCreate).Result;
 
-            HttpResponseMessage response = client.SendAsync(requestCreate).Result;
-            return response.Content.ReadAsStringAsync().Result;
+
+            var clienttest = new RestClient(uri);
+            clienttest.Timeout = -1;
+            var request = new RestRequest(Method.POST);
+            request.AddHeader("Authorization", "Bearer " + AuthToken);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddHeader("Cookie", "BrowserId=PKL0iaQ7EeuiBTHeCDDibQ");
+            request.AddParameter("application/json", createMessage, ParameterType.RequestBody);
+            IRestResponse responses = clienttest.Execute(request);
+            return responses.Content;
+
+
+
+
+
+
+            //HttpResponseMessage response = client.SendAsync(requestCreate).Result;
+            //return response.Content.ReadAsStringAsync().Result;
         }
 
 
@@ -434,67 +470,47 @@ namespace FC_NDIS.Action
         public bool IntegrateSFDCId_OperatortoDB(string Usernames)
         {
             bool result = false;
-            logger.Info("Scheduled Driver job triggered");
+            DBAction dba = new DBAction(_integrationAppSettings);
+            List<ClsUsersList> ObjList = new List<ClsUsersList>();
+            logger.Info("Scheduled SFDC ID to Drivers");
             Login();
-           
 
             var queryCustomer = @"Select Id,EmployeeNumber,UserRoleID,IsActive,Username,CompanyName From User WHERE Username IN (" + Usernames + ")";
             HttpClient cl = new HttpClient();
             cl.Timeout = new TimeSpan(0, 5, 0);
-            var APIResponse = QueryRecord(cl, queryCustomer);
+            var APIResponse = QueryAllRecord(cl, queryCustomer);
             var settings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.RestAPIModels.Customer.Root>(APIResponse, settings);
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.SFDCtoDriver.Root>(APIResponse, settings);
 
             List<Customer> lstCus = new List<Customer>();
-            if (rootObject != null)
+            if (rootObject.records != null)
             {
-                if (rootObject.records.Count > 0)
+                if (rootObject.records != null)
                 {
-                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    if (rootObject.records.Count > 0)
                     {
-                        Customer cs = new Customer();
-                        cs.CustomerId = rootObject.records[i].Id;
-                        cs.Name = rootObject.records[i].Name;
-                        cs.Street = rootObject.records[i].OtherStreet;
-                        cs.City = rootObject.records[i].OtherCity;
-                        cs.State = rootObject.records[i].OtherState;
-                        cs.PostalCode = rootObject.records[i].OtherPostalCode;
-                        cs.LumaryId = rootObject.records[i].Enrite_Care_Auto_Number__c;
-                        if (rootObject.records[i].enrtcr__Status__c != null)
+                        for (int i = 0; i <= rootObject.records.Count - 1; i++)
                         {
-                            cs.Active = false;
-                            if (rootObject.records[i].enrtcr__Status__c == "Current")
-                            {
-                                cs.Status = 1;
-                            }
-                            if (rootObject.records[i].enrtcr__Status__c == "Deceased")
-                            {
-                                cs.Status = 2;
-                            }
-                            if (rootObject.records[i].enrtcr__Status__c == "Inactive")
-                            {
-                                cs.Status = 3;
-                            }
-
+                            ClsUsersList Obj = new ClsUsersList();
+                            Obj.Id = rootObject.records[i].Id;
+                            Obj.IsActive = rootObject.records[i].IsActive;
+                            Obj.UserName = rootObject.records[i].Username;
+                            Obj.UserRoleID = rootObject.records[i].UserRoleId;
+                            ObjList.Add(Obj);
                         }
-                        cs.Active = true;
-                        cs.OnHold = false;
-                        lstCus.Add(cs);
+                        dba.IntegrateAllDriver(ObjList);
+                        result = true;
                     }
-                    DBAction dba = new DBAction(_integrationAppSettings);
-                    dba.IntegrateCustomerInfotoDB(lstCus);
-                    return true;
+                    else
+                    {
+                        result = false;
+                    }
                 }
-                else
-                    return false;
-                
             }
-
-
             return result;
         }
 
@@ -503,31 +519,33 @@ namespace FC_NDIS.Action
             bool Result = false;
             var bllist = GetBillingInformation();
             logger.Info("Insert Data into SFDC");
-            Login();
+
             List<Customer> lstCus = new List<Customer>();
             List<int> ErrorCount = new List<int>();
+            DBAction dba = new DBAction(_integrationAppSettings);
             int count = 0;
             foreach (var bl in bllist)
             {
+                Login();
                 count++;
                 APIModels.BllingLines.enrtcr__Support_Delivered__c inputObj = new enrtcr__Support_Delivered__c();
                 inputObj.Batch_Created__c = true;
                 inputObj.enrtcr__Client__c = bl.enrtcr__Client__c;
-                inputObj.enrtcr__Date__c = bl.enrtcr__Date__c;
+                inputObj.enrtcr__Date__c =Convert.ToDateTime(bl.enrtcr__Date__c).ToString("yyyy-MM-dd");
                 inputObj.enrtcr__Quantity__c = bl.enrtcr__Quantity__c;
                 inputObj.enrtcr__Support_Contract_Item__c = bl.enrtcr__Support_Contract_Item__c;
                 inputObj.enrtcr__Support_Contract__c = bl.enrtcr__Support_Contract__c;
                 inputObj.enrtcr__Site__c = bl.enrtcr__Site__c;
                 inputObj.enrtcr__Support_CategoryId__c = bl.enrtcr__Support_CategoryId__c;
                 inputObj.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
-                inputObj.enrtcr__Rate__c =bl.enrtcr__Rate__c;
+                inputObj.enrtcr__Rate__c = bl.enrtcr__Rate__c;
                 inputObj.enrtcr__Worker__c = bl.enrtcr__Worker__c;
                 inputObj.enrtcr__Client_Rep_Accepted__c = true;
                 inputObj.enrtcr__Use_Negotiated_Rate__c = true;
                 inputObj.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
                 inputObj.enrtcr__Negotiated_Rate_GST__c = bl.enrtcr__Negotiated_Rate_GST__c;
                 try
-                {
+                {                    
                     var json = JsonConvert.SerializeObject(inputObj);
                     var response = CreateRecord(Client, json, "enrtcr__Support_Delivered__c");
                     var settings = new JsonSerializerSettings
@@ -538,45 +556,23 @@ namespace FC_NDIS.Action
                     var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
                     if (rootObject.success)
                     {
+                        dba.SFDCActionStatus(bl.BillingID, rootObject.success, "Success");
                         Result = true;
                     }
                     else
+                    {
+                        dba.SFDCActionStatus(bl.BillingID, false, rootObject.errors[0].ToString());
                         Result = false;
+                    }
 
                 }
                 catch (Exception ex)
                 {
                     ErrorCount.Add(count);
+                    dba.SFDCActionStatus(bl.BillingID, false, ex.Message.ToString());
                     Result = false;
                 }
             }
-
-            // APIModels.BllingLines.enrtcr__Support_Delivered__c esdc = new enrtcr__Support_Delivered__c();
-            //esdc.Batch_Created__c = true;
-            //esdc.enrtcr__Client__c = "0035P000003ws2OQAQ";
-            //esdc.enrtcr__Date__c = "2021-03-30";
-            //esdc.enrtcr__Quantity__c = 10;
-            //esdc.enrtcr__Support_Contract_Item__c = "a0n5P000000kHNgQAM";
-            //esdc.enrtcr__Support_Contract__c = "a0o5P000000Bc9vQAC";
-            //esdc.enrtcr__Site__c = "a0l5P000000046nQAA";
-            //esdc.enrtcr__Support_CategoryId__c = "a0c5P000000Co8EQAS";
-            //esdc.enrtcr__Site_Service_Program__c = "a0j5P000000dLBpQAM";
-            //esdc.enrtcr__Rate__c = "a0b5P0000014SHkQAM";
-            //esdc.enrtcr__Worker__c = "0057F000005AtbWQAS";
-            //esdc.enrtcr__Client_Rep_Accepted__c = true;
-            //esdc.enrtcr__Use_Negotiated_Rate__c = true;
-            //esdc.enrtcr__Negotiated_Rate_Ex_GST__c =Convert.ToDecimal(0.85);
-            //esdc.enrtcr__Negotiated_Rate_GST__c =Convert.ToDecimal(0.00);
-            //try
-            //{
-            //    var json = JsonConvert.SerializeObject(esdc);
-            //    var response = CreateRecord(Client, json, "enrtcr__Support_Delivered__c");
-            //    Result = true;
-            //}
-            //catch(Exception ex)
-            //{
-            //    Result = false;
-            //}
             return Result; ;
         }
 

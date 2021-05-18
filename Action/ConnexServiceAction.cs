@@ -14,23 +14,23 @@ namespace FC_NDIS.Action
 {
     public class ConnexServiceAction : IConnex
     {
-                
+
         private readonly IntegrationAppSettings _integrationAppSettings;
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
         public ConnexServiceAction(IntegrationAppSettings integrationAppSettings)
         {
             this._integrationAppSettings = integrationAppSettings;
-        }       
+        }
         public bool validator(string EnvName, string EnvAPI, int stagingSourceID)
-        {          
+        {
             ConnXServiceClient CSC = new ConnXServiceClient();
             ValidateCallerRequest vrq = new ValidateCallerRequest();
             vrq.strPassword = _integrationAppSettings.ConnexUserName;
             vrq.strPassword = _integrationAppSettings.ConnexUserPassword;
             //CSC.ValidateCallerAsync()
             // CSC.ValidateCaller(EnvName, EnvAPI, ref stagingSourceID);
-             var RES= CSC.ValidateCallerAsync(vrq);
+            var RES = CSC.ValidateCallerAsync(vrq);
             if (RES.Result.intStagingSourceID == 0)
                 return false;
             else
@@ -47,48 +47,52 @@ namespace FC_NDIS.Action
             //var emppersonalDetails = CSC.GetEmployeePersonalDetail(userName, Password, null, string.Empty, string.Empty, string.Empty, null);
             //var empEmploymentDetail = CSC.GetEmployeeEmploymentDetail(userName, Password, null, string.Empty, string.Empty, string.Empty, null, string.Empty);
             DBAction dba = new DBAction(_integrationAppSettings);
-            List<Driver> Drivers = new List<Driver>();            
-            if (emppersonalDetails.Result.Result.ErrorCode == 0 )
+            List<Driver> Drivers = new List<Driver>();
+            if (emppersonalDetails.Result.Result.ErrorCode == 0)
             {
                 for (int i = 0; i < emppersonalDetails.Result.Items.Length; i++)
                 {
-                        var empEmploymentDetailNew = empEmploymentDetailNewList.Result.Items.Where(k => k.EmployeeCode == emppersonalDetails.Result.Items[i].EmployeeCode).FirstOrDefault();
+                    var empEmploymentDetailNew = empEmploymentDetailNewList.Result.Items.Where(k => k.EmployeeCode == emppersonalDetails.Result.Items[i].EmployeeCode).FirstOrDefault();
 
-                        Driver dr = new Driver();
-                        dr.EmployeeCode = emppersonalDetails.Result.Items[i].EmployeeCode ?? "";
-                        dr.SalesForceUserId = "";//It was came from SFDC
-                        dr.FirstName = emppersonalDetails.Result.Items[i].GivenName ?? "";
-                        dr.LastName = emppersonalDetails.Result.Items[i].Surname ?? "";
-                        dr.PreferedName = emppersonalDetails.Result.Items[i].PreferredName;
-                        dr.Username = emppersonalDetails.Result.Items[i].EmailWork;
-                        dr.Disabled = false;
-                        dr.IsTerminated = emppersonalDetails.Result.Items[i].IsTerminated == null ? false : Convert.ToBoolean(emppersonalDetails.Result.Items[i].IsTerminated);                        
-                        dr.Type = 1;
-                        if (empEmploymentDetailNew != null)
+                    Driver dr = new Driver();
+                    dr.EmployeeCode = emppersonalDetails.Result.Items[i].EmployeeCode ?? "";
+                    dr.SalesForceUserId = "";//It was came from SFDC
+                    dr.FirstName = emppersonalDetails.Result.Items[i].GivenName ?? "";
+                    dr.LastName = emppersonalDetails.Result.Items[i].Surname ?? "";
+                    dr.PreferedName = emppersonalDetails.Result.Items[i].PreferredName;
+                    dr.Username = emppersonalDetails.Result.Items[i].EmailWork;
+                    dr.Disabled = false;
+                    dr.IsTerminated = emppersonalDetails.Result.Items[i].IsTerminated == null ? false : Convert.ToBoolean(emppersonalDetails.Result.Items[i].IsTerminated);
+                    dr.Type = 1;
+                    if (empEmploymentDetailNew != null)
+                    {
+                        if (!string.IsNullOrEmpty(empEmploymentDetailNew.CostAccountCodeDefault))
                         {
-                            if (!string.IsNullOrEmpty(empEmploymentDetailNew.CostAccountCodeDefault))
-                            {
-                                var costcenter = dba.GetCostcenterId(empEmploymentDetailNew.CostAccountCodeDefault);
-                                dr.CostCenter = (int?)costcenter;
-                            }
-                            dr.JobDescription = empEmploymentDetailNew?.JobDescription??"";
-                            dr.Department = empEmploymentDetailNew?.PrimaryDepartmentCode??"";
-                            dr.ManagerName = empEmploymentDetailNew.PrimaryDepartmentManagerGivenName + " " + empEmploymentDetailNew.PrimaryDepartmentManagerSurname;
-                            dr.Password = "ZZ9XcjvG47MrH2neZ2h5WzwwFVJ7hciId1Tpbi4FTuU";
-                            dr.IsPortalUser = false;    
-                            dr.Otp = null;
-                        }   
-                        if(dr.IsTerminated!=true && emppersonalDetails.Result.Items[i].EmployeeCode.StartsWith("DIR")!=true)                        
-                         Drivers.Add(dr);                     
-                   
+                            var costcenter = dba.GetCostcenterId(empEmploymentDetailNew.CostAccountCodeDefault);
+                            dr.CostCenter = (int?)costcenter;
+                        }
+                        dr.JobDescription = empEmploymentDetailNew?.JobDescription ?? "";
+                        dr.Department = empEmploymentDetailNew?.PrimaryDepartmentDescription ?? "";
+                        
+                        dr.ManagerName = empEmploymentDetailNew.PrimaryDepartmentManagerGivenName + " " + empEmploymentDetailNew.PrimaryDepartmentManagerSurname;
+                        dr.Password = "ZZ9XcjvG47MrH2neZ2h5WzwwFVJ7hciId1Tpbi4FTuU";
+                        dr.IsPortalUser = false;
+                        dr.Otp = null;
+                    }
+                    if (dr.IsTerminated != true && emppersonalDetails.Result.Items[i].EmployeeCode.StartsWith("DIR") != true)
+                        Drivers.Add(dr);
+
                 }
             }
             if (Drivers.Count > 0)
-            {             
+            {
                 dba.IntegrateOpertorintoDB(Drivers.Where(k => k.Username != "").ToList());
                 return true;
             }
-            else {           
-                return false; }
-        }    }
+            else
+            {
+                return false;
+            }
+        }
+    }
 }

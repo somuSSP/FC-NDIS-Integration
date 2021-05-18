@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 namespace FC_NDIS.JsonModels
 {
     public class SFDCBillingLines
-    {
+    { 
+        public int BillingID { get; set; }
         public string enrtcr__Client__c { get; set; }
         public string enrtcr__Date__c { get; set; }
         public int enrtcr__Quantity__c { get; set; }

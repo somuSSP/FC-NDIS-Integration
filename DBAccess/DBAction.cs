@@ -117,7 +117,7 @@ namespace FC_NDIS.DBAccess
             {
                 foreach (var users in SFDCUsers)
                 {
-                    users.UserName = users.UserName.Remove(users.UserName.Length - 9);
+                    //users.UserName = users.UserName.Remove(users.UserName.Length - 9);
                     var driver = dbc.Drivers.FirstOrDefault(k => k.Username == users.UserName);
                     driver.SalesForceUserId = users.Id;
                     dbc.SaveChanges();
@@ -197,7 +197,7 @@ namespace FC_NDIS.DBAccess
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {               
 
-                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
+                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true && k.SentToSalesForce==false ||k.SentToSalesForceStatus==false).ToList();
                 
                 foreach (var bl in objBillingLinesList)
                 {

@@ -112,6 +112,7 @@ namespace FC_NDIS.Controllers
         public Response IntegerateSfDCIDs()
         {
             _logger.LogInformation("IntegerateSFDCIDtoDriver");
+            var result = false;
             Response rs = new Response();
             try
             {
@@ -119,9 +120,15 @@ namespace FC_NDIS.Controllers
                 List<string> UserNames = new List<string>();
                 SFDCRestAPIAccess sfdca = new SFDCRestAPIAccess(_integrationAppSettings);
                 UserNames = sfdca.GetAllDriverInfo_NotMappedSFDC();
+                for (int i = 0; i < UserNames.Count; i = i + 100)
+                {
+                    var items = UserNames.Skip(i).Take(100);
+                    userlist = "'" + string.Join("','", items.Where(k => !string.IsNullOrEmpty(k))) + "'";
+                    result = sfdca.IntegrateSFDCId_OperatortoDB(userlist);
+                    _logger.LogError("SFDC ID updated to driver From "+i.ToString()+" To:"+(i+ items.Count()).ToString());
+                }
                 // userlist = string.Join(",'", UserNames);
-                userlist = "'" + string.Join("','", UserNames.Where(k => !string.IsNullOrEmpty(k))) + "'";
-                var result = sfdca.IntegrateSFDCId_OperatortoDB(userlist);
+                
                 if (result)
                 {
                     rs.ResponseCode = 200;

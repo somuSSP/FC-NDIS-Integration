@@ -198,7 +198,7 @@ namespace FC_NDIS.DBAccess
             {
 
                 var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
-                var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false).ToList();
+                var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false || k.SentToSalesForce == null || k.SentToSalesForceStatus == null).ToList();
                 foreach (var bl in objFinalBillingLinesList)
                 {
                     var customerTrip = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault();//done
@@ -226,8 +226,11 @@ namespace FC_NDIS.DBAccess
                     bls.enrtcr__Client_Rep_Accepted__c = true;//client rep accepted
                     bls.enrtcr__Use_Negotiated_Rate__c = true;//nogotitiated
 
-                    bls.enrtcr__Negotiated_Rate_Ex_GST__c = (decimal)(00.00);//Nogotiated Rate GST
-                    bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
+                    if (bl.AllowNegotiation == true)
+                    {
+                        bls.enrtcr__Negotiated_Rate_Ex_GST__c = (decimal)(bl.BlendedRate);//Nogotiated Rate GST                    
+                        bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
+                    }
                     if (drivers?.SalesForceUserId != "121")
                         result.Add(bls);
                 }

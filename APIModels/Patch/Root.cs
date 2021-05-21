@@ -18,7 +18,7 @@ namespace FC_NDIS.APIModels.Patch
         public bool Batch_Created__c { get; set; }
         public string enrtcr__Client__c { get; set; }
         public string enrtcr__Date__c { get; set; }
-        public int enrtcr__Quantity__c { get; set; }
+        public decimal enrtcr__Quantity__c { get; set; }
         public string enrtcr__Support_Contract_Item__c { get; set; }
         public string enrtcr__Support_Contract__c { get; set; }
         public string enrtcr__Site__c { get; set; }

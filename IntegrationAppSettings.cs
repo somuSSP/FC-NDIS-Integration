@@ -30,6 +30,8 @@ namespace FC_NDIS
         public string SFDCIDScheduleTime { get; set; }
         public string TravelTime { get; set; }
         public string TransportTime { get; set; }
+        public string IntegrationforSandbox { get; set; }
+        public string FirstTimeDownload { get; set; }
 
     }
 }

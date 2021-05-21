@@ -100,7 +100,7 @@ namespace FC_NDIS.DBAccess
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
                 var results = dbc.Customers.Where(k => k.CustomerId == CustomerId).FirstOrDefault();
-                result = results.CustId;
+                result = results?.CustId??0;
             }
             return result;
         }
@@ -117,7 +117,11 @@ namespace FC_NDIS.DBAccess
             {
                 foreach (var users in SFDCUsers)
                 {
-                    //users.UserName = users.UserName.Remove(users.UserName.Length - 9);
+                    bool option = false;
+                    if (_integrationAppSettings.IntegrationforSandbox != null)
+                        option = Convert.ToBoolean(_integrationAppSettings.IntegrationforSandbox);
+                    if(option)
+                    users.UserName = users.UserName.Remove(users.UserName.Length - 9);
                     var driver = dbc.Drivers.FirstOrDefault(k => k.Username == users.UserName);
                     driver.SalesForceUserId = users.Id;
                     dbc.SaveChanges();
@@ -166,9 +170,15 @@ namespace FC_NDIS.DBAccess
                 {
                     if (!string.IsNullOrEmpty(ob.Username))
                     {
+                        bool option = false;
+                        if(_integrationAppSettings.IntegrationforSandbox!=null)
+                          option = Convert.ToBoolean(_integrationAppSettings.IntegrationforSandbox);
                         if (!ob.Username.Contains("'"))
-                            // result.Add(ob.Username + ".newacuat");
+                        {
+                            if(option)
+                             result.Add(ob.Username + ".newacuat");
                             result.Add(ob.Username);
+                        }
                     }
                 }
             }
@@ -209,10 +219,10 @@ namespace FC_NDIS.DBAccess
                     var SFRate = dbc.SalesforceRates.Where(k => k.SalesforceRatesId == bl.SalesforceRatesId).FirstOrDefault();
                     SFDCBillingLines bls = new SFDCBillingLines();
                     bls.BillingID = bl.BillingId;
-
+                    
                     bls.enrtcr__Client__c = customer.CustomerId.ToString();
                     bls.enrtcr__Date__c = customerTrip?.StartDate.ToString();// Automatic from Trip
-                    bls.enrtcr__Quantity__c = (int)(Trip?.TotalKm ?? 0);//Actual Distance (Km) from Trip
+                    bls.enrtcr__Quantity__c = (decimal)(customerTrip?.CustomerKm ?? 0);//Actual Distance (Km) from Trip
 
                     bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementItemId ?? "";
                     bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementId ?? "";

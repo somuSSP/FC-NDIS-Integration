@@ -60,15 +60,101 @@ namespace FC_NDIS.Action
             string queryCustomer = "";
             if (firstDownload)
             {
-                queryCustomer = @"SELECT Id,Name,enrtcr__Remaining__c,enrtcr__Item_Overclaim__c,enrtcr__Support_Contract__c,enrtcr__Support_Contract__r.Name,enrtcr__Support_Contract__r.enrtcr__End_Date__c,enrtcr__Support_Contract__r.enrtcr__Status__c,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c,enrtcr__Support_Contract__r.enrtcr__Client__c,enrtcr__Support_Category__c,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c,enrtcr__Category_Item__r.enrtcr__Delivered__c,enrtcr__Site__c,enrtcr__Site__r.Name,enrtcr__Site__r.enrtcr__Site_GL_Code__c,enrtcr__Service__c,enrtcr__Service__r.Name,enrtcr__Service__r.enrtcr__Travel_Service__c,enrtcr__Service__r.enrtcr__Transport_Service__c,enrtcr__Site_Service_Program__cFROM enrtcr__Support_Contract_Item__c WHERE (enrtcr__Support_Contract__r.enrtcr__Status__c = 'Current' AND (( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
-AND enrtcr__Service__r.enrtcr__Transport_Service__c != null AND ((enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS' AND enrtcr__Support_Contract__r.enrtcr__Transport_Non_Labour_Cost_Claims__c != 'Prevent') OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'))OR( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true AND enrtcr__Service__r.enrtcr__Travel_Service__c != null AND ((enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS' AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Prevent' ) OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS')))
+                queryCustomer = @"SELECT Id
+,Name
+,enrtcr__Remaining__c
+,enrtcr__Item_Overclaim__c
+,enrtcr__Support_Contract__c
+,enrtcr__Support_Contract__r.Name
+,enrtcr__Support_Contract__r.enrtcr__End_Date__c
+,enrtcr__Support_Contract__r.enrtcr__Status__c
+,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c
+,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c
+,enrtcr__Support_Contract__r.enrtcr__Client__c
+,enrtcr__Support_Category__c
+,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c
+,enrtcr__Category_Item__r.enrtcr__Delivered__c
+,enrtcr__Site__c
+,enrtcr__Site__r.Name
+,enrtcr__Site__r.enrtcr__Site_GL_Code__c
+,enrtcr__Service__c
+,enrtcr__Service__r.Name
+,enrtcr__Service__r.enrtcr__Travel_Service__c
+,enrtcr__Service__r.enrtcr__Transport_Service__c
+,enrtcr__Site_Service_Program__c
+FROM enrtcr__Support_Contract_Item__c
+WHERE (enrtcr__Support_Contract__r.enrtcr__Status__c = 'Current'
+AND (( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
+AND enrtcr__Service__r.enrtcr__Transport_Service__c != null
+AND (
+(
+enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
+AND enrtcr__Support_Contract__r.enrtcr__Transport_Non_Labour_Cost_Claims__c != 'Prevent'
+)
+OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+)
+)
+OR
+( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true
+AND enrtcr__Service__r.enrtcr__Travel_Service__c != null
+AND (
+(
+enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
+AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Prevent'
+)
+OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+)
+))
 )";
             }
             else
             {
-                queryCustomer = @"SELECT Id,Name,enrtcr__Remaining__c,enrtcr__Item_Overclaim__c,enrtcr__Support_Contract__c,enrtcr__Support_Contract__r.Name,enrtcr__Support_Contract__r.enrtcr__End_Date__c,enrtcr__Support_Contract__r.enrtcr__Status__c,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c,enrtcr__Support_Contract__r.enrtcr__Client__c,enrtcr__Support_Category__c,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c,enrtcr__Category_Item__r.enrtcr__Delivered__c,enrtcr__Site__c,enrtcr__Site__r.Name,enrtcr__Site__r.enrtcr__Site_GL_Code__c,enrtcr__Service__c,enrtcr__Service__r.Name,enrtcr__Service__r.enrtcr__Travel_Service__c,enrtcr__Service__r.enrtcr__Transport_Service__c,enrtcr__Site_Service_Program__cFROM enrtcr__Support_Contract_Item__c WHERE ((( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
-AND enrtcr__Service__r.enrtcr__Transport_Service__c != null AND ((enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS' AND enrtcr__Support_Contract__r.enrtcr__Transport_Non_Labour_Cost_Claims__c != 'Prevent') OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'))OR( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true AND enrtcr__Service__r.enrtcr__Travel_Service__c != null AND ((enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS' AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Prevent' ) OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS')))
-)";            }
+                queryCustomer = @"SELECT Id
+,Name
+,enrtcr__Remaining__c
+,enrtcr__Item_Overclaim__c
+,enrtcr__Support_Contract__c
+,enrtcr__Support_Contract__r.Name
+,enrtcr__Support_Contract__r.enrtcr__End_Date__c
+,enrtcr__Support_Contract__r.enrtcr__Status__c
+,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c
+,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c
+,enrtcr__Support_Contract__r.enrtcr__Client__c
+,enrtcr__Support_Category__c
+,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c
+,enrtcr__Category_Item__r.enrtcr__Delivered__c
+,enrtcr__Site__c
+,enrtcr__Site__r.Name
+,enrtcr__Site__r.enrtcr__Site_GL_Code__c
+,enrtcr__Service__c
+,enrtcr__Service__r.Name
+,enrtcr__Service__r.enrtcr__Travel_Service__c
+,enrtcr__Service__r.enrtcr__Transport_Service__c
+,enrtcr__Site_Service_Program__c
+FROM enrtcr__Support_Contract_Item__c
+WHERE ((( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
+AND enrtcr__Service__r.enrtcr__Transport_Service__c != null
+AND (
+(
+enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
+AND enrtcr__Support_Contract__r.enrtcr__Transport_Non_Labour_Cost_Claims__c != 'Prevent'
+)
+OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+)
+)
+OR
+( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true
+AND enrtcr__Service__r.enrtcr__Travel_Service__c != null
+AND (
+(
+enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
+AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Prevent'
+)
+OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+)
+))
+)";          
+            }
 
             var APIResponse = QueryAllRecord(Client, queryCustomer);
             var settings = new JsonSerializerSettings
@@ -127,7 +213,7 @@ AND enrtcr__Service__r.enrtcr__Transport_Service__c != null AND ((enrtcr__Suppor
                         csl.SiteId = rootObject.records[i].enrtcr__Site__c;
                         csl.SiteName = rootObject.records[i].enrtcr__Site__r.Name;
                         csl.SiteGlcode = rootObject.records[i].enrtcr__Site__r.enrtcr__Site_GL_Code__c;
-                        csl.SiteServiceProgramId = rootObject.records[i].enrtcr__Site_Service_Program__c;
+                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c??"";
                         csl.ServiceId = rootObject.records[i].enrtcr__Service__c;
                         csl.ServiceName = rootObject.records[i].enrtcr__Service__r.Name;
                         csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;
@@ -470,7 +556,7 @@ AND enrtcr__Service__r.enrtcr__Transport_Service__c != null AND ((enrtcr__Suppor
                         csl.SiteId = rootObject.records[i].enrtcr__Site__c;
                         csl.SiteName = rootObject.records[i].enrtcr__Site__r.Name;
                         csl.SiteGlcode = rootObject.records[i].enrtcr__Site__r.enrtcr__Site_GL_Code__c;
-                        csl.SiteServiceProgramId = rootObject.records[i].enrtcr__Site_Service_Program__c;
+                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c??"";
                         csl.ServiceId = rootObject.records[i].enrtcr__Service__c;
                         csl.ServiceName = rootObject.records[i].enrtcr__Service__r.Name;
                         csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;

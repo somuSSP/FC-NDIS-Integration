@@ -746,7 +746,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                     PatchRoot.batchRequests.Add(br);
                 }
                 if (PatchRoot.batchRequests.Count > 0)
-                {                  
+                {
                     var json = JsonConvert.SerializeObject(PatchRoot);
                     var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
@@ -784,27 +784,21 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         int recordcount = 0;
                         foreach (dynamic res in rootObject.results)
                         {
-                            try
-                            {
-                                string errorCode = "";
-                                string message = "";
-                                int statusCode = 0;
-                                statusCode = res.statusCode;
-                                if (statusCode == 201)
-                                {
-                                    dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
-                                }
-                                else
-                                {
-                                    errorCode = res.result.errorCode;
-                                    message = res.result.message;
-                                    string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
-                                    dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
 
+                            string errorCode = "";
+                            string message = "";
+                            int statusCode = 0;
+                            statusCode = res.statusCode;
+                            if (statusCode == 201)
+                            {
+                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                            }
+                            else
+                            {
+                                errorCode = res.result.errorCode;
+                                message = res.result.message;
+                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
                             }
 
                             recordcount++;
@@ -813,7 +807,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                     }
                 }
             }
-               
+
 
             return Result; ;
         }

@@ -206,43 +206,45 @@ namespace FC_NDIS.DBAccess
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-
                 var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
-                var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false || k.SentToSalesForce == null || k.SentToSalesForceStatus == null).ToList();
-                foreach (var bl in objFinalBillingLinesList)
-                {
-                    var customerTrip = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault();//done
-                    var customer = dbc.Customers.Where(k => k.CustId == customerTrip.CustomerId).FirstOrDefault();
-                    var Trip = dbc.Trips.Where(k => k.TripId == bl.TripId).FirstOrDefault();
-                    var drivers = dbc.Drivers.Where(k => k.DriverId == (Trip.DriverId ?? 0)).FirstOrDefault();
-                    var cslines = dbc.CustomerServiceLines.Where(k => k.ServiceAgreementCustomerId == customerTrip.CustomerId && k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId).FirstOrDefault();
-                    var SFRate = dbc.SalesforceRates.Where(k => k.SalesforceRatesId == bl.SalesforceRatesId).FirstOrDefault();
-                    SFDCBillingLines bls = new SFDCBillingLines();
-                    bls.BillingID = bl.BillingId;
-                    
-                    bls.enrtcr__Client__c = customer.CustomerId.ToString();
-                    bls.enrtcr__Date__c = customerTrip?.StartDate.ToString();// Automatic from Trip
-                    bls.enrtcr__Quantity__c = (decimal)(customerTrip?.CustomerKm ?? 0);//Actual Distance (Km) from Trip
-
-                    bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementItemId ?? "";
-                    bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementId ?? "";
-                    bls.enrtcr__Site__c = cslines?.SiteId ?? null;//site
-
-                    bls.enrtcr__Support_CategoryId__c = cslines?.CategoryItemId ?? "";//CategoryItem
-                    bls.enrtcr__Site_Service_Program__c = cslines?.SiteServiceProgramId ?? "";//Site Service Program;
-                    bls.enrtcr__Rate__c = SFRate?.RateId.ToString();//ob.UnitOfMeasure.ToString();
-
-                    bls.enrtcr__Worker__c = drivers?.SalesForceUserId;//worker
-                    bls.enrtcr__Client_Rep_Accepted__c = true;//client rep accepted
-                    bls.enrtcr__Use_Negotiated_Rate__c = true;//nogotitiated
-
-                    if (bl.AllowNegotiation == true)
+                if (objBillingLinesList != null)
+                {                   
+                    var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false || k.SentToSalesForce == null || k.SentToSalesForceStatus == null).ToList();
+                    foreach (var bl in objFinalBillingLinesList)
                     {
-                        bls.enrtcr__Negotiated_Rate_Ex_GST__c = (decimal)(bl.BlendedRate);//Nogotiated Rate GST                    
-                        bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
+                        var customerTrip = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault();//done
+                        var customer = dbc.Customers.Where(k => k.CustId == customerTrip.CustomerId).FirstOrDefault();
+                        var Trip = dbc.Trips.Where(k => k.TripId == bl.TripId).FirstOrDefault();
+                        var drivers = dbc.Drivers.Where(k => k.DriverId == (Trip.DriverId ?? 0)).FirstOrDefault();
+                        var cslines = dbc.CustomerServiceLines.Where(k => k.ServiceAgreementCustomerId == customerTrip.CustomerId && k.ServiceAgreementId == bl.ServiceAgreementId && k.ServiceAgreementItemId == bl.ServiceAgreementItemId).FirstOrDefault();
+                        var SFRate = dbc.SalesforceRates.Where(k => k.SalesforceRatesId == bl.SalesforceRatesId).FirstOrDefault();
+                        SFDCBillingLines bls = new SFDCBillingLines();
+                        bls.BillingID = bl.BillingId;
+
+                        bls.enrtcr__Client__c = customer.CustomerId.ToString();
+                        bls.enrtcr__Date__c = customerTrip?.StartDate.ToString();// Automatic from Trip
+                        bls.enrtcr__Quantity__c = Math.Round((decimal)(customerTrip?.CustomerKm ?? 0), 1);//Actual Distance (Km) from Trip
+
+                        bls.enrtcr__Support_Contract_Item__c = bl?.ServiceAgreementItemId ?? "";
+                        bls.enrtcr__Support_Contract__c = bl?.ServiceAgreementId ?? "";
+                        bls.enrtcr__Site__c = cslines?.SiteId ?? null;//site
+
+                        bls.enrtcr__Support_CategoryId__c = cslines?.CategoryItemId ?? "";//CategoryItem
+                        bls.enrtcr__Site_Service_Program__c = cslines?.SiteServiceProgramId ?? "";//Site Service Program;
+                        bls.enrtcr__Rate__c = SFRate?.RateId??"";//ob.UnitOfMeasure.ToString();
+
+                        bls.enrtcr__Worker__c = drivers?.SalesForceUserId;//worker
+                        bls.enrtcr__Client_Rep_Accepted__c = true;//client rep accepted
+                        bls.enrtcr__Use_Negotiated_Rate__c = true;//nogotitiated
+
+                        if (bl.AllowNegotiation == true)
+                        {
+                            bls.enrtcr__Negotiated_Rate_Ex_GST__c = Math.Round((decimal)(bl.BlendedRate ?? 0), 2);//Nogotiated Rate GST                    
+                            bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
+                        }
+                        if (drivers?.SalesForceUserId != "121")
+                            result.Add(bls);
                     }
-                    if (drivers?.SalesForceUserId != "121")
-                        result.Add(bls);
                 }
             }
             return result;
@@ -291,7 +293,7 @@ namespace FC_NDIS.DBAccess
             return result;
         }
 
-        public bool SFDCActionStatus(int BillingId, bool SentToSalesForceStatus, string SentToSalesForceDescription)
+        public bool SFDCActionStatus(int BillingId, bool SentToSalesForceStatus, string SentToSalesForceDescription,string SalesForceBillingID)
         {
             bool result = false;
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
@@ -300,6 +302,8 @@ namespace FC_NDIS.DBAccess
                 billlineNew.SentToSalesForce = true;
                 billlineNew.SentToSalesForceStatus = SentToSalesForceStatus;
                 billlineNew.SentToSalesForceDescription = SentToSalesForceDescription;
+                if (SalesForceBillingID != "")
+                    billlineNew.SalesForceBillingId = SalesForceBillingID;
                 dbc.SaveChanges();
                 result = true;
             }

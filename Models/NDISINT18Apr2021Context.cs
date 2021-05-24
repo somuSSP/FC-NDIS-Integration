@@ -16,6 +16,7 @@ namespace FC_NDIS.Models
         {
             this._integrationAppSettings = integrationAppSettings;
         }
+
         public NDISINT18Apr2021Context(DbContextOptions<NDISINT18Apr2021Context> options)
             : base(options)
         {
@@ -41,6 +42,7 @@ namespace FC_NDIS.Models
         public virtual DbSet<CustomerTrip> CustomerTrips { get; set; }
         public virtual DbSet<CustomerTripCategory> CustomerTripCategories { get; set; }
         public virtual DbSet<CustomerTripLocation> CustomerTripLocations { get; set; }
+        public virtual DbSet<CustomersBak> CustomersBaks { get; set; }
         public virtual DbSet<Driver> Drivers { get; set; }
         public virtual DbSet<DriverLocation> DriverLocations { get; set; }
         public virtual DbSet<DriverPauseResumeTrip> DriverPauseResumeTrips { get; set; }
@@ -62,6 +64,8 @@ namespace FC_NDIS.Models
         public virtual DbSet<JobQueue> JobQueues { get; set; }
         public virtual DbSet<List> Lists { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
+        public virtual DbSet<RoleAccessLevel> RoleAccessLevels { get; set; }
+        public virtual DbSet<RoleGroup> RoleGroups { get; set; }
         public virtual DbSet<SalesForceService> SalesForceServices { get; set; }
         public virtual DbSet<SalesforceRate> SalesforceRates { get; set; }
         public virtual DbSet<SalesforceRateType> SalesforceRateTypes { get; set; }
@@ -79,6 +83,7 @@ namespace FC_NDIS.Models
         public virtual DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
         public virtual DbSet<UserGridSetting> UserGridSettings { get; set; }
         public virtual DbSet<UserRole> UserRoles { get; set; }
+        public virtual DbSet<UserRoleNew> UserRoleNews { get; set; }
         public virtual DbSet<Vehicle> Vehicles { get; set; }
         public virtual DbSet<VehicleCategory> VehicleCategories { get; set; }
         public virtual DbSet<VehicleType> VehicleTypes { get; set; }
@@ -362,6 +367,10 @@ namespace FC_NDIS.Models
                     .HasColumnName("LumaryID");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SalesForceBillingId)
+                    .HasMaxLength(100)
+                    .HasColumnName("SalesForceBillingID");
 
                 entity.Property(e => e.SalesforceRatesId).HasColumnName("SalesforceRatesID");
 
@@ -680,21 +689,19 @@ namespace FC_NDIS.Models
 
                 entity.ToTable("CustomerServiceLines_bak");
 
-                entity.Property(e => e.RateId)
-                    .IsRequired()
+                entity.Property(e => e.CategoryItemId)
                     .HasMaxLength(50)
-                    .HasColumnName("RateID");
+                    .HasColumnName("CategoryItemID");
 
-                entity.Property(e => e.RateName).HasMaxLength(100);
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.RateType)
-                    .IsRequired()
-                    .HasMaxLength(100);
+                entity.Property(e => e.CustomerServiceLineId)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("CustomerServiceLineID");
 
-                entity.Property(e => e.ServiceAgreementCustomerId)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnName("ServiceAgreementCustomerID");
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ServiceAgreementCustomerId).HasColumnName("ServiceAgreementCustomerID");
 
                 entity.Property(e => e.ServiceAgreementEndDate).HasColumnType("date");
 
@@ -724,8 +731,6 @@ namespace FC_NDIS.Models
                     .IsRequired()
                     .HasMaxLength(100);
 
-                entity.Property(e => e.ServiceAgreementStatus).HasMaxLength(50);
-
                 entity.Property(e => e.ServiceId)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -734,6 +739,10 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.ServiceName)
                     .IsRequired()
                     .HasMaxLength(200);
+
+                entity.Property(e => e.SiteGlcode)
+                    .HasMaxLength(50)
+                    .HasColumnName("SiteGLCode");
 
                 entity.Property(e => e.SiteId)
                     .IsRequired()
@@ -749,9 +758,13 @@ namespace FC_NDIS.Models
                     .HasMaxLength(50)
                     .HasColumnName("SiteServiceProgramID");
 
-                entity.Property(e => e.SupportCategoryDelivered)
-                    .IsRequired()
-                    .HasMaxLength(100);
+                entity.Property(e => e.TransportServiceId)
+                    .HasMaxLength(75)
+                    .HasColumnName("TransportServiceID");
+
+                entity.Property(e => e.TravelServiceId)
+                    .HasMaxLength(75)
+                    .HasColumnName("TravelServiceID");
             });
 
             modelBuilder.Entity<CustomerStatus>(entity =>
@@ -877,6 +890,42 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.Latitude).HasMaxLength(75);
 
                 entity.Property(e => e.Longitude).HasMaxLength(75);
+            });
+
+            modelBuilder.Entity<CustomersBak>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("Customers_bak");
+
+                entity.Property(e => e.City).HasMaxLength(100);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.CustId)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("CustID");
+
+                entity.Property(e => e.CustomerId)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("CustomerID");
+
+                entity.Property(e => e.LumaryId)
+                    .HasMaxLength(255)
+                    .HasColumnName("LumaryID");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.PostalCode).HasMaxLength(50);
+
+                entity.Property(e => e.State).HasMaxLength(100);
+
+                entity.Property(e => e.Street).HasMaxLength(100);
             });
 
             modelBuilder.Entity<Driver>(entity =>
@@ -1241,6 +1290,8 @@ namespace FC_NDIS.Models
 
                 entity.Property(e => e.IntegrationActivityName).HasMaxLength(100);
 
+                entity.Property(e => e.IsCompleted).HasDefaultValueSql("((1))");
+
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             });
 
@@ -1350,6 +1401,35 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.RoleName)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<RoleAccessLevel>(entity =>
+            {
+                entity.HasKey(e => e.AccessLevelId)
+                    .HasName("PK__RoleAcce__5E44DFF535A4CB76");
+
+                entity.ToTable("RoleAccessLevel");
+
+                entity.Property(e => e.AccessLevelId).HasColumnName("AccessLevelID");
+
+                entity.Property(e => e.AccessLevelName).HasMaxLength(75);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<RoleGroup>(entity =>
+            {
+                entity.ToTable("RoleGroup");
+
+                entity.Property(e => e.RoleGroupId).HasColumnName("RoleGroupID");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.GroupName).HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<SalesForceService>(entity =>
@@ -1754,6 +1834,43 @@ namespace FC_NDIS.Models
                     .WithMany(p => p.UserRoles)
                     .HasForeignKey(d => d.RoleId)
                     .HasConstraintName("FK_Role");
+            });
+
+            modelBuilder.Entity<UserRoleNew>(entity =>
+            {
+                entity.HasKey(e => e.UserRoleId)
+                    .HasName("PK__UserRole__3D978A5596C34C42");
+
+                entity.ToTable("UserRoleNew");
+
+                entity.Property(e => e.UserRoleId).HasColumnName("UserRoleID");
+
+                entity.Property(e => e.AccessLevelId).HasColumnName("AccessLevelID");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PageNameId).HasColumnName("PageNameID");
+
+                entity.Property(e => e.RoleGroupId).HasColumnName("RoleGroupID");
+
+                entity.Property(e => e.UserId).HasColumnName("UserID");
+
+                entity.HasOne(d => d.AccessLevel)
+                    .WithMany(p => p.UserRoleNews)
+                    .HasForeignKey(d => d.AccessLevelId)
+                    .HasConstraintName("FK_UserRole_AccessLevelID");
+
+                entity.HasOne(d => d.PageName)
+                    .WithMany(p => p.UserRoleNews)
+                    .HasForeignKey(d => d.PageNameId)
+                    .HasConstraintName("FK_UserRole_PageNameID");
+
+                entity.HasOne(d => d.RoleGroup)
+                    .WithMany(p => p.UserRoleNews)
+                    .HasForeignKey(d => d.RoleGroupId)
+                    .HasConstraintName("FK_UserRole_RoleGroupID");
             });
 
             modelBuilder.Entity<Vehicle>(entity =>

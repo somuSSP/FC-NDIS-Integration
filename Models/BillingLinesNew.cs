@@ -34,6 +34,7 @@ namespace FC_NDIS.Models
         public bool? AllowNegotiation { get; set; }
         public bool? SentToSalesForceStatus { get; set; }
         public string SentToSalesForceDescription { get; set; }
+        public string SalesForceBillingId { get; set; }
 
         public virtual BillingCustomerTrip CustomerTrip { get; set; }
         public virtual SalesforceRate SalesforceRates { get; set; }

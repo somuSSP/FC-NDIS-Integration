@@ -5,20 +5,18 @@ using System.Collections.Generic;
 
 namespace FC_NDIS.Models
 {
-    public partial class GridList
+    public partial class RoleGroup
     {
-        public GridList()
+        public RoleGroup()
         {
-            GridSettings = new HashSet<GridSetting>();
             UserRoleNews = new HashSet<UserRoleNew>();
         }
 
-        public int GridId { get; set; }
-        public string GridName { get; set; }
+        public int RoleGroupId { get; set; }
+        public string GroupName { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
 
-        public virtual ICollection<GridSetting> GridSettings { get; set; }
         public virtual ICollection<UserRoleNew> UserRoleNews { get; set; }
     }
 }

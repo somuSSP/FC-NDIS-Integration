@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using FC_NDIS.RestAPIModels;
 using FC_NDIS.APIModels.BllingLines;
 using RestSharp;
+using FC_NDIS.APIModels.Patch;
 
 namespace FC_NDIS.Action
 {
@@ -153,7 +154,7 @@ AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Pre
 OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
 )
 ))
-)";          
+)";
             }
 
             var APIResponse = QueryAllRecord(Client, queryCustomer);
@@ -213,7 +214,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.SiteId = rootObject.records[i].enrtcr__Site__c;
                         csl.SiteName = rootObject.records[i].enrtcr__Site__r.Name;
                         csl.SiteGlcode = rootObject.records[i].enrtcr__Site__r.enrtcr__Site_GL_Code__c;
-                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c??"";
+                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c ?? "";
                         csl.ServiceId = rootObject.records[i].enrtcr__Service__c;
                         csl.ServiceName = rootObject.records[i].enrtcr__Service__r.Name;
                         csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;
@@ -427,8 +428,15 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             }
             if (lstCus.Count > 0)
             {
-                DBAction dba = new DBAction(_integrationAppSettings);
-                dba.IntegrateCustomerInfotoDB(lstCus);
+                try
+                {
+                    DBAction dba = new DBAction(_integrationAppSettings);
+                    dba.IntegrateCustomerInfotoDB(lstCus);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.ToString());
+                }
             }
 
             if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
@@ -556,7 +564,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.SiteId = rootObject.records[i].enrtcr__Site__c;
                         csl.SiteName = rootObject.records[i].enrtcr__Site__r.Name;
                         csl.SiteGlcode = rootObject.records[i].enrtcr__Site__r.enrtcr__Site_GL_Code__c;
-                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c??"";
+                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c ?? "";
                         csl.ServiceId = rootObject.records[i].enrtcr__Service__c;
                         csl.ServiceName = rootObject.records[i].enrtcr__Service__r.Name;
                         csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;
@@ -704,66 +712,108 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
         {
             bool Result = false;
             var bllist = GetBillingInformation();
-            logger.Info("Insert Data into SFDC");          
-          
-            DBAction dba = new DBAction(_integrationAppSettings);          
+            logger.Info("Insert Data into SFDC");
+
+            DBAction dba = new DBAction(_integrationAppSettings);
 
             FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
-            PatchRoot.records = new List<APIModels.Patch.Record>();
-            foreach (var bl in bllist)
+            PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
+            Login();
+            for (int i = 0; i < bllist.Count; i = i + 25)
             {
-                FC_NDIS.APIModels.Patch.Record record = new APIModels.Patch.Record();
-                record.attributes = new FC_NDIS.APIModels.Patch.Attributes();
-                record.attributes.referenceId = "ref" + bl.BillingID.ToString(); ;
-                record.attributes.type = "enrtcr__Support_Delivered__c";
-                record.Batch_Created__c = true;
-                record.enrtcr__Client__c = bl.enrtcr__Client__c;
-                record.enrtcr__Date__c = Convert.ToDateTime(bl.enrtcr__Date__c).ToString("yyyy-MM-dd");
-                record.enrtcr__Quantity__c = bl.enrtcr__Quantity__c;
-                record.enrtcr__Support_Contract_Item__c = bl.enrtcr__Support_Contract_Item__c;
-                record.enrtcr__Support_Contract__c = bl.enrtcr__Support_Contract__c;
-                record.enrtcr__Site__c = bl.enrtcr__Site__c;
-                record.enrtcr__Support_CategoryId__c = bl.enrtcr__Support_CategoryId__c;
-                record.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
-                record.enrtcr__Rate__c = bl.enrtcr__Rate__c;
-                record.enrtcr__Worker__c = bl.enrtcr__Worker__c;
-                record.enrtcr__Client_Rep_Accepted__c = true;
-                record.enrtcr__Use_Negotiated_Rate__c = true;
-                record.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
-                record.enrtcr__Negotiated_Rate_GST__c = bl.enrtcr__Negotiated_Rate_GST__c;
-                PatchRoot.records.Add(record);
-            }
-            if (PatchRoot.records.Count > 0)
-            {
-                Login();
+                var items = bllist.Skip(i).Take(25).ToList();
+                foreach (var bl in items)
+                {
+                    APIModels.Patch.BatchRequest br = new APIModels.Patch.BatchRequest();
+                    br.method = "POST";
+                    br.url = "v36.0/sobjects/enrtcr__Support_Delivered__c";
+                    br.richInput = new RichInput();
+                    br.richInput.Batch_Created__c = true;
+                    br.richInput.enrtcr__Client__c = bl.enrtcr__Client__c;
+                    br.richInput.enrtcr__Date__c = Convert.ToDateTime(bl.enrtcr__Date__c).ToString("yyyy-MM-dd");
+                    br.richInput.enrtcr__Quantity__c = bl.enrtcr__Quantity__c;
+                    br.richInput.enrtcr__Support_Contract_Item__c = bl.enrtcr__Support_Contract_Item__c;
+                    br.richInput.enrtcr__Support_Contract__c = bl.enrtcr__Support_Contract__c;
+                    br.richInput.enrtcr__Site__c = bl.enrtcr__Site__c;
+                    br.richInput.enrtcr__Support_CategoryId__c = bl.enrtcr__Support_CategoryId__c;
+                    br.richInput.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
+                    br.richInput.enrtcr__Rate__c = bl.enrtcr__Rate__c;
+                    br.richInput.enrtcr__Worker__c = bl.enrtcr__Worker__c;
+                    br.richInput.enrtcr__Client_Rep_Accepted__c = true;
+                    br.richInput.enrtcr__Use_Negotiated_Rate__c = true;
+                    br.richInput.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
+                    br.richInput.enrtcr__Negotiated_Rate_GST__c = bl.enrtcr__Negotiated_Rate_GST__c;
+                    PatchRoot.batchRequests.Add(br);
+                }
+                if (PatchRoot.batchRequests.Count > 0)
+                {                  
+                    var json = JsonConvert.SerializeObject(PatchRoot);
+                    var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
+                    var settings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        MissingMemberHandling = MissingMemberHandling.Ignore
+                    };
+                    var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
+                    if (!rootObject.hasErrors)
+                    {
+                        int recordcount = 0;
+                        foreach (dynamic res in rootObject.results)
+                        {
+                            string errorCode = "";
+                            string message = "";
+                            int statusCode = 0;
+                            statusCode = res.statusCode;
+                            if (statusCode == 201)
+                            {
+                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                            }
+                            else
+                            {
+                                errorCode = res.result.errorCode;
+                                message = res.result.message;
+                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                            }
+                            recordcount++;
+                        }
+                        Result = true;
+                    }
+                    else
+                    {
+                        int recordcount = 0;
+                        foreach (dynamic res in rootObject.results)
+                        {
+                            try
+                            {
+                                string errorCode = "";
+                                string message = "";
+                                int statusCode = 0;
+                                statusCode = res.statusCode;
+                                if (statusCode == 201)
+                                {
+                                    dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                }
+                                else
+                                {
+                                    errorCode = res.result.errorCode;
+                                    message = res.result.message;
+                                    string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                    dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
 
-                var json = JsonConvert.SerializeObject(PatchRoot);
-                var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/tree/enrtcr__Support_Delivered__c/");
-                var settings = new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-                var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
-                if (!rootObject.hasErrors)
-                {
-                    foreach (var res in rootObject.results)
-                    {
-                        var id = res.referenceId.Remove(0, 3);
-                        dba.SFDCActionStatus(Convert.ToInt16(id), true, "Success");
+                            }
+
+                            recordcount++;
+                        }
+                        Result = true;
                     }
-                    Result = true;
-                }
-                else
-                {
-                    foreach (var res in rootObject.results)
-                    {
-                        var id = res.referenceId.Remove(0, 3);
-                        dba.SFDCActionStatus(Convert.ToInt16(id), false, "Failed");
-                    }
-                    Result = true;
                 }
             }
+               
 
             return Result; ;
         }

@@ -812,10 +812,121 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             return Result; ;
         }
 
+
+        public bool InsertDataintoSFDCFromPortal(List<int> BillingIds)
+        {
+            bool Result = false;
+            var bllist = GetBillingInformationUsingIds(BillingIds);
+            logger.Info("Insert Data into SFDC");
+
+            DBAction dba = new DBAction(_integrationAppSettings);
+
+            FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
+            PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
+            Login();
+            for (int i = 0; i < bllist.Count; i = i + 25)
+            {
+                var items = bllist.Skip(i).Take(25).ToList();
+                foreach (var bl in items)
+                {
+                    APIModels.Patch.BatchRequest br = new APIModels.Patch.BatchRequest();
+                    br.method = "POST";
+                    br.url = "v36.0/sobjects/enrtcr__Support_Delivered__c";
+                    br.richInput = new RichInput();
+                    br.richInput.Batch_Created__c = true;
+                    br.richInput.enrtcr__Client__c = bl.enrtcr__Client__c;
+                    br.richInput.enrtcr__Date__c = Convert.ToDateTime(bl.enrtcr__Date__c).ToString("yyyy-MM-dd");
+                    br.richInput.enrtcr__Quantity__c = bl.enrtcr__Quantity__c;
+                    br.richInput.enrtcr__Support_Contract_Item__c = bl.enrtcr__Support_Contract_Item__c;
+                    br.richInput.enrtcr__Support_Contract__c = bl.enrtcr__Support_Contract__c;
+                    br.richInput.enrtcr__Site__c = bl.enrtcr__Site__c;
+                    br.richInput.enrtcr__Support_CategoryId__c = bl.enrtcr__Support_CategoryId__c;
+                    br.richInput.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
+                    br.richInput.enrtcr__Rate__c = bl.enrtcr__Rate__c;
+                    br.richInput.enrtcr__Worker__c = bl.enrtcr__Worker__c;
+                    br.richInput.enrtcr__Client_Rep_Accepted__c = true;
+                    br.richInput.enrtcr__Use_Negotiated_Rate__c = true;
+                    br.richInput.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
+                    br.richInput.enrtcr__Negotiated_Rate_GST__c = bl.enrtcr__Negotiated_Rate_GST__c;
+                    PatchRoot.batchRequests.Add(br);
+                }
+                if (PatchRoot.batchRequests.Count > 0)
+                {
+                    var json = JsonConvert.SerializeObject(PatchRoot);
+                    var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
+                    var settings = new JsonSerializerSettings
+                    {
+                        NullValueHandling = NullValueHandling.Ignore,
+                        MissingMemberHandling = MissingMemberHandling.Ignore
+                    };
+                    var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
+                    if (!rootObject.hasErrors)
+                    {
+                        int recordcount = 0;
+                        foreach (dynamic res in rootObject.results)
+                        {
+                            string errorCode = "";
+                            string message = "";
+                            int statusCode = 0;
+                            statusCode = res.statusCode;
+                            if (statusCode == 201)
+                            {
+                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                            }
+                            else
+                            {
+                                errorCode = res.result.errorCode;
+                                message = res.result.message;
+                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                            }
+                            recordcount++;
+                        }
+                        Result = true;
+                    }
+                    else
+                    {
+                        int recordcount = 0;
+                        foreach (dynamic res in rootObject.results)
+                        {
+
+                            string errorCode = "";
+                            string message = "";
+                            int statusCode = 0;
+                            statusCode = res.statusCode;
+                            if (statusCode == 201)
+                            {
+                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                            }
+                            else
+                            {
+                                errorCode = res.result.errorCode;
+                                message = res.result.message;
+                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                            }
+
+                            recordcount++;
+                        }
+                        Result = true;
+                    }
+                }
+            }
+
+
+            return Result; ;
+        }
+
         public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformation()
         {
             DBAction dba = new DBAction(_integrationAppSettings);
             var res = dba.GetBillingInformation();
+            return res;
+        }
+        public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformationUsingIds(List<int> BillingIds)
+        {
+            DBAction dba = new DBAction(_integrationAppSettings);
+            var res = dba.GetBillingInformationusingIds(BillingIds);
             return res;
         }
 

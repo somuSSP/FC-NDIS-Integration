@@ -157,6 +157,35 @@ namespace FC_NDIS.Controllers
             {
                 SFDCRestAPIAccess sfdca = new SFDCRestAPIAccess(_integrationAppSettings);
                 var results = sfdca.InsertDataintoSFDC();
+                //InsertDataintoSFDCFromPortal
+                if (results)
+                {
+                    rs.ResponseCode = 200;
+                    rs.Message = "Integrated Successfully";
+                }
+                else
+                {
+                    rs.ResponseCode = 500;
+                    rs.Message = "SFDC Response Issue occured";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 200;
+                rs.Message = "Internal Server Error Occur";
+            }
+            return rs;
+        }
+        [HttpPost("BillingLinesInfo_Pushed_to_SFDC_FromPortal")]
+        public Response DataPushedtoSFDC(List<int> BillingIds)
+        {
+            Response rs = new Response();
+            try
+            {
+                SFDCRestAPIAccess sfdca = new SFDCRestAPIAccess(_integrationAppSettings);
+                var results = sfdca.InsertDataintoSFDCFromPortal(BillingIds);
+               
                 if (results)
                 {
                     rs.ResponseCode = 200;

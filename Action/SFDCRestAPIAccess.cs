@@ -302,16 +302,23 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         ltsTransportRate.Add(tr);
                     }
                 }
-                //Insert record to Database
-                if (rootObject.records.Count > 0)
+                if (ltsTransportRate.Count > 0)
                 {
-                    dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
-                    result = true;
+                    try
+                    {
+                        dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.ToString());
+                    }
                 }
-                else
-                    result = true;
-            }
 
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRateRecord(rootObject.nextRecordsUrl);
+                }
+            }
             return result;
         }
 
@@ -356,11 +363,70 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         ltsTransportRate.Add(tr);
                     }
                 }
-                //Insert record to Database
-                dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+
+                if (ltsTransportRate.Count > 0)
+                {
+                    try
+                    {                      
+                        dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.ToString());
+                    }
+                }
+
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRateRecord(rootObject.nextRecordsUrl);
+                }               
             }
             return result;
         }
+        public void RemainingRateRecord(string NextURL)
+        {
+            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
+            var APIResponse = QueryNextRecord(Client, NextURL);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
+
+            List<Customer> lstCus = new List<Customer>();
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        SalesforceRate tr = new SalesforceRate();
+                        tr.RateId = rootObject.records[i].Id;
+                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
+                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
+                        tr.RateName = rootObject.records[i].Name;
+                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
+                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
+                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
+                        tr.RateType = 1;
+
+                        tr.IsDeleted = false;
+                        tr.CreatedDate = DateTime.Now;
+                        tr.ModifiedDate = DateTime.Now;
+                        ltsTransportRate.Add(tr);
+                    }
+                }
+                DBAction dba = new DBAction(_integrationAppSettings);
+                dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRateRecord(rootObject.nextRecordsUrl);
+                }
+            }
+        }
+
+
         public bool IntegerateSfCustomeList()
         {
             Login();

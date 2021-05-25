@@ -32,8 +32,7 @@ namespace FC_NDIS
             services.AddControllers();
             var section = Configuration.GetSection(nameof(IntegrationAppSettings));
             var integrationAppSettings = section.Get<IntegrationAppSettings>();
-            services.AddSingleton(integrationAppSettings);
-            // services.AddScoped<ISFDC, SFDCAction>();
+            services.AddSingleton(integrationAppSettings);            
             services.AddScoped<ISFDC, SFDCRestAPIAccess>();
             services.AddScoped<IConnex, ConnexServiceAction>();
             services.AddScoped<IFleetComplete, FleetCompleteAction>();
@@ -43,10 +42,7 @@ namespace FC_NDIS
                 config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseDefaultTypeSerializer()
-                .UseMemoryStorage());
-           // .UseSqlServerStorage(Configuration.GetConnectionString("sqlConnection")));
-
-
+                .UseMemoryStorage());     
             services.AddHangfireServer();
         }
 
@@ -59,15 +55,6 @@ namespace FC_NDIS
             var section = Configuration.GetSection(nameof(IntegrationAppSettings));
             var integrationAppSettings = section.Get<IntegrationAppSettings>();
 
-            string userlist;
-            List<string> UserNames = new List<string>();
-            SFDCAction sfdca = new SFDCAction(integrationAppSettings);
-            UserNames = sfdca.GetAllDriverInfo_NotMappedSFDC();
-            userlist = "'" + string.Join("','", UserNames.Where(k => !string.IsNullOrEmpty(k))) + "'";
-
-            FleetCompleteAction fca = new FleetCompleteAction(integrationAppSettings);
-            var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + integrationAppSettings.UserName + "&userPassword=" + integrationAppSettings.Password;
-            var tokeninfo = fca.GetAccessToken(url);
 
             if (env.IsDevelopment() || env.IsProduction()||env.IsStaging())
             {

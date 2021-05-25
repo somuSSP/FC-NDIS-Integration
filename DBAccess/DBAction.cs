@@ -297,7 +297,7 @@ namespace FC_NDIS.DBAccess
                             bls.enrtcr__Negotiated_Rate_Ex_GST__c = Math.Round((decimal)(bl.BlendedRate ?? 0), 2);//Nogotiated Rate GST                    
                             bls.enrtcr__Negotiated_Rate_GST__c = (decimal)(00.00);//Nogotiated Rate GST
                         }
-                        if (drivers?.SalesForceUserId != "121")
+                        //if (drivers?.SalesForceUserId != "121")
                             result.Add(bls);
                     }
                 }
@@ -357,6 +357,7 @@ namespace FC_NDIS.DBAccess
                 billlineNew.SentToSalesForce = true;
                 billlineNew.SentToSalesForceStatus = SentToSalesForceStatus;
                 billlineNew.SentToSalesForceDescription = SentToSalesForceDescription;
+                billlineNew.DateTransferred = DateTime.Now;
                 if (SalesForceBillingID != "")
                     billlineNew.SalesForceBillingId = SalesForceBillingID;
                 dbc.SaveChanges();

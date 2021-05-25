@@ -58,7 +58,7 @@ namespace FC_NDIS.Action
 
                         Driver dr = new Driver();
                         dr.EmployeeCode = emppersonalDetails.Result.Items[i].EmployeeCode ?? "";
-                        dr.SalesForceUserId = "";//It was came from SFDC
+                        dr.SalesForceUserId = "";
                         dr.FirstName = emppersonalDetails.Result.Items[i].GivenName ?? "";
                         dr.LastName = emppersonalDetails.Result.Items[i].Surname ?? "";
                         dr.PreferedName = emppersonalDetails.Result.Items[i].PreferredName;
@@ -112,7 +112,7 @@ namespace FC_NDIS.Action
 
                         Driver dr = new Driver();
                         dr.EmployeeCode = emppersonalDetails.Result.Items[i].EmployeeCode ?? "";
-                        dr.SalesForceUserId = "";//It was came from SFDC
+                        dr.SalesForceUserId = "";
                         dr.FirstName = emppersonalDetails.Result.Items[i].GivenName ?? "";
                         dr.LastName = emppersonalDetails.Result.Items[i].Surname ?? "";
                         dr.PreferedName = emppersonalDetails.Result.Items[i].PreferredName;
@@ -151,10 +151,7 @@ namespace FC_NDIS.Action
                 {
                     return false;
                 }
-            }
-            //var emppersonalDetails = CSC.GetEmployeePersonalDetail(userName, Password, null, string.Empty, string.Empty, string.Empty, null);
-            //var empEmploymentDetail = CSC.GetEmployeeEmploymentDetail(userName, Password, null, string.Empty, string.Empty, string.Empty, null, string.Empty);
-           
+            }            
         }
     }
 }

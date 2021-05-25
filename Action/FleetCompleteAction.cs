@@ -28,8 +28,7 @@ namespace FC_NDIS.Action
         }
 
         public FCResponseTokenandUserId GetAccessToken(string URL)
-        {
-            //_logger.LogInformation("Method GetAccessToken");
+        {        
             FCResponseTokenandUserId sfdResponse = new FCResponseTokenandUserId();
             var client = new RestClient(URL);
             var request = new RestRequest(Method.GET);
@@ -43,10 +42,8 @@ namespace FC_NDIS.Action
         }
 
         public void IntegrateAsset(string ClientID, string UserID, string Token)
-        {
-            // _logger.LogInformation("Method IntegrateAsset");
+        {         
             logger.Info("Scheduled Fleet complete asset job triggered");
-
             var client = new RestClient(_integrationAppSettings.AssetURL);
             client.Timeout = -1;
             var request = new RestRequest(Method.GET);
@@ -92,8 +89,7 @@ namespace FC_NDIS.Action
             request.AddHeader("ClientID", ClientID);
             request.AddHeader("UserID", UserID);
             request.AddHeader("Token", Token);
-            IRestResponse response = client.Execute(request);
-            //var vehicleInformation = JsonConvert.DeserializeObject<Root>(response.Content);
+            IRestResponse response = client.Execute(request);           
             Root vehicleInformation = JsonConvert.DeserializeObject<Root>(response.Content);
             if (vehicleInformation != null)
             {

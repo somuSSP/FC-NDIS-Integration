@@ -18,18 +18,11 @@ using FC_NDIS.APIModels.BllingLines;
 using RestSharp;
 using FC_NDIS.APIModels.Patch;
 
+
 namespace FC_NDIS.Action
 {
     public class SFDCRestAPIAccess : ISFDC
-    {
-        public const string LoginEndpoint = "https://test.salesforce.com/services/oauth2/token";
-        public const string ApiEndpoint = "/services/data/v36.0/"; //Use your org's version number
-
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string Token { get; set; }
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
+    {       
         public string AuthToken { get; set; }
         public string ServiceUrl { get; set; }
         public ConfigurationBuilder _configurationBuilder = null;
@@ -47,7 +40,340 @@ namespace FC_NDIS.Action
             this._integrationAppSettings = integrationAppSettings;
         }
 
+              
+        #region Rate Section
+        public bool IntegerateSfTransportRate()
+        {
+            bool result = false;
+            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
+            logger.Info("Scheduled Travel Rate job triggered");
+            DBAction dba = new DBAction(_integrationAppSettings);
+            Login();
 
+
+            var queryCustomer = @"SELECT Id
+                                                    ,enrtcr__Effective_Date__c
+                                                    ,enrtcr__End_Date__c
+                                                    ,Name
+                                                    ,enrtcr__Service__c
+                                                    ,enrtcr__Allow_Rate_Negotiation__c
+                                                    ,enrtcr__Amount_Ex_GST__c
+                                                    ,enrtcr__Quantity_Type__c
+                                                FROM enrtcr__Rate__c
+                                                WHERE enrtcr__Effective_Date__c <= TODAY
+                                                    AND enrtcr__End_Date__c >= TODAY
+                                                    AND (
+                                                            (Name LIKE '%25WA%25' AND enrtcr__Funding_Type__c = 'NDIS')
+                                                            OR enrtcr__Funding_Type__c != 'NDIS'
+                                                        )
+                                                    AND enrtcr__Service__c IN (
+                                                        SELECT enrtcr__Transport_Service__c
+                                                        FROM enrtcr__Service__c
+                                                        WHERE enrtcr__Transport_Service__c != null
+                                                            AND enrtcr__Allow_Non_Labour_Transport__c = true
+                                                    )
+                                                ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc
+                                                ";
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
+
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        SalesforceRate tr = new SalesforceRate();
+                        tr.RateId = rootObject.records[i].Id;
+                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
+                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
+                        tr.RateName = rootObject.records[i].Name;
+                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
+                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
+                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
+                        tr.RateType = 1;
+
+                        tr.IsDeleted = false;
+                        tr.CreatedDate = DateTime.Now;
+                        tr.ModifiedDate = DateTime.Now;
+                        ltsTransportRate.Add(tr);
+                    }
+                }
+                if (ltsTransportRate.Count > 0)
+                {
+                    try
+                    {
+                        dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.ToString());
+                    }
+                }
+
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRateRecord(rootObject.nextRecordsUrl);
+                }
+            }
+            return result;
+        }
+
+        public bool IntegerateSfTravelRate()
+        {
+            bool result = false;
+            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
+            logger.Info("Scheduled Travel Rate job triggered");
+            DBAction dba = new DBAction(_integrationAppSettings);
+            Login();
+
+
+            var queryCustomer = @"SELECT Id ,enrtcr__Effective_Date__c,enrtcr__End_Date__c,Name,enrtcr__Service__c,enrtcr__Allow_Rate_Negotiation__c,enrtcr__Amount_Ex_GST__c,enrtcr__Quantity_Type__c FROM enrtcr__Rate__c WHERE enrtcr__Effective_Date__c <= TODAY AND enrtcr__End_Date__c >= TODAY AND ((Name LIKE '%25WA%25' AND enrtcr__Funding_Type__c = 'NDIS') OR enrtcr__Funding_Type__c != 'NDIS') AND enrtcr__Service__c IN ( SELECT enrtcr__Travel_Service__c FROM enrtcr__Service__c WHERE enrtcr__Travel_Service__c != null AND enrtcr__Allow_Non_Labour_Travel__c = true )ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc";
+
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
+
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        SalesforceRate tr = new SalesforceRate();
+                        tr.RateId = rootObject.records[i].Id;
+                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
+                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
+                        tr.RateName = rootObject.records[i].Name;
+                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
+                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
+                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
+                        tr.RateType = 1;
+
+                        tr.IsDeleted = false;
+                        tr.CreatedDate = DateTime.Now;
+                        tr.ModifiedDate = DateTime.Now;
+                        ltsTransportRate.Add(tr);
+                    }
+                }
+
+                if (ltsTransportRate.Count > 0)
+                {
+                    try
+                    {                      
+                        dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.ToString());
+                    }
+                }
+
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRateRecord(rootObject.nextRecordsUrl);
+                }               
+            }
+            return result;
+        }
+        public void RemainingRateRecord(string NextURL)
+        {
+            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
+            var APIResponse = QueryNextRecord(Client, NextURL);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
+
+            List<Customer> lstCus = new List<Customer>();
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        SalesforceRate tr = new SalesforceRate();
+                        tr.RateId = rootObject.records[i].Id;
+                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
+                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
+                        tr.RateName = rootObject.records[i].Name;
+                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
+                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
+                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
+                        tr.RateType = 1;
+
+                        tr.IsDeleted = false;
+                        tr.CreatedDate = DateTime.Now;
+                        tr.ModifiedDate = DateTime.Now;
+                        ltsTransportRate.Add(tr);
+                    }
+                }
+                DBAction dba = new DBAction(_integrationAppSettings);
+                dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRateRecord(rootObject.nextRecordsUrl);
+                }
+            }
+        }
+        #endregion
+
+        #region Customer Section
+        public bool IntegerateSfCustomeList()
+        {
+            Login();
+            logger.Info("Integrate Customer Informations");
+            var result = true;
+            string queryCustomer = "";
+            var firstDownload = Convert.ToBoolean(_integrationAppSettings.FirstTimeDownload);
+
+            if (firstDownload)
+            {
+                queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' and enrtcr__Status__c='Current'";
+            }
+            else
+            {
+                queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
+                       AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
+            }
+
+            var APIResponse = QueryAllRecord(Client, queryCustomer);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.RestAPIModels.Customer.Root>(APIResponse, settings);
+            FinalCustomer = new List<Customer>();
+            List<Customer> lstCus = new List<Customer>();
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        Customer cs = new Customer();
+                        cs.CustomerId = rootObject.records[i].Id;
+                        cs.Name = rootObject.records[i].Name;
+                        cs.Street = rootObject.records[i].OtherStreet;
+                        cs.City = rootObject.records[i].OtherCity;
+                        cs.State = rootObject.records[i].OtherState;
+                        cs.PostalCode = rootObject.records[i].OtherPostalCode;
+                        cs.LumaryId = rootObject.records[i].Enrite_Care_Auto_Number__c;
+                        if (rootObject.records[i].enrtcr__Status__c != null)
+                        {
+                            cs.Active = false;
+                            if (rootObject.records[i].enrtcr__Status__c == "Current")
+                            {
+                                cs.Status = 1;
+                            }
+                            if (rootObject.records[i].enrtcr__Status__c == "Deceased")
+                            {
+                                cs.Status = 2;
+                            }
+                            if (rootObject.records[i].enrtcr__Status__c == "Inactive")
+                            {
+                                cs.Status = 3;
+                            }
+                        }
+                        cs.Active = true;
+                        cs.OnHold = false;
+                        cs.CreatedDate = DateTime.Now;
+                        cs.ModifiedDate = DateTime.Now;
+                        lstCus.Add(cs);
+                    }
+                }
+            }
+            if (lstCus.Count > 0)
+            {
+                try
+                {
+                    DBAction dba = new DBAction(_integrationAppSettings);
+                    dba.IntegrateCustomerInfotoDB(lstCus);
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.ToString());
+                }
+            }
+
+            if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+            {
+                RemainingRecord(rootObject.nextRecordsUrl);
+            }
+
+
+            return result;
+        }
+
+        public void RemainingRecord(string NextURL)
+        {
+            var APIResponse = QueryNextRecord(Client, NextURL);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.RestAPIModels.Customer.Root>(APIResponse, settings);
+
+            List<Customer> lstCus = new List<Customer>();
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        Customer cs = new Customer();
+                        cs.CustomerId = rootObject.records[i].Id;
+                        cs.Name = rootObject.records[i].Name;
+                        cs.Street = rootObject.records[i].OtherStreet;
+                        cs.City = rootObject.records[i].OtherCity;
+                        cs.State = rootObject.records[i].OtherState;
+                        cs.PostalCode = rootObject.records[i].OtherPostalCode;
+                        cs.LumaryId = rootObject.records[i].Enrite_Care_Auto_Number__c;
+                        if (rootObject.records[i].enrtcr__Status__c != null)
+                        {
+                            cs.Active = false;
+                            if (rootObject.records[i].enrtcr__Status__c == "Current")
+                            {
+                                cs.Status = 1;
+                            }
+                            if (rootObject.records[i].enrtcr__Status__c == "Deceased")
+                            {
+                                cs.Status = 2;
+                            }
+                            if (rootObject.records[i].enrtcr__Status__c == "Inactive")
+                            {
+                                cs.Status = 3;
+                            }
+                        }
+                        cs.Active = true;
+                        cs.OnHold = false;
+                        lstCus.Add(cs);
+                    }
+                }
+                DBAction dba = new DBAction(_integrationAppSettings);
+                dba.IntegrateCustomerInfotoDB(lstCus);
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    RemainingRecord(rootObject.nextRecordsUrl);
+                }
+            }
+        }
+        #endregion
+
+        #region Customer Service line Section
         public bool IntegerateSfCustServiceLine()
         {
             bool result = false;
@@ -239,336 +565,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
 
             return result;
         }
-
-        public bool IntegerateSfTransportRate()
-        {
-            bool result = false;
-            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
-            logger.Info("Scheduled Travel Rate job triggered");
-            DBAction dba = new DBAction(_integrationAppSettings);
-            Login();
-
-
-            var queryCustomer = @"SELECT Id
-                                                    ,enrtcr__Effective_Date__c
-                                                    ,enrtcr__End_Date__c
-                                                    ,Name
-                                                    ,enrtcr__Service__c
-                                                    ,enrtcr__Allow_Rate_Negotiation__c
-                                                    ,enrtcr__Amount_Ex_GST__c
-                                                    ,enrtcr__Quantity_Type__c
-                                                FROM enrtcr__Rate__c
-                                                WHERE enrtcr__Effective_Date__c <= TODAY
-                                                    AND enrtcr__End_Date__c >= TODAY
-                                                    AND (
-                                                            (Name LIKE '%25WA%25' AND enrtcr__Funding_Type__c = 'NDIS')
-                                                            OR enrtcr__Funding_Type__c != 'NDIS'
-                                                        )
-                                                    AND enrtcr__Service__c IN (
-                                                        SELECT enrtcr__Transport_Service__c
-                                                        FROM enrtcr__Service__c
-                                                        WHERE enrtcr__Transport_Service__c != null
-                                                            AND enrtcr__Allow_Non_Labour_Transport__c = true
-                                                    )
-                                                ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc
-                                                ";
-            var APIResponse = QueryAllRecord(Client, queryCustomer);
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
-
-            if (rootObject != null)
-            {
-                if (rootObject.records.Count > 0)
-                {
-                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
-                    {
-                        SalesforceRate tr = new SalesforceRate();
-                        tr.RateId = rootObject.records[i].Id;
-                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
-                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
-                        tr.RateName = rootObject.records[i].Name;
-                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
-                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
-                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
-                        tr.RateType = 1;
-
-                        tr.IsDeleted = false;
-                        tr.CreatedDate = DateTime.Now;
-                        tr.ModifiedDate = DateTime.Now;
-                        ltsTransportRate.Add(tr);
-                    }
-                }
-                if (ltsTransportRate.Count > 0)
-                {
-                    try
-                    {
-                        dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex.ToString());
-                    }
-                }
-
-                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
-                {
-                    RemainingRateRecord(rootObject.nextRecordsUrl);
-                }
-            }
-            return result;
-        }
-
-        public bool IntegerateSfTravelRate()
-        {
-            bool result = false;
-            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
-            logger.Info("Scheduled Travel Rate job triggered");
-            DBAction dba = new DBAction(_integrationAppSettings);
-            Login();
-
-
-            var queryCustomer = @"SELECT Id ,enrtcr__Effective_Date__c,enrtcr__End_Date__c,Name,enrtcr__Service__c,enrtcr__Allow_Rate_Negotiation__c,enrtcr__Amount_Ex_GST__c,enrtcr__Quantity_Type__c FROM enrtcr__Rate__c WHERE enrtcr__Effective_Date__c <= TODAY AND enrtcr__End_Date__c >= TODAY AND ((Name LIKE '%25WA%25' AND enrtcr__Funding_Type__c = 'NDIS') OR enrtcr__Funding_Type__c != 'NDIS') AND enrtcr__Service__c IN ( SELECT enrtcr__Travel_Service__c FROM enrtcr__Service__c WHERE enrtcr__Travel_Service__c != null AND enrtcr__Allow_Non_Labour_Travel__c = true )ORDER BY enrtcr__Service__c, enrtcr__Effective_Date__c desc";
-
-            var APIResponse = QueryAllRecord(Client, queryCustomer);
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
-
-            if (rootObject != null)
-            {
-                if (rootObject.records.Count > 0)
-                {
-                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
-                    {
-                        SalesforceRate tr = new SalesforceRate();
-                        tr.RateId = rootObject.records[i].Id;
-                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
-                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
-                        tr.RateName = rootObject.records[i].Name;
-                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
-                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
-                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
-                        tr.RateType = 1;
-
-                        tr.IsDeleted = false;
-                        tr.CreatedDate = DateTime.Now;
-                        tr.ModifiedDate = DateTime.Now;
-                        ltsTransportRate.Add(tr);
-                    }
-                }
-
-                if (ltsTransportRate.Count > 0)
-                {
-                    try
-                    {                      
-                        dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex.ToString());
-                    }
-                }
-
-                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
-                {
-                    RemainingRateRecord(rootObject.nextRecordsUrl);
-                }               
-            }
-            return result;
-        }
-        public void RemainingRateRecord(string NextURL)
-        {
-            List<SalesforceRate> ltsTransportRate = new List<SalesforceRate>();
-            var APIResponse = QueryNextRecord(Client, NextURL);
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.Rate.Root>(APIResponse, settings);
-
-            List<Customer> lstCus = new List<Customer>();
-            if (rootObject != null)
-            {
-                if (rootObject.records.Count > 0)
-                {
-                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
-                    {
-                        SalesforceRate tr = new SalesforceRate();
-                        tr.RateId = rootObject.records[i].Id;
-                        tr.StartDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Effective_Date__c);
-                        tr.EndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__End_Date__c);
-                        tr.RateName = rootObject.records[i].Name;
-                        tr.ServiceId = rootObject.records[i].enrtcr__Service__c;
-                        tr.Negotiation = rootObject.records[i].enrtcr__Allow_Rate_Negotiation__c;
-                        tr.Rate = (float)rootObject.records[i].enrtcr__Amount_Ex_GST__c;
-                        tr.RateType = 1;
-
-                        tr.IsDeleted = false;
-                        tr.CreatedDate = DateTime.Now;
-                        tr.ModifiedDate = DateTime.Now;
-                        ltsTransportRate.Add(tr);
-                    }
-                }
-                DBAction dba = new DBAction(_integrationAppSettings);
-                dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
-                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
-                {
-                    RemainingRateRecord(rootObject.nextRecordsUrl);
-                }
-            }
-        }
-
-
-        public bool IntegerateSfCustomeList()
-        {
-            Login();
-            logger.Info("Integrate Customer Informations");
-            var result = true;
-            string queryCustomer = "";
-            var firstDownload = Convert.ToBoolean(_integrationAppSettings.FirstTimeDownload);
-
-            if (firstDownload)
-            {
-                queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' and enrtcr__Status__c='Current'";
-            }
-            else
-            {
-                queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
-                       AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
-            }
-
-            var APIResponse = QueryAllRecord(Client, queryCustomer);
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.RestAPIModels.Customer.Root>(APIResponse, settings);
-            FinalCustomer = new List<Customer>();
-            List<Customer> lstCus = new List<Customer>();
-            if (rootObject != null)
-            {
-                if (rootObject.records.Count > 0)
-                {
-                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
-                    {
-                        Customer cs = new Customer();
-                        cs.CustomerId = rootObject.records[i].Id;
-                        cs.Name = rootObject.records[i].Name;
-                        cs.Street = rootObject.records[i].OtherStreet;
-                        cs.City = rootObject.records[i].OtherCity;
-                        cs.State = rootObject.records[i].OtherState;
-                        cs.PostalCode = rootObject.records[i].OtherPostalCode;
-                        cs.LumaryId = rootObject.records[i].Enrite_Care_Auto_Number__c;
-                        if (rootObject.records[i].enrtcr__Status__c != null)
-                        {
-                            cs.Active = false;
-                            if (rootObject.records[i].enrtcr__Status__c == "Current")
-                            {
-                                cs.Status = 1;
-                            }
-                            if (rootObject.records[i].enrtcr__Status__c == "Deceased")
-                            {
-                                cs.Status = 2;
-                            }
-                            if (rootObject.records[i].enrtcr__Status__c == "Inactive")
-                            {
-                                cs.Status = 3;
-                            }
-                        }
-                        cs.Active = true;
-                        cs.OnHold = false;
-                        cs.CreatedDate = DateTime.Now;
-                        cs.ModifiedDate = DateTime.Now;
-                        lstCus.Add(cs);
-                    }
-                }
-            }
-            if (lstCus.Count > 0)
-            {
-                try
-                {
-                    DBAction dba = new DBAction(_integrationAppSettings);
-                    dba.IntegrateCustomerInfotoDB(lstCus);
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex.ToString());
-                }
-            }
-
-            if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
-            {
-                RemainingRecord(rootObject.nextRecordsUrl);
-            }
-
-
-            return result;
-        }
-
-        public void RemainingRecord(string NextURL)
-        {
-            var APIResponse = QueryNextRecord(Client, NextURL);
-            var settings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.RestAPIModels.Customer.Root>(APIResponse, settings);
-
-            List<Customer> lstCus = new List<Customer>();
-            if (rootObject != null)
-            {
-                if (rootObject.records.Count > 0)
-                {
-                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
-                    {
-                        Customer cs = new Customer();
-                        cs.CustomerId = rootObject.records[i].Id;
-                        cs.Name = rootObject.records[i].Name;
-                        cs.Street = rootObject.records[i].OtherStreet;
-                        cs.City = rootObject.records[i].OtherCity;
-                        cs.State = rootObject.records[i].OtherState;
-                        cs.PostalCode = rootObject.records[i].OtherPostalCode;
-                        cs.LumaryId = rootObject.records[i].Enrite_Care_Auto_Number__c;
-                        if (rootObject.records[i].enrtcr__Status__c != null)
-                        {
-                            cs.Active = false;
-                            if (rootObject.records[i].enrtcr__Status__c == "Current")
-                            {
-                                cs.Status = 1;
-                            }
-                            if (rootObject.records[i].enrtcr__Status__c == "Deceased")
-                            {
-                                cs.Status = 2;
-                            }
-                            if (rootObject.records[i].enrtcr__Status__c == "Inactive")
-                            {
-                                cs.Status = 3;
-                            }
-                        }
-                        cs.Active = true;
-                        cs.OnHold = false;
-                        lstCus.Add(cs);
-                    }
-                }
-                DBAction dba = new DBAction(_integrationAppSettings);
-                dba.IntegrateCustomerInfotoDB(lstCus);
-                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
-                {
-                    RemainingRecord(rootObject.nextRecordsUrl);
-                }
-            }
-        }
-
         public void RemainingCustomerServiceLineRecord(string NextURL)
         {
             DBAction dba = new DBAction(_integrationAppSettings);
@@ -651,7 +647,9 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 }
             }
         }
+        #endregion
 
+        #region Salesforce Actions 
         private string QueryAllRecord(HttpClient client, string queryMessage)
         {
             string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
@@ -666,6 +664,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             HttpResponseMessage response = client.GetAsync(restQuery).Result;
             return response.Content.ReadAsStringAsync().Result;
         }
+
 
         private string CreateRecord(HttpClient client, string createMessage, string recordType)
         {
@@ -727,7 +726,9 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 return false;
             }
         }
+        #endregion
 
+        #region SalesforceId updated into Driver records
         public bool IntegrateSFDCId_OperatortoDB(string Usernames)
         {
             bool result = false;
@@ -774,6 +775,15 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             return result;
         }
 
+        public List<string> GetAllDriverInfo_NotMappedSFDC()
+        {
+            DBAction dba = new DBAction(_integrationAppSettings);
+            return dba.GetDriverInformationIsnotMappedSFDC();
+        }
+        #endregion
+
+        #region batch logic used to create a multiple billinglines in Saleforce
+      
         public bool InsertDataintoSFDC()
         {
             bool Result = false;
@@ -813,6 +823,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 }
                 if (PatchRoot.batchRequests.Count > 0)
                 {
+                    
                     var json = JsonConvert.SerializeObject(PatchRoot);
                     var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
@@ -833,14 +844,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                             if (statusCode == 201)
                             {
                                 dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
-                            }
-                            else
-                            {
-                                errorCode = res.result.errorCode;
-                                message = res.result.message;
-                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
-                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
-                            }
+                            }                           
                             recordcount++;
                         }
                         Result = true;
@@ -861,10 +865,19 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                             }
                             else
                             {
-                                errorCode = res.result.errorCode;
-                                message = res.result.message;
-                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
-                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                                try
+                                {
+                                    dynamic ress = res.result;
+                                    errorCode = ress.result.errorCode;
+                                    message = ress.result.message;
+                                    string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                    dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                                }
+                                catch (Exception ex)
+                                {
+                                    string errmsg = Newtonsoft.Json.JsonConvert.SerializeObject(res.result);
+                                    dba.SFDCActionStatus(items[recordcount].BillingID, false, "Unexpected error:" + errmsg, "");
+                                }
                             }
 
                             recordcount++;
@@ -878,7 +891,16 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             return Result; ;
         }
 
+        public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformation()
+        {
+            DBAction dba = new DBAction(_integrationAppSettings);
+            var res = dba.GetBillingInformation();
+            return res;
+        }
+        #endregion
 
+        #region selected Billing Record Pushed to saleforce
+       
         public bool InsertDataintoSFDCFromPortal(List<int> BillingIds)
         {
             bool Result = false;
@@ -917,7 +939,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                     PatchRoot.batchRequests.Add(br);
                 }
                 if (PatchRoot.batchRequests.Count > 0)
-                {
+                {                  
                     var json = JsonConvert.SerializeObject(PatchRoot);
                     var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
@@ -939,13 +961,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                             {
                                 dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
-                            else
-                            {
-                                errorCode = res.result.errorCode;
-                                message = res.result.message;
-                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
-                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
-                            }
                             recordcount++;
                         }
                         Result = true;
@@ -966,10 +981,19 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                             }
                             else
                             {
-                                errorCode = res.result.errorCode;
-                                message = res.result.message;
-                                string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
-                                dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                                try
+                                {
+                                    dynamic ress = res.result;
+                                    errorCode = ress.result.errorCode;
+                                    message = ress.result.message;
+                                    string ErrorMessage = "statusCode:" + statusCode.ToString() + ", Error Code :" + errorCode.ToString() + ", Message:" + message;
+                                    dba.SFDCActionStatus(items[recordcount].BillingID, false, ErrorMessage, "");
+                                }
+                                catch (Exception ex)
+                                {
+                                    string errmsg = Newtonsoft.Json.JsonConvert.SerializeObject(res.result);//JsonConvert.SerializeObject(res.result);
+                                    dba.SFDCActionStatus(items[recordcount].BillingID, false, "Unexpected error:" + errmsg, "");
+                                }
                             }
 
                             recordcount++;
@@ -982,27 +1006,16 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
 
             return Result; ;
         }
-
-        public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformation()
-        {
-            DBAction dba = new DBAction(_integrationAppSettings);
-            var res = dba.GetBillingInformation();
-            return res;
-        }
+       
         public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformationUsingIds(List<int> BillingIds)
         {
             DBAction dba = new DBAction(_integrationAppSettings);
             var res = dba.GetBillingInformationusingIds(BillingIds);
             return res;
         }
-
-
-        public List<string> GetAllDriverInfo_NotMappedSFDC()
-        {
-            DBAction dba = new DBAction(_integrationAppSettings);
-            return dba.GetDriverInformationIsnotMappedSFDC();
-        }
-
+        #endregion
+             
+        #region ENUM for Status
         public enum ItemOverClaim
         {
             Allow = 1, Warn = 2, Prevent = 3
@@ -1021,5 +1034,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
         {
             Current = 1, Expired = 2
         }
+        #endregion
     }
 }

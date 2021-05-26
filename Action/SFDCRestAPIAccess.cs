@@ -559,6 +559,8 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 {
                     RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
                 }
+                var existingRecord = dba.ExistingCustomerLineinfoStatusChanged((int)CustomerStatus.Cancelled);
+                StaticDBACTION.ExitingList.Clear();
                 result = true;
             }
 
@@ -632,6 +634,8 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;
                         csl.TransportServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Transport_Service__c == null ? "" : rootObject.records[i].enrtcr__Service__r.enrtcr__Transport_Service__c;
                         csl.CategoryItemId = rootObject.records[i].enrtcr__Support_Category__c;
+                        csl.CreatedDate = DateTime.Now;
+                        csl.ModifiedDate = DateTime.Now;
                         csl.Default = false;
                         if (csl.ServiceAgreementCustomerId != 0)
                             ltsCusline.Add(csl);
@@ -644,7 +648,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
                     RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
-                }
+                }                
             }
         }
         #endregion

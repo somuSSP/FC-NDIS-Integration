@@ -23,6 +23,7 @@ namespace FC_NDIS.Models
         public int VehicleId { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
+        public string AssetId { get; set; }
 
         public virtual VehicleCategory CategoryNavigation { get; set; }
         public virtual Driver Driver { get; set; }

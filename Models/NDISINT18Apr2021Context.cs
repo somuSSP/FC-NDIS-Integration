@@ -38,6 +38,7 @@ namespace FC_NDIS.Models
         public virtual DbSet<CustomerPauseResumeTrip> CustomerPauseResumeTrips { get; set; }
         public virtual DbSet<CustomerServiceLine> CustomerServiceLines { get; set; }
         public virtual DbSet<CustomerServiceLinesBak> CustomerServiceLinesBaks { get; set; }
+        public virtual DbSet<CustomerServiceLinesError> CustomerServiceLinesErrors { get; set; }
         public virtual DbSet<CustomerStatus> CustomerStatuses { get; set; }
         public virtual DbSet<CustomerTrip> CustomerTrips { get; set; }
         public virtual DbSet<CustomerTripCategory> CustomerTripCategories { get; set; }
@@ -78,6 +79,7 @@ namespace FC_NDIS.Models
         public virtual DbSet<Table1> Table1s { get; set; }
         public virtual DbSet<Trip> Trips { get; set; }
         public virtual DbSet<TripCoordinate> TripCoordinates { get; set; }
+        public virtual DbSet<TripCoordinatesArchive> TripCoordinatesArchives { get; set; }
         public virtual DbSet<TripStatus> TripStatuses { get; set; }
         public virtual DbSet<TripType> TripTypes { get; set; }
         public virtual DbSet<UnitOfMeasure> UnitOfMeasures { get; set; }
@@ -698,6 +700,91 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.CustomerServiceLineId)
                     .ValueGeneratedOnAdd()
                     .HasColumnName("CustomerServiceLineID");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ServiceAgreementCustomerId).HasColumnName("ServiceAgreementCustomerID");
+
+                entity.Property(e => e.ServiceAgreementEndDate).HasColumnType("date");
+
+                entity.Property(e => e.ServiceAgreementFundingManagement)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.ServiceAgreementFundingType)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.ServiceAgreementId)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnName("ServiceAgreementID");
+
+                entity.Property(e => e.ServiceAgreementItemId)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("ServiceAgreementItemID");
+
+                entity.Property(e => e.ServiceAgreementItemName)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.ServiceAgreementName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ServiceId)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("ServiceID");
+
+                entity.Property(e => e.ServiceName)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(e => e.SiteGlcode)
+                    .HasMaxLength(50)
+                    .HasColumnName("SiteGLCode");
+
+                entity.Property(e => e.SiteId)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("SiteID");
+
+                entity.Property(e => e.SiteName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.SiteServiceProgramId)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("SiteServiceProgramID");
+
+                entity.Property(e => e.TransportServiceId)
+                    .HasMaxLength(75)
+                    .HasColumnName("TransportServiceID");
+
+                entity.Property(e => e.TravelServiceId)
+                    .HasMaxLength(75)
+                    .HasColumnName("TravelServiceID");
+            });
+
+            modelBuilder.Entity<CustomerServiceLinesError>(entity =>
+            {
+                entity.HasKey(e => e.CustomerServiceLineId)
+                    .HasName("PK__Customer__8A5E749C91C331C2");
+
+                entity.ToTable("CustomerServiceLinesError");
+
+                entity.Property(e => e.CustomerServiceLineId).HasColumnName("CustomerServiceLineID");
+
+                entity.Property(e => e.CategoryItemId)
+                    .HasMaxLength(50)
+                    .HasColumnName("CategoryItemID");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ErrorFields).HasMaxLength(1000);
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
@@ -1746,6 +1833,25 @@ namespace FC_NDIS.Models
                     .HasConstraintName("FK_TripCoordinates_TripID");
             });
 
+            modelBuilder.Entity<TripCoordinatesArchive>(entity =>
+            {
+                entity.ToTable("TripCoordinatesArchive");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.CreateTime).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(500);
+
+                entity.Property(e => e.Latitude).HasMaxLength(50);
+
+                entity.Property(e => e.Longitude).HasMaxLength(50);
+
+                entity.Property(e => e.TripId).HasColumnName("TripID");
+            });
+
             modelBuilder.Entity<TripStatus>(entity =>
             {
                 entity.ToTable("TripStatus");
@@ -1878,6 +1984,10 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.VehicleId).HasColumnName("VehicleID");
 
                 entity.Property(e => e.Active).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.AssetId)
+                    .HasMaxLength(100)
+                    .HasColumnName("AssetID");
 
                 entity.Property(e => e.Availability).HasDefaultValueSql("((0))");
 

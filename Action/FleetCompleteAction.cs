@@ -59,6 +59,7 @@ namespace FC_NDIS.Action
                 foreach (var vsRes in ASResp.Data)
                 {
                     Vehicle vh = new Vehicle();
+                    vh.AssetId = vsRes.ID;
                     vh.Registration = vsRes.LicensePlate;
                     vh.Make = vsRes.Make;
                     vh.Model = vsRes.Model;

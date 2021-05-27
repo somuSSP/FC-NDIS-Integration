@@ -1,5 +1,6 @@
 ﻿using FC_NDIS.Action;
 using FC_NDIS.ApplicationIntegartionModels;
+using FC_NDIS.DBAccess;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -37,6 +38,7 @@ namespace FC_NDIS.Controllers
             }
             catch (Exception ex)
             {
+                StaticDBACTION.ExitingList.Clear();
                 _logger.LogError(ex.ToString());
                 rs.ResponseCode = 200;
                 rs.Message = "Internal Server Error Occur";

@@ -14,7 +14,7 @@ namespace FC_NDIS.DBAccess
     {
         private readonly IntegrationAppSettings _integrationAppSettings;
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
-        
+
         public DBAction(IntegrationAppSettings integrationAppSettings)
         {
             this._integrationAppSettings = integrationAppSettings;
@@ -26,13 +26,14 @@ namespace FC_NDIS.DBAccess
                 // _logger.LogInformation("Method IntegrateAssetsintoDB");
                 foreach (var veh in vehicles)
                 {
-                    var vehinfo = dbc.Vehicles.FirstOrDefault(k => k.Registration == veh.Registration);
+                    var vehinfo = dbc.Vehicles.FirstOrDefault(k => k.AssetId == veh.AssetId);
                     if (vehinfo == null)
                     {
                         dbc.Vehicles.Add(veh);
                     }
                     else
                     {
+                        vehinfo.Registration = veh.Registration;
                         vehinfo.Make = veh.Make;
                         vehinfo.Model = veh.Model;
                         vehinfo.Type = veh.Type;
@@ -60,9 +61,9 @@ namespace FC_NDIS.DBAccess
                     if (cslinfo == null)
                     {
                         dbc.CustomerServiceLines.Add(csl);
-                        dbc.SaveChanges();      
-                        if(!StaticDBACTION.ExitingList.Contains(csl.CustomerServiceLineId))
-                        StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                        dbc.SaveChanges();
+                        if (!StaticDBACTION.ExitingList.Contains(csl.CustomerServiceLineId))
+                            StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
                     }
                     else
                     {
@@ -97,6 +98,7 @@ namespace FC_NDIS.DBAccess
             }
             return true;
         }
+        
 
         public bool ExistingCustomerLineinfoStatusChanged(int status)
         {
@@ -107,11 +109,11 @@ namespace FC_NDIS.DBAccess
                 {
                     var cslinfo = dbc.CustomerServiceLines.Where(x => !StaticDBACTION.ExitingList.Contains(x.CustomerServiceLineId)).ToList();
 
-                    foreach(var csexitinginfo in cslinfo)
+                    foreach (var csexitinginfo in cslinfo)
                     {
                         csexitinginfo.ServiceAgreementStatus = status;
                         dbc.SaveChanges();
-                    }                    
+                    }
                 }
             }
             return result;

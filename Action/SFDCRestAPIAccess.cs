@@ -548,7 +548,10 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.CategoryItemId = rootObject.records[i].enrtcr__Support_Category__c;
                         csl.Default = false;
                         if (csl.ServiceAgreementCustomerId != 0)
+                        {
                             ltsCusline.Add(csl);
+                            StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                        }
                     }
                 }
                 if (ltsCusline.Count > 0)
@@ -638,7 +641,10 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.ModifiedDate = DateTime.Now;
                         csl.Default = false;
                         if (csl.ServiceAgreementCustomerId != 0)
+                        {
                             ltsCusline.Add(csl);
+                            StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                        }
                     }
                 }
                 if (ltsCusline.Count > 0)
@@ -974,7 +980,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         int recordcount = 0;
                         foreach (dynamic res in rootObject.results)
                         {
-
                             string errorCode = "";
                             string message = "";
                             int statusCode = 0;
@@ -999,15 +1004,12 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                                     dba.SFDCActionStatus(items[recordcount].BillingID, false, "Unexpected error:" + errmsg, "");
                                 }
                             }
-
                             recordcount++;
                         }
                         Result = true;
                     }
                 }
             }
-
-
             return Result; ;
         }
        

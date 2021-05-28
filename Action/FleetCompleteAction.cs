@@ -58,23 +58,30 @@ namespace FC_NDIS.Action
             {
                 foreach (var vsRes in ASResp.Data)
                 {
-                    Vehicle vh = new Vehicle();
-                    vh.AssetId = vsRes.ID;
-                    vh.Registration = vsRes.LicensePlate;
-                    vh.Make = vsRes.Make;
-                    vh.Model = vsRes.Model;
-                    string GuidID = vsRes.ID;
-                    var CatType = AssetType(GuidID, ClientID, UserID, Token);
-                    if (CatType != 0)
-                        vh.Category = CatType;
-                    if (vsRes.AssetType != null)
-                        vh.Type = (vsRes.AssetType.ToString().Contains("Fleet")) ? 1 : 2;
-                    else
-                        vh.Type = 1;
-                    vh.Active = true;
-                    vh.Availability = true;
-                    if (vsRes.IsDeleted !=null && vsRes.IsDeleted!=true)
-                        vehicles.Add(vh);
+                    try
+                    {
+                        Vehicle vh = new Vehicle();
+                        vh.AssetId = vsRes.ID;
+                        vh.Registration = vsRes.LicensePlate;
+                        vh.Make = vsRes.Make;
+                        vh.Model = vsRes.Model;
+                        string GuidID = vsRes.ID;
+                        var CatType = AssetType(GuidID, ClientID, UserID, Token);
+                        if (CatType != 0)
+                            vh.Category = CatType;
+                        if (vsRes.AssetType != null)
+                            vh.Type = (vsRes.AssetType.ToString().Contains("Fleet")) ? 1 : 2;
+                        else
+                            vh.Type = 1;
+                        vh.Active = true;
+                        vh.Availability = true;
+                        if (vsRes.IsDeleted != null && vsRes.IsDeleted != true)
+                            vehicles.Add(vh);
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
                 }
                 DBAction dba = new DBAction(_integrationAppSettings);
                 dba.IntegrateAssetsintoDB(vehicles);

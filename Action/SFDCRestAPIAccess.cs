@@ -379,6 +379,7 @@ namespace FC_NDIS.Action
             bool result = false;
             DBAction dba = new DBAction(_integrationAppSettings);
             List<CustomerServiceLine> ltsCusline = new List<CustomerServiceLine>();
+            List<CustomerServiceLine> errorltsCusline = new List<CustomerServiceLine>();
 
 
             Login();
@@ -549,14 +550,38 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.Default = false;
                         if (csl.ServiceAgreementCustomerId != 0)
                         {
-                            ltsCusline.Add(csl);
-                            StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                            if (csl.ServiceAgreementItemId==null||
+                                csl.ServiceAgreementItemName==null||
+                                csl.FundsRemaining==null||csl.ServiceAgreementId == null||csl.ServiceAgreementName==null||
+                                csl.ServiceAgreementEndDate==null||
+                                csl.ServiceAgreementStatus == null||
+                                csl.ServiceAgreementFundingType==null||
+                                csl.ServiceAgreementFundingManagement==null||
+                                customerId==null||
+                                csl.CategoryItemId==null||
+                                csl.SiteId==null||
+                                csl.SiteName==null||
+                                csl.SiteGlcode==null||
+                                csl.ServiceId==null||
+                                csl.ServiceName==null||
+                                csl.SiteServiceProgramId==null
+                                )
+                            {
+                                errorltsCusline.Add(csl);
+                            }
+                            else
+                            {
+                                ltsCusline.Add(csl);
+                                StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                            }
+                            
                         }
                     }
                 }
                 if (ltsCusline.Count > 0)
                 {
                     dba.IntegrateCustomerLineinfointoDB(ltsCusline);
+                    dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);
                 }
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
@@ -572,6 +597,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
         }
         public void RemainingCustomerServiceLineRecord(string NextURL)
         {
+            List<CustomerServiceLine> errorltsCusline = new List<CustomerServiceLine>();
             DBAction dba = new DBAction(_integrationAppSettings);
             List<CustomerServiceLine> ltsCusline = new List<CustomerServiceLine>();
             var APIResponse = QueryNextRecord(Client, NextURL);
@@ -642,14 +668,41 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.Default = false;
                         if (csl.ServiceAgreementCustomerId != 0)
                         {
-                            ltsCusline.Add(csl);
-                            StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                            if (csl.ServiceAgreementCustomerId != 0)
+                            {
+                                if (csl.ServiceAgreementItemId == null ||
+                                    csl.ServiceAgreementItemName == null ||
+                                    csl.FundsRemaining == null || csl.ServiceAgreementId == null || csl.ServiceAgreementName == null ||
+                                    csl.ServiceAgreementEndDate == null ||
+                                    csl.ServiceAgreementStatus == null ||
+                                    csl.ServiceAgreementFundingType == null ||
+                                    csl.ServiceAgreementFundingManagement == null ||
+                                    customerId == null ||
+                                    csl.CategoryItemId == null ||
+                                    csl.SiteId == null ||
+                                    csl.SiteName == null ||
+                                    csl.SiteGlcode == null ||
+                                    csl.ServiceId == null ||
+                                    csl.ServiceName == null ||
+                                    csl.SiteServiceProgramId == null
+                                    )
+                                {
+                                    errorltsCusline.Add(csl);
+                                }
+                                else
+                                {
+                                    ltsCusline.Add(csl);
+                                    StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                                }
+
+                            }
                         }
                     }
                 }
                 if (ltsCusline.Count > 0)
                 {
                     dba.IntegrateCustomerLineinfointoDB(ltsCusline);
+                    dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);
                 }
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {

@@ -9,7 +9,6 @@ namespace FC_NDIS.Models
     {
         public Trip()
         {
-            BillingLines = new HashSet<BillingLine>();
             CustomerTrips = new HashSet<CustomerTrip>();
             SharedTrips = new HashSet<SharedTrip>();
             TripCoordinates = new HashSet<TripCoordinate>();
@@ -58,7 +57,6 @@ namespace FC_NDIS.Models
         public virtual Vehicle Vehicle { get; set; }
         public virtual VehicleCategory VehicleCategoryNavigation { get; set; }
         public virtual VehicleType VehicleTypeNavigation { get; set; }
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
         public virtual ICollection<CustomerTrip> CustomerTrips { get; set; }
         public virtual ICollection<SharedTrip> SharedTrips { get; set; }
         public virtual ICollection<TripCoordinate> TripCoordinates { get; set; }

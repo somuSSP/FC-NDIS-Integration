@@ -9,7 +9,6 @@ namespace FC_NDIS.Models
     {
         public Customer()
         {
-            BillingLines = new HashSet<BillingLine>();
             CustomerServiceLines = new HashSet<CustomerServiceLine>();
             CustomerTrips = new HashSet<CustomerTrip>();
             SharedTrips = new HashSet<SharedTrip>();
@@ -30,7 +29,6 @@ namespace FC_NDIS.Models
         public DateTime? ModifiedDate { get; set; }
 
         public virtual CustomerStatus StatusNavigation { get; set; }
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
         public virtual ICollection<CustomerServiceLine> CustomerServiceLines { get; set; }
         public virtual ICollection<CustomerTrip> CustomerTrips { get; set; }
         public virtual ICollection<SharedTrip> SharedTrips { get; set; }

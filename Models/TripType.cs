@@ -9,7 +9,6 @@ namespace FC_NDIS.Models
     {
         public TripType()
         {
-            BillingLines = new HashSet<BillingLine>();
             Trips = new HashSet<Trip>();
         }
 
@@ -27,7 +26,6 @@ namespace FC_NDIS.Models
         public DateTime? ModifiedDate { get; set; }
 
         public virtual CostCentre DefaultCostCenterNavigation { get; set; }
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
         public virtual ICollection<Trip> Trips { get; set; }
     }
 }

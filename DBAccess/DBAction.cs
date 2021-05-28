@@ -98,7 +98,45 @@ namespace FC_NDIS.DBAccess
             }
             return true;
         }
-        
+
+        public bool IntegrateErrorCustomerLineinfointoDB(List<CustomerServiceLine> cslines)
+        {
+            // _logger.LogInformation("Method IntegrateCustomerLineinfointoDB");
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                foreach (var csl in cslines)
+                {
+                    var cslerror = new CustomerServiceLinesError();
+                    cslerror.ServiceAgreementCustomerId = csl.ServiceAgreementCustomerId;
+                    cslerror.ServiceAgreementId = csl.ServiceAgreementId;
+                    cslerror.ServiceAgreementName = csl.ServiceAgreementName;
+                    cslerror.ServiceAgreementEndDate = csl.ServiceAgreementEndDate;
+                    cslerror.ServiceAgreementStatus = csl.ServiceAgreementStatus;
+                    cslerror.ServiceAgreementFundingManagement = csl.ServiceAgreementFundingManagement;
+                    cslerror.ServiceAgreementFundingType = csl.ServiceAgreementFundingType;
+                    cslerror.ServiceAgreementItemId = csl.ServiceAgreementItemId;
+                    cslerror.ServiceAgreementItemName = csl.ServiceAgreementItemName;
+                    cslerror.SupportCategoryAmount = csl.SupportCategoryAmount;
+                    cslerror.SupportCategoryDelivered = csl.SupportCategoryDelivered;
+                    cslerror.FundsRemaining = csl.FundsRemaining;
+                    cslerror.ItemOverclaim = csl.ItemOverclaim;
+                    cslerror.SiteId = csl.SiteId;
+                    cslerror.SiteName = csl.SiteName;
+                    cslerror.SiteGlcode = csl.SiteGlcode;
+                    cslerror.SiteServiceProgramId = csl.SiteServiceProgramId;
+                    cslerror.ServiceId = csl.ServiceId;
+                    cslerror.ServiceName = csl.ServiceName;
+                    cslerror.TravelServiceId = csl.TravelServiceId;
+                    cslerror.TransportServiceId = csl.TransportServiceId;
+                    cslerror.CategoryItemId = csl.CategoryItemId;
+                    cslerror.Default = csl.Default;
+                    dbc.CustomerServiceLinesErrors.Add(cslerror);
+                    dbc.SaveChanges();
+                }
+            }
+            return true;
+        }
+
 
         public bool ExistingCustomerLineinfoStatusChanged(int status)
         {
@@ -142,14 +180,24 @@ namespace FC_NDIS.DBAccess
             {
                 foreach (var users in SFDCUsers)
                 {
-                    bool option = false;
-                    if (_integrationAppSettings.IntegrationforSandbox != null)
-                        option = Convert.ToBoolean(_integrationAppSettings.IntegrationforSandbox);
-                    if (option)
-                        users.UserName = users.UserName.Remove(users.UserName.Length - 9);
-                    var driver = dbc.Drivers.FirstOrDefault(k => k.Username == users.UserName);
-                    driver.SalesForceUserId = users.Id;
-                    dbc.SaveChanges();
+                    try
+                    {
+                        bool option = false;
+                        if (_integrationAppSettings.IntegrationforSandbox != null)
+                            option = Convert.ToBoolean(_integrationAppSettings.IntegrationforSandbox);
+                        if (option)
+                            users.UserName = users.UserName.Remove(users.UserName.Length - 9);
+                        var driver = dbc.Drivers.FirstOrDefault(k => k.Username == users.UserName);
+                        if (driver != null)
+                        {
+                            driver.SalesForceUserId = users?.Id ?? "";
+                            dbc.SaveChanges();
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
                 }
             }
             return result;
@@ -202,8 +250,9 @@ namespace FC_NDIS.DBAccess
                         {
                             if (option)
                                 result.Add(ob.Username + ".newacuat");
+                            else
                             result.Add(ob.Username);
-                        }
+                       }
                     }
                 }
             }

@@ -7,11 +7,6 @@ namespace FC_NDIS.Models
 {
     public partial class CustomerTrip
     {
-        public CustomerTrip()
-        {
-            BillingLines = new HashSet<BillingLine>();
-        }
-
         public int CustomerTripId { get; set; }
         public int? TripId { get; set; }
         public int? CustomerId { get; set; }
@@ -50,6 +45,5 @@ namespace FC_NDIS.Models
         public virtual CustomerTripCategory CustomerTripCategoryNavigation { get; set; }
         public virtual Trip Trip { get; set; }
         public virtual TripStatus TripStatusNavigation { get; set; }
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
     }
 }

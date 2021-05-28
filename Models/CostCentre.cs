@@ -9,7 +9,6 @@ namespace FC_NDIS.Models
     {
         public CostCentre()
         {
-            BillingLines = new HashSet<BillingLine>();
             ConnxCcs = new HashSet<ConnxCc>();
             Drivers = new HashSet<Driver>();
             TripTypes = new HashSet<TripType>();
@@ -25,7 +24,6 @@ namespace FC_NDIS.Models
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
 
-        public virtual ICollection<BillingLine> BillingLines { get; set; }
         public virtual ICollection<ConnxCc> ConnxCcs { get; set; }
         public virtual ICollection<Driver> Drivers { get; set; }
         public virtual ICollection<TripType> TripTypes { get; set; }

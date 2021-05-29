@@ -22,7 +22,7 @@ using FC_NDIS.APIModels.Patch;
 namespace FC_NDIS.Action
 {
     public class SFDCRestAPIAccess : ISFDC
-    {       
+    {
         public string AuthToken { get; set; }
         public string ServiceUrl { get; set; }
         public ConfigurationBuilder _configurationBuilder = null;
@@ -40,7 +40,7 @@ namespace FC_NDIS.Action
             this._integrationAppSettings = integrationAppSettings;
         }
 
-              
+
         #region Rate Section
         public bool IntegerateSfTransportRate()
         {
@@ -169,7 +169,7 @@ namespace FC_NDIS.Action
                 if (ltsTransportRate.Count > 0)
                 {
                     try
-                    {                      
+                    {
                         dba.IntegrateTravelandTransportRateInfotoDB(ltsTransportRate);
                     }
                     catch (Exception ex)
@@ -181,7 +181,7 @@ namespace FC_NDIS.Action
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
                     RemainingRateRecord(rootObject.nextRecordsUrl);
-                }               
+                }
             }
             return result;
         }
@@ -483,7 +483,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
 ))
 )";
             }
-
             var APIResponse = QueryAllRecord(Client, queryCustomer);
             var settings = new JsonSerializerSettings
             {
@@ -491,7 +490,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
             var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.CustomerServiceLine.Root>(APIResponse, settings);
-
 
             if (rootObject != null)
             {
@@ -550,21 +548,21 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                         csl.Default = false;
                         if (csl.ServiceAgreementCustomerId != 0)
                         {
-                            if (csl.ServiceAgreementItemId==null||
-                                csl.ServiceAgreementItemName==null||
-                                csl.FundsRemaining==null||csl.ServiceAgreementId == null||csl.ServiceAgreementName==null||
-                                csl.ServiceAgreementEndDate==null||
-                                csl.ServiceAgreementStatus == null||
-                                csl.ServiceAgreementFundingType==null||
-                                csl.ServiceAgreementFundingManagement==null||
-                                customerId==null||
-                                csl.CategoryItemId==null||
-                                csl.SiteId==null||
-                                csl.SiteName==null||
-                                csl.SiteGlcode==null||
-                                csl.ServiceId==null||
-                                csl.ServiceName==null||
-                                csl.SiteServiceProgramId==null
+                            if (csl.ServiceAgreementItemId == null ||
+                                csl.ServiceAgreementItemName == null ||
+                                csl.FundsRemaining == null || csl.ServiceAgreementId == null || csl.ServiceAgreementName == null ||
+                                csl.ServiceAgreementEndDate == null ||
+                                csl.ServiceAgreementStatus == null ||
+                                csl.ServiceAgreementFundingType == null ||
+                                csl.ServiceAgreementFundingManagement == null ||
+                                customerId == null ||
+                                csl.CategoryItemId == null ||
+                                csl.SiteId == null ||
+                                csl.SiteName == null ||
+                                csl.SiteGlcode == null ||
+                                csl.ServiceId == null ||
+                                csl.ServiceName == null ||
+                                csl.SiteServiceProgramId == null
                                 )
                             {
                                 errorltsCusline.Add(csl);
@@ -572,9 +570,8 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                             else
                             {
                                 ltsCusline.Add(csl);
-                                StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
                             }
-                            
+
                         }
                     }
                 }
@@ -587,7 +584,6 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 {
                     RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
                 }
-                var existingRecord = dba.ExistingCustomerLineinfoStatusChanged((int)CustomerStatus.Cancelled);
                 StaticDBACTION.ExitingList.Clear();
                 result = true;
             }
@@ -692,7 +688,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                                 else
                                 {
                                     ltsCusline.Add(csl);
-                                    StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                                 //   StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
                                 }
 
                             }
@@ -707,7 +703,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
                     RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
-                }                
+                }
             }
         }
         #endregion
@@ -846,7 +842,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
         #endregion
 
         #region batch logic used to create a multiple billinglines in Saleforce
-      
+
         public bool InsertDataintoSFDC()
         {
             bool Result = false;
@@ -886,7 +882,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 }
                 if (PatchRoot.batchRequests.Count > 0)
                 {
-                    
+
                     var json = JsonConvert.SerializeObject(PatchRoot);
                     var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
@@ -907,7 +903,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                             if (statusCode == 201)
                             {
                                 dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
-                            }                           
+                            }
                             recordcount++;
                         }
                         Result = true;
@@ -963,7 +959,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
         #endregion
 
         #region selected Billing Record Pushed to saleforce
-       
+
         public bool InsertDataintoSFDCFromPortal(List<int> BillingIds)
         {
             bool Result = false;
@@ -1002,7 +998,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                     PatchRoot.batchRequests.Add(br);
                 }
                 if (PatchRoot.batchRequests.Count > 0)
-                {                  
+                {
                     var json = JsonConvert.SerializeObject(PatchRoot);
                     var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
@@ -1065,7 +1061,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             }
             return Result; ;
         }
-       
+
         public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformationUsingIds(List<int> BillingIds)
         {
             DBAction dba = new DBAction(_integrationAppSettings);
@@ -1073,7 +1069,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             return res;
         }
         #endregion
-             
+
         #region ENUM for Status
         public enum ItemOverClaim
         {

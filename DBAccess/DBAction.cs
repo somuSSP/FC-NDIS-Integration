@@ -60,10 +60,13 @@ namespace FC_NDIS.DBAccess
                     var cslinfo = dbc.CustomerServiceLines.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);
                     if (cslinfo == null)
                     {
-                        dbc.CustomerServiceLines.Add(csl);
-                        dbc.SaveChanges();
-                        if (!StaticDBACTION.ExitingList.Contains(csl.CustomerServiceLineId))
-                            StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                        if (csl.ServiceAgreementStatus == 1)
+                        {
+                            dbc.CustomerServiceLines.Add(csl);
+                            dbc.SaveChanges();
+                            if (!StaticDBACTION.ExitingList.Contains(csl.CustomerServiceLineId))
+                                StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                        }
                     }
                     else
                     {
@@ -89,12 +92,14 @@ namespace FC_NDIS.DBAccess
                         cslinfo.TransportServiceId = csl.TransportServiceId;
                         cslinfo.AllowRateNegotiation = csl.AllowRateNegotiation;
                         cslinfo.ModifiedDate = DateTime.Now;
-                        if (!StaticDBACTION.ExitingList.Contains(csl.CustomerServiceLineId))
+                        if (!StaticDBACTION.ExitingList.Contains(cslinfo.CustomerServiceLineId))
                             StaticDBACTION.ExitingList.Add(cslinfo.CustomerServiceLineId);
                         dbc.SaveChanges();
                     }
 
                 }
+                ExistingCustomerLineinfoStatusChanged(4, StaticDBACTION.ExitingList);
+
             }
             return true;
         }
@@ -104,48 +109,79 @@ namespace FC_NDIS.DBAccess
             // _logger.LogInformation("Method IntegrateCustomerLineinfointoDB");
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
+             
                 foreach (var csl in cslines)
                 {
-                    var cslerror = new CustomerServiceLinesError();
-                    cslerror.ServiceAgreementCustomerId = csl.ServiceAgreementCustomerId;
-                    cslerror.ServiceAgreementId = csl.ServiceAgreementId;
-                    cslerror.ServiceAgreementName = csl.ServiceAgreementName;
-                    cslerror.ServiceAgreementEndDate = csl.ServiceAgreementEndDate;
-                    cslerror.ServiceAgreementStatus = csl.ServiceAgreementStatus;
-                    cslerror.ServiceAgreementFundingManagement = csl.ServiceAgreementFundingManagement;
-                    cslerror.ServiceAgreementFundingType = csl.ServiceAgreementFundingType;
-                    cslerror.ServiceAgreementItemId = csl.ServiceAgreementItemId;
-                    cslerror.ServiceAgreementItemName = csl.ServiceAgreementItemName;
-                    cslerror.SupportCategoryAmount = csl.SupportCategoryAmount;
-                    cslerror.SupportCategoryDelivered = csl.SupportCategoryDelivered;
-                    cslerror.FundsRemaining = csl.FundsRemaining;
-                    cslerror.ItemOverclaim = csl.ItemOverclaim;
-                    cslerror.SiteId = csl.SiteId;
-                    cslerror.SiteName = csl.SiteName;
-                    cslerror.SiteGlcode = csl.SiteGlcode;
-                    cslerror.SiteServiceProgramId = csl.SiteServiceProgramId;
-                    cslerror.ServiceId = csl.ServiceId;
-                    cslerror.ServiceName = csl.ServiceName;
-                    cslerror.TravelServiceId = csl.TravelServiceId;
-                    cslerror.TransportServiceId = csl.TransportServiceId;
-                    cslerror.CategoryItemId = csl.CategoryItemId;
-                    cslerror.Default = csl.Default;
-                    dbc.CustomerServiceLinesErrors.Add(cslerror);
-                    dbc.SaveChanges();
+                    var cslinfo = dbc.CustomerServiceLinesErrors.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);
+                    if (cslinfo == null)
+                    {
+                        var cslerror = new CustomerServiceLinesError();
+                        cslerror.ServiceAgreementCustomerId = csl.ServiceAgreementCustomerId;
+                        cslerror.ServiceAgreementId = csl.ServiceAgreementId;
+                        cslerror.ServiceAgreementName = csl.ServiceAgreementName;
+                        cslerror.ServiceAgreementEndDate = csl.ServiceAgreementEndDate;
+                        cslerror.ServiceAgreementStatus = csl.ServiceAgreementStatus;
+                        cslerror.ServiceAgreementFundingManagement = csl.ServiceAgreementFundingManagement;
+                        cslerror.ServiceAgreementFundingType = csl.ServiceAgreementFundingType;
+                        cslerror.ServiceAgreementItemId = csl.ServiceAgreementItemId;
+                        cslerror.ServiceAgreementItemName = csl.ServiceAgreementItemName;
+                        cslerror.SupportCategoryAmount = csl.SupportCategoryAmount;
+                        cslerror.SupportCategoryDelivered = csl.SupportCategoryDelivered;
+                        cslerror.FundsRemaining = csl.FundsRemaining;
+                        cslerror.ItemOverclaim = csl.ItemOverclaim;
+                        cslerror.SiteId = csl.SiteId;
+                        cslerror.SiteName = csl.SiteName;
+                        cslerror.SiteGlcode = csl.SiteGlcode;
+                        cslerror.SiteServiceProgramId = csl.SiteServiceProgramId;
+                        cslerror.ServiceId = csl.ServiceId;
+                        cslerror.ServiceName = csl.ServiceName;
+                        cslerror.TravelServiceId = csl.TravelServiceId;
+                        cslerror.TransportServiceId = csl.TransportServiceId;
+                        cslerror.CategoryItemId = csl.CategoryItemId;
+                        cslerror.Default = csl.Default;
+                        dbc.CustomerServiceLinesErrors.Add(cslerror);
+                        dbc.SaveChanges();
+                    }
+                    else
+                    {
+                        cslinfo.ServiceAgreementCustomerId = csl.ServiceAgreementCustomerId;
+                        cslinfo.ServiceAgreementName = csl.ServiceAgreementName;
+                        cslinfo.ServiceAgreementEndDate = csl.ServiceAgreementEndDate;
+                        cslinfo.ServiceAgreementStatus = csl.ServiceAgreementStatus;
+                        cslinfo.ServiceAgreementFundingManagement = csl.ServiceAgreementFundingManagement;
+                        cslinfo.ServiceAgreementFundingType = csl.ServiceAgreementFundingType;
+                        cslinfo.ServiceAgreementItemName = csl.ServiceAgreementItemName;
+                        cslinfo.SupportCategoryAmount = csl.SupportCategoryAmount;
+                        cslinfo.SupportCategoryDelivered = csl.SupportCategoryDelivered;
+                        cslinfo.FundsRemaining = csl.FundsRemaining;
+                        cslinfo.ItemOverclaim = csl.ItemOverclaim;
+                        cslinfo.SiteGlcode = csl.SiteGlcode;
+                        cslinfo.CategoryItemId = csl.CategoryItemId;
+                        cslinfo.SiteId = csl.SiteId;
+                        cslinfo.SiteName = csl.SiteName;
+                        cslinfo.SiteServiceProgramId = csl.SiteServiceProgramId;
+                        cslinfo.ServiceId = csl.ServiceId;
+                        cslinfo.ServiceName = csl.ServiceName;
+                        cslinfo.TravelServiceId = csl.TravelServiceId;
+                        cslinfo.TransportServiceId = csl.TransportServiceId;
+                        cslinfo.AllowRateNegotiation = csl.AllowRateNegotiation;
+                        cslinfo.ModifiedDate = DateTime.Now;                      
+                        dbc.SaveChanges();
+                    }
                 }
             }
             return true;
         }
 
 
-        public bool ExistingCustomerLineinfoStatusChanged(int status)
+        public bool ExistingCustomerLineinfoStatusChanged(int status,List<int> ExitingIds)
         {
             bool result = false;
             if (StaticDBACTION.ExitingList.Count > 0)
             {
                 using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
                 {
-                    var cslinfo = dbc.CustomerServiceLines.Where(x => !StaticDBACTION.ExitingList.Contains(x.CustomerServiceLineId)).ToList();
+                    var cslinfo = dbc.CustomerServiceLines.Where(x => !ExitingIds.Contains(x.CustomerServiceLineId)).ToList();
 
                     foreach (var csexitinginfo in cslinfo)
                     {

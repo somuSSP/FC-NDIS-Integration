@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace FC_NDIS.DBAccess
 {
@@ -39,6 +40,7 @@ namespace FC_NDIS.DBAccess
                         vehinfo.Type = veh.Type;
                         vehinfo.Category = veh.Category;
                         vehinfo.DriverId = veh.DriverId;
+                        vehinfo.ModifiedDate = veh.ModifiedDate;
                     }
                     dbc.SaveChanges();
                 }
@@ -63,9 +65,7 @@ namespace FC_NDIS.DBAccess
                         if (csl.ServiceAgreementStatus == 1)
                         {
                             dbc.CustomerServiceLines.Add(csl);
-                            dbc.SaveChanges();
-                            if (!StaticDBACTION.ExitingList.Contains(csl.CustomerServiceLineId))
-                                StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                            dbc.SaveChanges();                            
                         }
                     }
                     else
@@ -91,25 +91,69 @@ namespace FC_NDIS.DBAccess
                         cslinfo.TravelServiceId = csl.TravelServiceId;
                         cslinfo.TransportServiceId = csl.TransportServiceId;
                         cslinfo.AllowRateNegotiation = csl.AllowRateNegotiation;
-                        cslinfo.ModifiedDate = DateTime.Now;
-                        if (!StaticDBACTION.ExitingList.Contains(cslinfo.CustomerServiceLineId))
-                            StaticDBACTION.ExitingList.Add(cslinfo.CustomerServiceLineId);
+                        cslinfo.ModifiedDate = DateTime.Now;                       
                         dbc.SaveChanges();
                     }
-
-                }
-                ExistingCustomerLineinfoStatusChanged(4, StaticDBACTION.ExitingList);
-
+                }               
             }
             return true;
         }
 
+        public DateTime? Last_CustomerLineIntegrate(int Type)
+        {
+            DateTime? result = new DateTime();
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                if (Type == 5)
+                {
+                    var exitingrecords = dbc.ApplicationSettings.FirstOrDefault(k => k.Key == "Last_CustomerLineIntegrate");
+                    try
+                    {
+                        var obj = Convert.ToDateTime(exitingrecords.Value);
+                        DateTime pDate = obj;
+
+
+                        result = pDate;
+                    }
+                    catch(Exception ex)
+                    {
+                        result = DateTime.Now.AddDays(-5);
+                    }
+                }
+            }
+            return result;
+        }
+        public Boolean ModifiedCustomerServiceLineIntegratedTime()
+        {            
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                try
+                {
+                    var exitingrecords = dbc.ApplicationSettings.FirstOrDefault(k => k.Key == "Last_CustomerLineIntegrate");
+                    if (exitingrecords != null)
+                    { exitingrecords.Value = DateTime.Now.ToString(); }
+                    else
+                    {
+                        exitingrecords = new ApplicationSetting();
+                        exitingrecords.Key = "Last_CustomerLineIntegrate";
+                        exitingrecords.Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    }
+
+                    dbc.SaveChanges();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+            }
+        }
         public bool IntegrateErrorCustomerLineinfointoDB(List<CustomerServiceLine> cslines)
         {
             // _logger.LogInformation("Method IntegrateCustomerLineinfointoDB");
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-             
+
                 foreach (var csl in cslines)
                 {
                     var cslinfo = dbc.CustomerServiceLinesErrors.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);
@@ -165,7 +209,7 @@ namespace FC_NDIS.DBAccess
                         cslinfo.TravelServiceId = csl.TravelServiceId;
                         cslinfo.TransportServiceId = csl.TransportServiceId;
                         cslinfo.AllowRateNegotiation = csl.AllowRateNegotiation;
-                        cslinfo.ModifiedDate = DateTime.Now;                      
+                        cslinfo.ModifiedDate = DateTime.Now;
                         dbc.SaveChanges();
                     }
                 }
@@ -174,19 +218,21 @@ namespace FC_NDIS.DBAccess
         }
 
 
-        public bool ExistingCustomerLineinfoStatusChanged(int status,List<int> ExitingIds)
+        public bool ExistingCustomerLineinfoStatusChanged(List<CustomerServiceLine> cslines)
         {
             bool result = false;
             if (StaticDBACTION.ExitingList.Count > 0)
             {
                 using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
                 {
-                    var cslinfo = dbc.CustomerServiceLines.Where(x => !ExitingIds.Contains(x.CustomerServiceLineId)).ToList();
-
-                    foreach (var csexitinginfo in cslinfo)
+                    foreach (var csl in cslines)
                     {
-                        csexitinginfo.ServiceAgreementStatus = status;
-                        dbc.SaveChanges();
+                        var cslinfo = dbc.CustomerServiceLines.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);
+                        if (cslinfo != null)
+                        {                             
+                            cslinfo.ServiceAgreementStatus = csl.ServiceAgreementStatus;                            
+                            dbc.SaveChanges();
+                        }
                     }
                 }
             }
@@ -230,7 +276,7 @@ namespace FC_NDIS.DBAccess
                             dbc.SaveChanges();
                         }
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
 
                     }
@@ -287,8 +333,8 @@ namespace FC_NDIS.DBAccess
                             if (option)
                                 result.Add(ob.Username + ".newacuat");
                             else
-                            result.Add(ob.Username);
-                       }
+                                result.Add(ob.Username);
+                        }
                     }
                 }
             }

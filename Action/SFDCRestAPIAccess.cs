@@ -437,6 +437,19 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
             }
             else
             {
+                string DateString = "";
+                DateTime? exitingDatetime = new DateTime();
+                exitingDatetime = dba.Last_CustomerLineIntegrate(5);
+                if (exitingDatetime == null)
+                {
+                    DateString = DateTime.Now.ToString("yyyy-MM-dd") + "T" + DateTime.Now.ToString("HH:MM:ss") + "Z";
+                }
+                else
+                {
+                    var extistingdate = (DateTime)exitingDatetime;
+                    DateString = extistingdate.ToString("yyyy-MM-dd") + "T" + extistingdate.ToString("HH:MM:ss") + "Z";
+
+                }
                 queryCustomer = @"SELECT Id
 ,Name
 ,enrtcr__Remaining__c
@@ -460,14 +473,14 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
 ,enrtcr__Service__r.enrtcr__Transport_Service__c
 ,enrtcr__Site_Service_Program__c
 FROM enrtcr__Support_Contract_Item__c
-WHERE ((( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
+WHERE  isDeleted=false  and (LastModifiedDate >" + DateString + @" OR enrtcr__Support_Contract__r.LastModifiedDate >" + DateString + @") and ((( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
 AND enrtcr__Service__r.enrtcr__Transport_Service__c != null
 AND (
 (
 enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
 AND enrtcr__Support_Contract__r.enrtcr__Transport_Non_Labour_Cost_Claims__c != 'Prevent'
 )
-OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS')
 )
 )
 OR
@@ -478,7 +491,7 @@ AND (
 enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
 AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Prevent'
 )
-OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
+OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
 )
 ))
 )";
@@ -577,14 +590,21 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 }
                 if (ltsCusline.Count > 0)
                 {
+                    logger.Info("Triggered 'IntegrateCustomerLineinfointoDB' to update the CustomerServiceLineRecord");
                     dba.IntegrateCustomerLineinfointoDB(ltsCusline);
                     dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);
                 }
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
+                    logger.Info("Triggered 'IntegrateCustomerLineinfointoDB' to fetch more record and update the CustomerServiceLineRecord");
                     RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
                 }
-                StaticDBACTION.ExitingList.Clear();
+                if (!firstDownload)
+                {
+                    logger.Info("Triggered 'DeletedCustomerServiceLine' to  update the status in the existing local CustomerServiceLineRecord");
+                    DeletedCustomerServiceLine();                   
+                }
+                dba.ModifiedCustomerServiceLineIntegratedTime();
                 result = true;
             }
 
@@ -687,8 +707,295 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                                 }
                                 else
                                 {
-                                    ltsCusline.Add(csl);
-                                 //   StaticDBACTION.ExitingList.Add(csl.CustomerServiceLineId);
+                                    ltsCusline.Add(csl);                                   
+                                }
+                            }
+                        }
+                    }
+                }
+                if (ltsCusline.Count > 0)
+                {
+                    logger.Info("Triggered 'IntegrateCustomerLineinfointoDB' to update the CustomerServiceLineRecord");
+                    dba.IntegrateCustomerLineinfointoDB(ltsCusline);
+                    dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);
+                }
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    logger.Info("Triggered 'RemainingCustomerServiceLineRecord' to fetch more record and update the Remaining CustomerServiceLineRecord");
+                    RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
+                }
+            }
+        }
+        public void DeletedCustomerServiceLine()
+        {
+
+            DBAction dba = new DBAction(_integrationAppSettings);
+            List<CustomerServiceLine> ltsCusline = new List<CustomerServiceLine>();
+            List<CustomerServiceLine> errorltsCusline = new List<CustomerServiceLine>();
+
+
+            Login();            
+            var firstDownload = Convert.ToBoolean(_integrationAppSettings.FirstTimeDownload);
+            string queryCustomer = "";
+            string DateString = "";
+            DateTime? exitingDatetime = new DateTime();
+            exitingDatetime = dba.Last_CustomerLineIntegrate(5);
+            if (exitingDatetime == null)
+            {
+                DateString = DateTime.Now.ToString("yyyy-MM-dd") + "T" + DateTime.Now.ToString("HH:MM:ss") + "Z";
+            }
+            else
+            {
+                var extistingdate = (DateTime)exitingDatetime;
+                DateString = extistingdate.ToString("yyyy-MM-dd") + "T" + extistingdate.ToString("HH:MM:ss") + "Z";
+
+            }
+            queryCustomer = @"SELECT Id
+,Name
+,enrtcr__Remaining__c
+,enrtcr__Item_Overclaim__c
+,enrtcr__Support_Contract__c
+,enrtcr__Support_Contract__r.Name
+,enrtcr__Support_Contract__r.enrtcr__End_Date__c
+,enrtcr__Support_Contract__r.enrtcr__Status__c
+,enrtcr__Support_Contract__r.enrtcr__Funding_Type__c
+,enrtcr__Support_Contract__r.enrtcr__Funding_Management__c
+,enrtcr__Support_Contract__r.enrtcr__Client__c
+,enrtcr__Support_Category__c
+,enrtcr__Category_Item__r.enrtcr__Support_Category_Amount__c
+,enrtcr__Category_Item__r.enrtcr__Delivered__c
+,enrtcr__Site__c
+,enrtcr__Site__r.Name
+,enrtcr__Site__r.enrtcr__Site_GL_Code__c
+,enrtcr__Service__c
+,enrtcr__Service__r.Name
+,enrtcr__Service__r.enrtcr__Travel_Service__c
+,enrtcr__Service__r.enrtcr__Transport_Service__c
+,enrtcr__Site_Service_Program__c
+FROM enrtcr__Support_Contract_Item__c
+WHERE  isDeleted=true  and (LastModifiedDate >" + DateString + @" OR enrtcr__Support_Contract__r.LastModifiedDate >" + DateString + @") and ((( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Transport__c = true
+AND enrtcr__Service__r.enrtcr__Transport_Service__c != null
+AND (
+(
+enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
+AND enrtcr__Support_Contract__r.enrtcr__Transport_Non_Labour_Cost_Claims__c != 'Prevent'
+)
+OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS')
+)
+)
+OR
+( enrtcr__Service__r.enrtcr__Allow_Non_Labour_Travel__c = true
+AND enrtcr__Service__r.enrtcr__Travel_Service__c != null
+AND (
+(
+enrtcr__Support_Contract__r.enrtcr__Funding_Type__c = 'NDIS'
+AND enrtcr__Support_Contract__r.enrtcr__Travel_Non_Labour_Cost_Claims__c != 'Prevent'
+)
+OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
+)
+))
+)";
+
+            var APIResponse = QueryAllRecordforDelete(Client, queryCustomer);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.CustomerServiceLine.Root>(APIResponse, settings);
+
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count() > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        CustomerServiceLine csl = new CustomerServiceLine();
+                        var customerId = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Client__c;
+                        csl.ServiceAgreementCustomerId = dba.GetCustomerId(customerId);
+                        csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c; ;
+                        csl.ServiceAgreementName = rootObject.records[i].enrtcr__Support_Contract__r.Name;
+                        csl.ServiceAgreementEndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__End_Date__c);
+
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Current")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Current;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Expired")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Expired;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Rollover")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Rollover;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Cancelled")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Cancelled;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Quote Submitted")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.QuoteSubmitted;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Client Declined")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.ClientDeclined;
+
+                        csl.ServiceAgreementFundingManagement = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Funding_Management__c;
+                        csl.ServiceAgreementFundingType = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Funding_Type__c;
+                        csl.ServiceAgreementItemId = rootObject.records[i].Id;
+                        csl.ServiceAgreementItemName = rootObject.records[i].Name;
+                        if (rootObject.records[i]?.enrtcr__Category_Item__r?.enrtcr__Support_Category_Amount__c == null)
+                            csl.SupportCategoryAmount = 0;
+                        else
+                            csl.SupportCategoryAmount = (float)rootObject.records[i].enrtcr__Category_Item__r?.enrtcr__Support_Category_Amount__c;
+                        csl.SupportCategoryDelivered = (float?)rootObject.records[i]?.enrtcr__Category_Item__r?.enrtcr__Delivered__c ?? 0;
+                        csl.FundsRemaining = (float?)rootObject.records[i].enrtcr__Remaining__c;
+
+                        if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Allow")
+                            csl.ItemOverclaim = (int)ItemOverClaim.Allow;
+                        if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Warn")
+                            csl.ItemOverclaim = (int)ItemOverClaim.Warn;
+                        if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Prevent")
+                            csl.ItemOverclaim = (int)ItemOverClaim.Prevent;
+
+
+                        csl.SiteId = rootObject.records[i].enrtcr__Site__c;
+                        csl.SiteName = rootObject.records[i].enrtcr__Site__r.Name;
+                        csl.SiteGlcode = rootObject.records[i].enrtcr__Site__r.enrtcr__Site_GL_Code__c;
+                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c ?? "";
+                        csl.ServiceId = rootObject.records[i].enrtcr__Service__c;
+                        csl.ServiceName = rootObject.records[i].enrtcr__Service__r.Name;
+                        csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;
+                        csl.TransportServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Transport_Service__c == null ? "" : rootObject.records[i].enrtcr__Service__r.enrtcr__Transport_Service__c;
+                        csl.CategoryItemId = rootObject.records[i].enrtcr__Support_Category__c;
+                        csl.Default = false;
+                        if (csl.ServiceAgreementCustomerId != 0)
+                        {
+                            if (csl.ServiceAgreementItemId == null ||
+                                csl.ServiceAgreementItemName == null ||
+                                csl.FundsRemaining == null || csl.ServiceAgreementId == null || csl.ServiceAgreementName == null ||
+                                csl.ServiceAgreementEndDate == null ||
+                                csl.ServiceAgreementStatus == null ||
+                                csl.ServiceAgreementFundingType == null ||
+                                csl.ServiceAgreementFundingManagement == null ||
+                                customerId == null ||
+                                csl.CategoryItemId == null ||
+                                csl.SiteId == null ||
+                                csl.SiteName == null ||
+                                csl.SiteGlcode == null ||
+                                csl.ServiceId == null ||
+                                csl.ServiceName == null ||
+                                csl.SiteServiceProgramId == null
+                                )
+                            {
+                                errorltsCusline.Add(csl);
+                            }
+                            else
+                            {
+                                ltsCusline.Add(csl);
+                            }
+                        }
+                    }
+                }
+                if (ltsCusline.Count > 0)
+                {
+                    dba.ExistingCustomerLineinfoStatusChanged(ltsCusline);
+                }
+                if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
+                {
+                    logger.Info("Triggered 'RemainingDeletedCustomerServiceLineRecord' to fetch  the Remaining Deleted CustomerServiceLineRecord");
+                    RemainingDeletedCustomerServiceLineRecord(rootObject.nextRecordsUrl);
+                }
+            }
+        }
+
+        public void RemainingDeletedCustomerServiceLineRecord(string NextURL)
+        {
+            List<CustomerServiceLine> errorltsCusline = new List<CustomerServiceLine>();
+            DBAction dba = new DBAction(_integrationAppSettings);
+            List<CustomerServiceLine> ltsCusline = new List<CustomerServiceLine>();
+            var APIResponse = QueryNextRecord(Client, NextURL);
+            var settings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.CustomerServiceLine.Root>(APIResponse, settings);
+
+            List<Customer> lstCus = new List<Customer>();
+            if (rootObject != null)
+            {
+                if (rootObject.records.Count > 0)
+                {
+                    for (var i = 0; i <= rootObject.records.Count - 1; i++)
+                    {
+                        CustomerServiceLine csl = new CustomerServiceLine();
+                        var customerId = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Client__c;
+                        csl.ServiceAgreementCustomerId = dba.GetCustomerId(customerId);
+                        csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c; ;
+                        csl.ServiceAgreementName = rootObject.records[i].enrtcr__Support_Contract__r.Name;
+                        csl.ServiceAgreementEndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__End_Date__c);
+
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Current")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Current;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Expired")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Expired;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Rollover")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Rollover;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Cancelled")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Cancelled;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Quote Submitted")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.QuoteSubmitted;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Client Declined")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.ClientDeclined;
+
+                        csl.ServiceAgreementFundingManagement = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Funding_Management__c;
+                        csl.ServiceAgreementFundingType = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Funding_Type__c;
+                        csl.ServiceAgreementItemId = rootObject.records[i].Id;
+                        csl.ServiceAgreementItemName = rootObject.records[i].Name;
+                        if (rootObject.records[i]?.enrtcr__Category_Item__r?.enrtcr__Support_Category_Amount__c == null)
+                            csl.SupportCategoryAmount = 0;
+                        else
+                            csl.SupportCategoryAmount = (float)rootObject.records[i].enrtcr__Category_Item__r?.enrtcr__Support_Category_Amount__c;
+                        csl.SupportCategoryDelivered = (float?)rootObject.records[i]?.enrtcr__Category_Item__r?.enrtcr__Delivered__c ?? 0;
+                        csl.FundsRemaining = (float?)rootObject.records[i].enrtcr__Remaining__c;
+
+                        if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Allow")
+                            csl.ItemOverclaim = (int)ItemOverClaim.Allow;
+                        if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Warn")
+                            csl.ItemOverclaim = (int)ItemOverClaim.Warn;
+                        if (rootObject.records[i].enrtcr__Item_Overclaim__c == "Prevent")
+                            csl.ItemOverclaim = (int)ItemOverClaim.Prevent;
+
+
+                        csl.SiteId = rootObject.records[i].enrtcr__Site__c;
+                        csl.SiteName = rootObject.records[i].enrtcr__Site__r.Name;
+                        csl.SiteGlcode = rootObject.records[i].enrtcr__Site__r.enrtcr__Site_GL_Code__c;
+                        csl.SiteServiceProgramId = rootObject.records[i]?.enrtcr__Site_Service_Program__c ?? "";
+                        csl.ServiceId = rootObject.records[i].enrtcr__Service__c;
+                        csl.ServiceName = rootObject.records[i].enrtcr__Service__r.Name;
+                        csl.TravelServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Travel_Service__c;
+                        csl.TransportServiceId = rootObject.records[i].enrtcr__Service__r.enrtcr__Transport_Service__c == null ? "" : rootObject.records[i].enrtcr__Service__r.enrtcr__Transport_Service__c;
+                        csl.CategoryItemId = rootObject.records[i].enrtcr__Support_Category__c;
+                        csl.CreatedDate = DateTime.Now;
+                        csl.ModifiedDate = DateTime.Now;
+                        csl.Default = false;
+                        if (csl.ServiceAgreementCustomerId != 0)
+                        {
+                            if (csl.ServiceAgreementCustomerId != 0)
+                            {
+                                if (csl.ServiceAgreementItemId == null ||
+                                    csl.ServiceAgreementItemName == null ||
+                                    csl.FundsRemaining == null || csl.ServiceAgreementId == null || csl.ServiceAgreementName == null ||
+                                    csl.ServiceAgreementEndDate == null ||
+                                    csl.ServiceAgreementStatus == null ||
+                                    csl.ServiceAgreementFundingType == null ||
+                                    csl.ServiceAgreementFundingManagement == null ||
+                                    customerId == null ||
+                                    csl.CategoryItemId == null ||
+                                    csl.SiteId == null ||
+                                    csl.SiteName == null ||
+                                    csl.SiteGlcode == null ||
+                                    csl.ServiceId == null ||
+                                    csl.ServiceName == null ||
+                                    csl.SiteServiceProgramId == null
+                                    )
+                                {
+                                    errorltsCusline.Add(csl);
+                                }
+                                else
+                                {
+                                    ltsCusline.Add(csl);                                 
                                 }
 
                             }
@@ -697,15 +1004,16 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 }
                 if (ltsCusline.Count > 0)
                 {
-                    dba.IntegrateCustomerLineinfointoDB(ltsCusline);
-                    dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);
+                    dba.ExistingCustomerLineinfoStatusChanged(ltsCusline);
                 }
                 if (rootObject.nextRecordsUrl != "" && rootObject.nextRecordsUrl != null)
                 {
-                    RemainingCustomerServiceLineRecord(rootObject.nextRecordsUrl);
+                    RemainingDeletedCustomerServiceLineRecord(rootObject.nextRecordsUrl);
                 }
             }
         }
+
+       
         #endregion
 
         #region Salesforce Actions 
@@ -713,6 +1021,13 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
         {
             string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
             client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
+            HttpResponseMessage response = client.GetAsync(restQuery).Result;
+            return response.Content.ReadAsStringAsync().Result;
+        }
+        private string QueryAllRecordforDelete(HttpClient client, string queryMessage)
+        {
+            string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
+            //client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
             HttpResponseMessage response = client.GetAsync(restQuery).Result;
             return response.Content.ReadAsStringAsync().Result;
         }

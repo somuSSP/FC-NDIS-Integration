@@ -75,12 +75,14 @@ namespace FC_NDIS.Action
                             vh.Type = 1;
                         vh.Active = true;
                         vh.Availability = true;
+                        vh.CreatedDate = DateTime.Now;
+                        vh.ModifiedDate = DateTime.Now;
                         if (vsRes.IsDeleted != null && vsRes.IsDeleted != true)
                             vehicles.Add(vh);
                     }
                     catch(Exception ex)
                     {
-
+                        logger.Info(ex.ToString()+", Ids :"+ vsRes.ID.ToString() + ", vsRes.LicensePlate:"+ vsRes.LicensePlate.ToString());
                     }
                 }
                 DBAction dba = new DBAction(_integrationAppSettings);

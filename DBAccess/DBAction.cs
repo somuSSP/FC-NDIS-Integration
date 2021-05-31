@@ -109,11 +109,10 @@ namespace FC_NDIS.DBAccess
                     var exitingrecords = dbc.ApplicationSettings.FirstOrDefault(k => k.Key == "Last_CustomerLineIntegrate");
                     try
                     {
+                        _logger.LogInformation("Last_CustomerLineIntegrate datetime:" + exitingrecords.Value);
                         var obj = Convert.ToDateTime(exitingrecords.Value);
-                        DateTime pDate = obj;
-
-
-                        result = pDate;
+                        _logger.LogInformation("Last_CustomerLineIntegrate Converted datetime:" + obj.ToString());
+                        result = obj;
                     }
                     catch(Exception ex)
                     {
@@ -131,12 +130,12 @@ namespace FC_NDIS.DBAccess
                 {
                     var exitingrecords = dbc.ApplicationSettings.FirstOrDefault(k => k.Key == "Last_CustomerLineIntegrate");
                     if (exitingrecords != null)
-                    { exitingrecords.Value = DateTime.Now.ToString(); }
+                    { exitingrecords.Value = DateTime.Now.ToString("yyyy-MM-dd"); }
                     else
                     {
                         exitingrecords = new ApplicationSetting();
                         exitingrecords.Key = "Last_CustomerLineIntegrate";
-                        exitingrecords.Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        exitingrecords.Value = DateTime.Now.ToString("yyyy-MM-dd");
                     }
 
                     dbc.SaveChanges();

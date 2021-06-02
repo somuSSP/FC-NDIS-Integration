@@ -361,7 +361,7 @@ namespace FC_NDIS.DBAccess
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true).ToList();
+                var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true && k.Billable==true).ToList();
                 if (objBillingLinesList != null)
                 {
                     var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false || k.SentToSalesForce == null || k.SentToSalesForceStatus == null).ToList();

@@ -387,7 +387,7 @@ namespace FC_NDIS.DBAccess
                         bls.enrtcr__Support_CategoryId__c = cslines?.CategoryItemId ?? "";//CategoryItem
                         bls.enrtcr__Site_Service_Program__c = cslines?.SiteServiceProgramId ?? "";//Site Service Program;
                         bls.enrtcr__Rate__c = SFRate?.RateId ?? "";//ob.UnitOfMeasure.ToString();
-
+                        bls.enrtcr__Comments__c = "BLid " + bl.BillingId + " | DTid " + Trip.DriverId + " | CTid " + customerTrip.CustomerId; ;
                         bls.enrtcr__Worker__c = drivers?.SalesForceUserId;//worker
                         bls.enrtcr__Client_Rep_Accepted__c = true;//client rep accepted
                         bls.enrtcr__Use_Negotiated_Rate__c = true;//nogotitiated
@@ -446,7 +446,7 @@ namespace FC_NDIS.DBAccess
                             bls.enrtcr__Site_Service_Program__c = cslines?.SiteServiceProgramId ?? "";//Site Service Program;
                         }
                         bls.enrtcr__Rate__c = SFRate?.RateId ?? "";//ob.UnitOfMeasure.ToString();
-
+                        bls.enrtcr__Comments__c = "BLid " + bl.BillingId + " | DTid " + Trip.DriverId + " | CTid " + customerTrip.CustomerId; 
                         bls.enrtcr__Worker__c = drivers?.SalesForceUserId;//worker
                         bls.enrtcr__Client_Rep_Accepted__c = true;//client rep accepted
                         bls.enrtcr__Use_Negotiated_Rate__c = true;//nogotitiated

@@ -31,7 +31,7 @@ namespace FC_NDIS.Action
         private readonly IntegrationAppSettings _integrationAppSettings;
         private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
         public List<Customer> FinalCustomer;
-
+        public Dictionary<int, string> BillingList = new Dictionary<int, string>();
 
         public SFDCRestAPIAccess(IntegrationAppSettings integrationAppSettings)
         {
@@ -602,7 +602,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 if (!firstDownload)
                 {
                     logger.Info("Triggered 'DeletedCustomerServiceLine' to  update the status in the existing local CustomerServiceLineRecord");
-                    DeletedCustomerServiceLine();                   
+                    DeletedCustomerServiceLine();
                 }
                 dba.ModifiedCustomerServiceLineIntegratedTime();
                 result = true;
@@ -707,7 +707,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                                 }
                                 else
                                 {
-                                    ltsCusline.Add(csl);                                   
+                                    ltsCusline.Add(csl);
                                 }
                             }
                         }
@@ -734,7 +734,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
             List<CustomerServiceLine> errorltsCusline = new List<CustomerServiceLine>();
 
 
-            Login();            
+            Login();
             var firstDownload = Convert.ToBoolean(_integrationAppSettings.FirstTimeDownload);
             string queryCustomer = "";
             string DateString = "";
@@ -995,7 +995,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                                 }
                                 else
                                 {
-                                    ltsCusline.Add(csl);                                 
+                                    ltsCusline.Add(csl);
                                 }
 
                             }
@@ -1013,13 +1013,21 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
             }
         }
 
-       
+
         #endregion
 
         #region Salesforce Actions 
         private string QueryAllRecord(HttpClient client, string queryMessage)
         {
             string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
+            HttpResponseMessage response = client.GetAsync(restQuery).Result;
+            return response.Content.ReadAsStringAsync().Result;
+        }
+
+        private string QueryRecord(HttpClient client, string queryMessage)
+        {
+            string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}query?q={queryMessage}";
             client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
             HttpResponseMessage response = client.GetAsync(restQuery).Result;
             return response.Content.ReadAsStringAsync().Result;
@@ -1169,6 +1177,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
             FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
             PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
             Login();
+
             for (int i = 0; i < bllist.Count; i = i + 25)
             {
                 var items = bllist.Skip(i).Take(25).ToList();
@@ -1189,6 +1198,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                     br.richInput.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
                     br.richInput.enrtcr__Rate__c = bl.enrtcr__Rate__c;
                     br.richInput.enrtcr__Worker__c = bl.enrtcr__Worker__c;
+                    br.richInput.enrtcr__Comments__c = bl.enrtcr__Comments__c;
                     br.richInput.enrtcr__Client_Rep_Accepted__c = true;
                     br.richInput.enrtcr__Use_Negotiated_Rate__c = true;
                     br.richInput.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
@@ -1215,9 +1225,10 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             string message = "";
                             int statusCode = 0;
                             statusCode = res.statusCode;
-                            if (statusCode == 201)
+                            if (statusCode == 201 || statusCode == 0)
                             {
-                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
+                                // dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
                             recordcount++;
                         }
@@ -1235,7 +1246,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             statusCode = res.statusCode;
                             if (statusCode == 201)
                             {
-                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
+                                // dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
                             else
                             {
@@ -1260,9 +1272,57 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                     }
                 }
             }
-
+            if (UpdateExistingCratedRecord(BillingList))
+            {
+                Result = true;
+                BillingList.Clear();
+            }
+            else
+                Result = false;
 
             return Result; ;
+        }
+
+        public bool UpdateExistingCratedRecord(Dictionary<int, string> input)
+        {
+            try
+            {
+                DBAction dba = new DBAction(_integrationAppSettings);
+                Dictionary<int, string> CurrentData = new Dictionary<int, string>();
+                var items = input.Select(k => k.Value).ToList(); ;
+                string userlist = "'" + string.Join("','", items.Where(k => !string.IsNullOrEmpty(k))) + "'";
+                var queryCustomer = @"SELECT+Id,Name+FROM+enrtcr__Support_Delivered__c WHERE Id IN (" + userlist + ")";
+                // Login();
+                HttpClient cl = new HttpClient();
+                cl.Timeout = new TimeSpan(0, 5, 0);
+                var APIResponse = QueryRecord(cl, queryCustomer);
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+                var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.SFDCResultResponse.Root>(APIResponse, settings);
+                if (rootObject.done)
+                {
+                    foreach (var record in rootObject.records)
+                    {
+                        var exitingRecord = input.Where(k => k.Value == record.Id).FirstOrDefault();
+                        CurrentData.Add(exitingRecord.Key, record.Name);
+                        dba.SFDCActionStatus(exitingRecord.Key, true, "Success", record.Name);
+                    }
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error("Error occured:" + ex.ToString());
+                return false;
+            }
+
         }
 
         public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformation()
@@ -1306,6 +1366,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                     br.richInput.enrtcr__Site_Service_Program__c = bl.enrtcr__Site_Service_Program__c;
                     br.richInput.enrtcr__Rate__c = bl.enrtcr__Rate__c;
                     br.richInput.enrtcr__Worker__c = bl.enrtcr__Worker__c;
+                    br.richInput.enrtcr__Comments__c = bl.enrtcr__Comments__c;
                     br.richInput.enrtcr__Client_Rep_Accepted__c = true;
                     br.richInput.enrtcr__Use_Negotiated_Rate__c = true;
                     br.richInput.enrtcr__Negotiated_Rate_Ex_GST__c = bl.enrtcr__Negotiated_Rate_Ex_GST__c;
@@ -1327,13 +1388,12 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         int recordcount = 0;
                         foreach (dynamic res in rootObject.results)
                         {
-                            string errorCode = "";
-                            string message = "";
                             int statusCode = 0;
                             statusCode = res.statusCode;
-                            if (statusCode == 201)
+                            if (statusCode == 201 || statusCode == 0)
                             {
-                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
+                                // dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
                             recordcount++;
                         }
@@ -1350,7 +1410,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             statusCode = res.statusCode;
                             if (statusCode == 201)
                             {
-                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
+                                //dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
                             else
                             {
@@ -1374,6 +1435,13 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                     }
                 }
             }
+            if (UpdateExistingCratedRecord(BillingList))
+            {
+                Result = true;
+                BillingList.Clear();
+            }
+            else
+                Result = false;
             return Result; ;
         }
 

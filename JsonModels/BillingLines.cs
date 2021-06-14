@@ -16,6 +16,7 @@ namespace FC_NDIS.JsonModels
         public string enrtcr__Site__c { get; set; }
         public string enrtcr__Support_CategoryId__c { get; set; }
         public string enrtcr__Site_Service_Program__c { get; set; }
+        public string enrtcr__Comments__c { get; set; }
         public string enrtcr__Rate__c { get; set; }
         public string enrtcr__Worker__c { get; set; }
         public bool enrtcr__Client_Rep_Accepted__c { get; set; }

@@ -35,7 +35,7 @@ namespace FC_NDIS.Models
         public bool? SentToSalesForceStatus { get; set; }
         public string SentToSalesForceDescription { get; set; }
         public string SalesForceBillingId { get; set; }
-
+        public string SDNumber { get; set; }
         public virtual BillingCustomerTrip CustomerTrip { get; set; }
         public virtual SalesforceRate SalesforceRates { get; set; }
         public virtual BillingDriverTrip Trip { get; set; }

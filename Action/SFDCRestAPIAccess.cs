@@ -1308,7 +1308,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                     {
                         var exitingRecord = input.Where(k => k.Value == record.Id).FirstOrDefault();
                         CurrentData.Add(exitingRecord.Key, record.Name);
-                        dba.SFDCActionStatus(exitingRecord.Key, true, "Success", record.Name);
+                        dba.SFDCActionStatus(exitingRecord.Key, true, "Success", exitingRecord.Value, record.Name);
                     }
                     return true;
                 }
@@ -1322,7 +1322,6 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 logger.Error("Error occured:" + ex.ToString());
                 return false;
             }
-
         }
 
         public List<FC_NDIS.JsonModels.SFDCBillingLines> GetBillingInformation()

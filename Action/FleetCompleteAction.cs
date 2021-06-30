@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.Dynamic;
 using FC_NDIS.JsonModels;
 using NLog;
+using FC_NDIS.JsonModels.Resource;
 
 namespace FC_NDIS.Action
 {
@@ -70,10 +71,16 @@ namespace FC_NDIS.Action
                         if (CatType != 0)
                             vh.Category = CatType;
                         if (vsRes.AssetType != null)
+                        {
                             vh.Type = (vsRes.AssetType.ToString().Contains("Fleet")) ? 1 : 2;
+                            vh.Active = (vsRes.AssetType.ToString().Contains("Replaced")) ? false : true;
+                        }
                         else
+                        {
+                            vh.Active = true;
                             vh.Type = 1;
-                        vh.Active = true;
+                        }
+                        vh.Description = vsRes.Description;
                         vh.Availability = true;
                         vh.CreatedDate = DateTime.Now;
                         vh.ModifiedDate = DateTime.Now;
@@ -115,6 +122,65 @@ namespace FC_NDIS.Action
             else
             {
                 result = 1;
+            }
+            return result;
+        }
+
+        public bool PostResource(string ClientID, string UserID, string Token,int ResourceId)
+        {
+            bool result = false;
+            try
+            {
+                DBAction dba = new DBAction(_integrationAppSettings);
+                logger.Info("Scheduled Fleet complete Post Method - Resource");
+                var client = new RestClient(_integrationAppSettings.ResourcePost);
+                client.Timeout = -1;
+                var request = new RestRequest(Method.POST);
+                request.AddHeader("ClientID", ClientID);
+                request.AddHeader("UserID", UserID);
+                request.AddHeader("Token", Token);
+                var drivers = dba.GetDriverInformation(ResourceId);
+                Resource Resource = new Resource();
+                Resource.Description= drivers.EmployeeCode +" "+(drivers.PreferedName!=null? drivers.PreferedName: drivers.FirstName)+""+drivers.LastName;
+                //Need to Map the Model and convert to Json Format
+                var json = JsonConvert.SerializeObject(Resource);
+                var body = json;
+                request.AddParameter("application/json", body, ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+                Console.WriteLine(response.Content);
+                result = true;
+            }
+            catch(Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+        public bool PutResource(string ClientID, string UserID, string Token,int ResourceId)
+        {
+            bool result = false;
+            try
+            {
+                logger.Info("Scheduled Fleet complete Put Method for Resource");
+                var client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", ResourceId.ToString()).ToString());
+                client.Timeout = -1;
+                var request = new RestRequest(Method.PUT);
+                request.AddHeader("ClientID", ClientID);
+                request.AddHeader("UserID", UserID);
+                request.AddHeader("Token", Token);
+                Resource Resource = new Resource();
+
+                //Need to Map the Model and convert to Json Format
+                var json = JsonConvert.SerializeObject(Resource);
+                var body = json;
+                request.AddParameter("application/json", body, ParameterType.RequestBody);
+                IRestResponse response = client.Execute(request);
+                Console.WriteLine(response.Content);
+                result = true;
+            }
+            catch(Exception ex)
+            {
+                result = false;
             }
             return result;
         }

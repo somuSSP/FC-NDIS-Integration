@@ -36,8 +36,10 @@ namespace FC_NDIS.DBAccess
                     {
                         vehinfo.Registration = veh.Registration;
                         vehinfo.Make = veh.Make;
+                        vehinfo.Description = veh.Description;
                         vehinfo.Model = veh.Model;
                         vehinfo.Type = veh.Type;
+                        vehinfo.Active = veh.Active;
                         vehinfo.Category = veh.Category;
                         vehinfo.DriverId = veh.DriverId;
                         vehinfo.ModifiedDate = veh.ModifiedDate;
@@ -629,6 +631,16 @@ namespace FC_NDIS.DBAccess
                 else
                     return null;
             }
+        }
+
+        public Driver GetDriverInformation(int driverId)
+        {
+            Driver dr = new Driver();
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                dr = dbc.Drivers.FirstOrDefault(k => k.DriverId == driverId);
+            }
+            return dr;
         }
     }
 

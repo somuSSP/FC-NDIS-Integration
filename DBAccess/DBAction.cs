@@ -642,6 +642,59 @@ namespace FC_NDIS.DBAccess
             }
             return dr;
         }
+        public List<Driver> GetAllDriverInformation()
+        {
+            List<Driver> dr = new List<Driver>();
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                dr = dbc.Drivers.Where(k => k.FCResourceID ==null).ToList();
+            }
+            return dr;
+        }
+
+        public bool UpdatedInformation(int driverId,string FCResourceID)
+        {
+            Boolean result = true;
+            try
+            {
+                using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+                {
+                   var dr = dbc.Drivers.FirstOrDefault(k => k.DriverId == driverId);
+                    dr.FCResourceID = FCResourceID;
+                    dbc.SaveChanges();
+                }
+            }
+            catch(Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
+
+        public bool UpdatedFCInformationintoDB(Dictionary<string,string> FCLists)
+        {
+            Boolean result = true;
+            try
+            {
+                using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+                {
+                    foreach (var input in FCLists)
+                    {
+                        var dr = dbc.Drivers.FirstOrDefault(k => k.EmployeeCode == input.Key);
+                        if (dr != null)
+                        {
+                            dr.FCResourceID = input.Value;
+                            dbc.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+            return result;
+        }
     }
 
     public static class StaticDBACTION

@@ -213,6 +213,7 @@ namespace FC_NDIS.JsonModels
 
     public class Data
     {
+        [JsonIgnore]
         public string DeviceID { get; set; }
         [JsonIgnore]
         public bool? IsRecordOnDirectionChange { get; set; }
@@ -220,31 +221,51 @@ namespace FC_NDIS.JsonModels
         public DateTime LastUpdatedTimeStamp { get; set; }
         [JsonIgnore]
         public DateTime TimeStamp { get; set; }
+        [JsonIgnore]
         public int? Status { get; set; }
         [JsonIgnore]
         public bool? IsCrashDetected { get; set; }
+        [JsonIgnore]
         public VehicleDetails VehicleDetails { get; set; }
+        [JsonIgnore]
         public ECM ECM { get; set; }
+        [JsonIgnore]
         public Position Position { get; set; }
+        [JsonIgnore]
         public string AssignedBranchID { get; set; }
+        [JsonIgnore]
         public string Zone { get; set; }
+        [JsonIgnore]
         public DeviceDataSetting DeviceDataSetting { get; set; }
+        [JsonIgnore]
         public Advanced Advanced { get; set; }
         public MDT MDT { get; set; }
         [JsonIgnore]
         public bool? AlternateDDSConfigured { get; set; }
+        [JsonIgnore]
         public object RelatedAssetInfo { get; set; }
+        [JsonIgnore]
         public object Run { get; set; }
+        [JsonIgnore]
         public WorkSchedule WorkSchedule { get; set; }
+        [JsonIgnore]
         public Branch Branch { get; set; }
+        [JsonIgnore]
         public HomeBase HomeBase { get; set; }
+        [JsonIgnore]
         public object VehicleType { get; set; }
+        [JsonIgnore]
         public object Resource { get; set; }
         public AssetType AssetType { get; set; }
+        [JsonIgnore]
         public List<Rule> Rules { get; set; }
+        [JsonIgnore]
         public object CustomFields { get; set; }
+        [JsonIgnore]
         public List<Sensor> Sensors { get; set; }
+        [JsonIgnore]
         public string ID { get; set; }
+        [JsonIgnore]
         public string Description { get; set; }
     }
 

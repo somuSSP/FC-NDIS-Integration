@@ -21,7 +21,7 @@ namespace FC_NDIS.JsonModels.Resource
         public string Fax { get; set; }
         public string MobileEmail { get; set; }
         public string MailingAddress { get; set; }
-        public int CommunicationMethod => 0;
+        public int CommunicationMethod { get; set; }
     }
 
     public class Insurance
@@ -81,7 +81,7 @@ namespace FC_NDIS.JsonModels.Resource
     public class ResourceType
     {
         public int ResourceCount { get; set; }
-        public string ID => Guid.NewGuid().ToString();
+        public string ID { get; set; }
         public string Description { get; set; }
     }
 
@@ -209,17 +209,17 @@ namespace FC_NDIS.JsonModels.Resource
         public Insurance Insurance { get; set; }
         public License License { get; set; }
         public WorkInfo WorkInfo { get; set; }
-        public string AssignedCrewID { get; set; }
-        public string WorkScheduleID { get; set; }
-        public string HomeBaseID { get; set; }
-        public string ResourceTypeID => Guid.NewGuid().ToString();
+        public Guid AssignedCrewID { get; set; }
+        public Guid WorkScheduleID { get; set; }
+        public Guid HomeBaseID { get; set; }
+        public string ResourceTypeID { get; set; }
         public Pictures Picture { get; set; }
         public HomeBase HomeBase { get; set; }
         public List<Asset> Assets { get; set; }
         public ResourceType ResourceType { get; set; }
         public List<CustomField> CustomFields { get; set; }
         public HOS HOS { get; set; }
-        public WorkSchedule WorkSchedule { get; set; }
+        public WorkSchedules WorkSchedule { get; set; }
         public List<Route> Routes { get; set; }
         public SettlementOptions SettlementOptions { get; set; }
         public List<TaskLeg> TaskLegs { get; set; }
@@ -251,15 +251,15 @@ namespace FC_NDIS.JsonModels.Resource
 
     public class Resource
     {
-        public string ID { get; set; }
+        public Guid ID { get; set; }
         public string Description { get; set; }
         public string Code { get; set; }
-        public bool IsActive => true;
-        public bool IsSettlementOnly => true;
-        public bool IsSuspended => true;
-        public bool IsShared => true;
-        public DateTime LastUpdatedTimeStamp => DateTime.Now;
-        public string AssignedBranchID => Guid.NewGuid().ToString();
+        public bool IsActive { get; set; }
+        public bool IsSettlementOnly { get; set; }
+        public bool IsSuspended { get; set; }
+        public bool IsShared { get; set; }
+        public DateTime LastUpdatedTimeStamp { get; set; }
+        public string AssignedBranchID { get; set; }
         public Branch Branch { get; set; }
         public Details Details { get; set; }
         public List<Parent> Parents { get; set; }

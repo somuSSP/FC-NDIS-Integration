@@ -55,5 +55,108 @@ namespace FC_NDIS.Controllers
             }
             return rs;
         }
+
+        [HttpGet("GetResource")]
+        public Response IntegerateResource_Get()
+        {
+            Response rs = new Response();
+            try
+            {
+                _logger.LogInformation("IntegerateResource_Get");
+                var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + _integrationAppSettings.UserName + "&userPassword=" + _integrationAppSettings.Password;
+                FleetCompleteAction fca = new FleetCompleteAction(_integrationAppSettings);
+                _logger.LogInformation("IntegerateAssets Appsettings:" + _integrationAppSettings.AppConnection.ToString());
+
+                var tokeninfo = fca.GetAccessToken(url);
+                _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
+                if (fca.GetandUpdateResourcetoDB(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token))
+                {
+                    rs.ResponseCode = 200;
+                    rs.Message = "Integrated Successfully";
+                }
+                else
+                {
+                    rs.ResponseCode = 500;
+                    rs.Message = "Internal Server Error Occured";
+                }
+                rs.ResponseCode = 200;
+                rs.Message = "Integrated Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 500;
+                rs.Message = "Internal Server Error Occured";
+            }
+            return rs;
+        }
+
+        [HttpPost("PostResource")]
+        public Response IntegerateResource_Post(List<int> ResourceIds)
+        {
+            Response rs = new Response();
+            try
+            {
+                _logger.LogInformation("IntegerateResource_Post");
+                var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + _integrationAppSettings.UserName + "&userPassword=" + _integrationAppSettings.Password;
+                FleetCompleteAction fca = new FleetCompleteAction(_integrationAppSettings);
+                _logger.LogInformation("IntegerateAssets Appsettings:" + _integrationAppSettings.AppConnection.ToString());
+
+                var tokeninfo = fca.GetAccessToken(url);
+                _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
+                if (fca.PostResource(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token, ResourceIds))
+                {
+                    rs.ResponseCode = 200;
+                    rs.Message = "Integrated Successfully";
+                }
+                else
+                {
+                    rs.ResponseCode = 500;
+                    rs.Message = "Internal Server Error Occured";
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 500;
+                rs.Message = "Internal Server Error Occured";
+            }
+            return rs;
+        }
+
+        [HttpPut("PutResource")]
+        public Response IntegerateResource_Put(List<int> ResourceIds)
+        {
+            Response rs = new Response();
+            try
+            {
+                _logger.LogInformation("IntegerateResource_Put");
+                var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + _integrationAppSettings.UserName + "&userPassword=" + _integrationAppSettings.Password;
+                FleetCompleteAction fca = new FleetCompleteAction(_integrationAppSettings);
+                _logger.LogInformation("IntegerateAssets Appsettings:" + _integrationAppSettings.AppConnection.ToString());
+
+                var tokeninfo = fca.GetAccessToken(url);
+                _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
+                if (fca.PutResource(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token, ResourceIds))
+                {
+                    rs.ResponseCode = 200;
+                    rs.Message = "Integrated Successfully";
+                }
+                else
+                {
+                    rs.ResponseCode = 500;
+                    rs.Message = "Internal Server Error Occured";
+                }
+                rs.ResponseCode = 200;
+                rs.Message = "Integrated Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 500;
+                rs.Message = "Internal Server Error Occured";
+            }
+            return rs;
+        }
     }
 }

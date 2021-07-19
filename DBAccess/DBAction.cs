@@ -320,8 +320,8 @@ namespace FC_NDIS.DBAccess
             List<string> result = new List<string>();
 
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
-            {
-                var objs = dbc.Drivers.Where(k => k.SalesForceUserId != null && k.SalesForceUserId == "" && k.Username != "" && k.IsTerminated == false).ToList();
+            {             
+                var objs = dbc.Drivers.Where(k => (string.IsNullOrEmpty(k.SalesForceUserId)) && k.Username != "" && k.IsTerminated == false).ToList();
                 foreach (var ob in objs)
                 {
                     if (!string.IsNullOrEmpty(ob.Username))
@@ -341,7 +341,7 @@ namespace FC_NDIS.DBAccess
             }
             return result;
         }
-
+      
         public object GetCostcenterId(string ccvalue)
         {
             int? result;

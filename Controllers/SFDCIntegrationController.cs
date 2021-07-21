@@ -37,9 +37,8 @@ namespace FC_NDIS.Controllers
                 rs.Message = "Integrated Successfully";
             }
             catch (Exception ex)
-            {
-                StaticDBACTION.ExitingList.Clear();
-                _logger.LogError(ex.ToString());
+            {              
+               _logger.LogError(ex.ToString());
                 rs.ResponseCode = 200;
                 rs.Message = "Internal Server Error Occur";
             }
@@ -128,8 +127,7 @@ namespace FC_NDIS.Controllers
                     userlist = "'" + string.Join("','", items.Where(k => !string.IsNullOrEmpty(k))) + "'";
                     result = sfdca.IntegrateSFDCId_OperatortoDB(userlist);
                     _logger.LogError("SFDC ID updated to driver From "+i.ToString()+" To:"+(i+ items.Count()).ToString());
-                }
-                // userlist = string.Join(",'", UserNames);
+                }                
                 
                 if (result)
                 {
@@ -158,8 +156,7 @@ namespace FC_NDIS.Controllers
             try
             {
                 SFDCRestAPIAccess sfdca = new SFDCRestAPIAccess(_integrationAppSettings);
-                var results = sfdca.InsertDataintoSFDC();
-                //InsertDataintoSFDCFromPortal
+                var results = sfdca.InsertDataintoSFDC();               
                 if (results)
                 {
                     rs.ResponseCode = 200;

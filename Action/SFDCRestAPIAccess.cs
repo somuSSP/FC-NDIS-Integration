@@ -234,7 +234,7 @@ namespace FC_NDIS.Action
         {
             Login();
             logger.Info("Integrate Customer Informations");
-            var result = true;
+            bool result = true;
             string queryCustomer = "";
             var firstDownload = Convert.ToBoolean(_integrationAppSettings.FirstTimeDownload);
 
@@ -246,6 +246,7 @@ namespace FC_NDIS.Action
             {
                 queryCustomer = @"SELECT Id,Name,OtherStreet,OtherCity,OtherState,OtherPostalCode,RecordType.Name,Enrite_Care_Auto_Number__c,enrtcr__Status__c,LastModifiedDate FROM Contact WHERE RecordType.Name = 'Client' 
                        AND (enrtcr__Status__c='Current' OR enrtcr__Status__c='Deceased' OR enrtcr__Status__c='Inactive')";
+                staticDBACTION.update = true;
             }
 
             var APIResponse = QueryAllRecord(Client, queryCustomer);
@@ -292,14 +293,17 @@ namespace FC_NDIS.Action
                         cs.CreatedDate = DateTime.Now;
                         cs.ModifiedDate = DateTime.Now;
                         lstCus.Add(cs);
+                        if(!staticDBACTION.exitingList.Contains(cs.CustomerId))
+                            staticDBACTION.exitingList.Add(cs.CustomerId);
                     }
                 }
             }
+            DBAction dba = new DBAction(_integrationAppSettings);
             if (lstCus.Count > 0)
             {
                 try
                 {
-                    DBAction dba = new DBAction(_integrationAppSettings);
+                  
                     dba.IntegrateCustomerInfotoDB(lstCus);
                 }
                 catch (Exception ex)
@@ -312,9 +316,10 @@ namespace FC_NDIS.Action
             {
                 RemainingRecord(rootObject.nextRecordsUrl);
             }
+            if(staticDBACTION.update)
+            dba.DeleteCustomerRecordbasedonSFDCRecord();
 
-
-            return result;
+            return result =true;
         }
 
         public void RemainingRecord(string NextURL)
@@ -361,6 +366,8 @@ namespace FC_NDIS.Action
                         cs.Active = true;
                         cs.OnHold = false;
                         lstCus.Add(cs);
+                        if (!staticDBACTION.exitingList.Contains(cs.CustomerId))
+                            staticDBACTION.exitingList.Add(cs.CustomerId);
                     }
                 }
                 DBAction dba = new DBAction(_integrationAppSettings);

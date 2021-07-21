@@ -27,9 +27,7 @@ namespace FC_NDIS.Action
             ConnXServiceClient CSC = new ConnXServiceClient();
             ValidateCallerRequest vrq = new ValidateCallerRequest();
             vrq.strPassword = _integrationAppSettings.ConnexUserName;
-            vrq.strPassword = _integrationAppSettings.ConnexUserPassword;
-            //CSC.ValidateCallerAsync()
-            // CSC.ValidateCaller(EnvName, EnvAPI, ref stagingSourceID);
+            vrq.strPassword = _integrationAppSettings.ConnexUserPassword;           
             var RES = CSC.ValidateCallerAsync(vrq);
             if (RES.Result.intStagingSourceID == 0)
                 return false;
@@ -54,7 +52,7 @@ namespace FC_NDIS.Action
                 {
                     for (int i = 0; i < emppersonalDetails.Result.Items.Length; i++)
                     {
-                        var empEmploymentDetailNew = empEmploymentDetailNewList.Result.Items.Where(k => k.EmployeeCode == emppersonalDetails.Result.Items[i].EmployeeCode).FirstOrDefault();
+                        var empEmploymentDetailNew = empEmploymentDetailNewList.Result.Items.FirstOrDefault(k => k.EmployeeCode == emppersonalDetails.Result.Items[i].EmployeeCode);
 
                         Driver dr = new Driver();
                         dr.EmployeeCode = emppersonalDetails.Result.Items[i].EmployeeCode ?? "";

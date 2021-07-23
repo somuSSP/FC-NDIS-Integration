@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace FC_NDIS.JsonModels.Resource
 {
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
+   
     public class Branch
     {
         public string ID { get; set; }
@@ -35,16 +36,18 @@ namespace FC_NDIS.JsonModels.Resource
         public bool IsMale { get; set; }
         public string Class { get; set; }
         public string ProvinceCode { get; set; }
-        public DateTime IssueDate { get; set; }
-        public DateTime ExpiryDate { get; set; }
+        public DateTime? IssueDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
     }
 
     public class WorkInfo
     {
         public int WorkStatus { get; set; }
         public bool IsCrewChief { get; set; }
-        public DateTime EmploymentStartDate { get; set; }
-        public DateTime EmploymentEndDate { get; set; }
+       
+        public DateTime? EmploymentStartDate { get; set; }
+      
+        public DateTime? EmploymentEndDate { get; set; }
         public string DispatchDeviceID { get; set; }
         public string PTTNumber { get; set; }
         public string MobileID { get; set; }

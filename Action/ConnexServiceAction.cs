@@ -15,8 +15,7 @@ namespace FC_NDIS.Action
     public class ConnexServiceAction : IConnex
     {
 
-        private readonly IntegrationAppSettings _integrationAppSettings;
-        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private readonly IntegrationAppSettings _integrationAppSettings;      
         private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
         public ConnexServiceAction(IntegrationAppSettings integrationAppSettings)
         {

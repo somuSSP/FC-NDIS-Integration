@@ -10,7 +10,7 @@ namespace FC_NDIS.ActionInterface
     {
         public FCResponseTokenandUserId GetAccessToken(string URL);
         public void IntegrateAsset(string ClientID, string UserID, string Token);
-        public bool PostResource(string ClientID, string UserID, string Token, List<int> ResourceId);
+        public bool PostResource(string ClientID, string UserID, string Token);
         public bool PutResource(string ClientID, string UserID, string Token, List<int> ResourceIds);
     }
 }

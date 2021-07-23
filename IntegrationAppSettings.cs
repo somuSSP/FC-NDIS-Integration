@@ -16,6 +16,7 @@ namespace FC_NDIS
         public string AssetURL { get; set; }
         public string ResourcePost { get; set; }
         public string ResourcePut { get; set; }
+        public string ResourceGetDetails { get; set; }
         public string SFDCUserName { get; set; }
         public string SFDCUserPassword { get; set; }
         public string SFDCClientId { get; set; }

@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 
 namespace FC_NDIS.JsonModels
 { 
-
-
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse); 
     public class VehicleDetails
     {
         [JsonIgnore]

@@ -14,6 +14,7 @@ using System.Dynamic;
 using FC_NDIS.JsonModels;
 using NLog;
 using FC_NDIS.JsonModels.Resource;
+using FC_NDIS.APIModels.FCModel;
 
 namespace FC_NDIS.Action
 {
@@ -47,7 +48,7 @@ namespace FC_NDIS.Action
             logger.Info("Scheduled Fleet complete asset job triggered");
             var client = new RestClient(_integrationAppSettings.AssetURL);
             client.Timeout = -1;
-            var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);          
+            var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
             IRestResponse response = client.Execute(request);
             AssetResp ASResp = new AssetResp();
             ASResp = JsonConvert.DeserializeObject<AssetResp>(response.Content);
@@ -101,54 +102,55 @@ namespace FC_NDIS.Action
             client.Timeout = -1;
             var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
 
-          
-                IRestResponse response = client.Execute(request);
-                Root vehicleInformation = JsonConvert.DeserializeObject<Root>(response.Content);
-                if (vehicleInformation != null)
-                {
-                    if (vehicleInformation.Data.AssetType.Description == "Modified Vehicle")
-                    {
-                        result = 1;
-                    }
-                    else
-                    {
-                        result = 2;
-                    }
-                }
-                else
+
+            IRestResponse response = client.Execute(request);
+            Root vehicleInformation = JsonConvert.DeserializeObject<Root>(response.Content);
+            if (vehicleInformation != null)
+            {
+                if (vehicleInformation.Data.AssetType.Description == "Modified Vehicle")
                 {
                     result = 1;
                 }
-           
+                else
+                {
+                    result = 2;
+                }
+            }
+            else
+            {
+                result = 1;
+            }
+
             return result;
         }
 
-        public bool PostResource(string ClientID, string UserID, string Token, List<int> ResourceIds)
+        public bool PostResource(string ClientID, string UserID, string Token)
         {
             bool result = false;
             try
             {
                 DBAction dba = new DBAction(_integrationAppSettings);
                 logger.Info("Scheduled Fleet complete Post Method - Resource");
-               
-                if (ResourceIds.Count > 0)//Specific Record will push to FC
+
+                var allDrivers = dba.GetAllDriverInformation();
+                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID)).ToList();
+                var CreatedRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID)).ToList();
+
+                if (NewRecords.Count > 0)
                 {
-                    foreach (var ResourceId in ResourceIds)
+                    var client = new RestClient(_integrationAppSettings.ResourcePost);
+                    var request = RestRequestMapping((int)Method.POST, ClientID, UserID, Token);
+                    client.Timeout = -1;
+                    foreach (var drivers in NewRecords) //All Record will push to FC
                     {
-                        var drivers = dba.GetDriverInformation(ResourceId);
-                        var client = new RestClient(_integrationAppSettings.ResourcePost);
-                        client.Timeout = -1;
-                        var request = RestRequestMapping((int)Method.POST, ClientID, UserID, Token);
                         if (drivers.FCResourceID != null)
                         {
                             client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()).ToString());
-                            request = RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
                         }
 
-                        var resource = MappingResourceDTO(drivers);
+                        var resource = MappingResourceDTO(drivers, 1);
                         try
                         {
-                            //Need to Map the Model and convert to Json Format
                             var json = JsonConvert.SerializeObject(resource);
                             var body = json;
                             request.AddParameter("application/json", body, ParameterType.RequestBody);
@@ -165,40 +167,40 @@ namespace FC_NDIS.Action
                         }
                     }
                 }
-                else
+                if (CreatedRecords.Count > 0) //Update the records
                 {
-                    var allDrivers = dba.GetAllDriverInformation();
-                    foreach (var drivers in allDrivers) //All Record will push to FC
+                    try
                     {
-                        var client = new RestClient(_integrationAppSettings.ResourcePost);
-                        client.Timeout = -1;
-                        var request = RestRequestMapping((int)Method.POST, ClientID, UserID, Token);
-                        if (drivers.FCResourceID != null)
+                        var request = RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
+                        foreach (var drivers in CreatedRecords)
                         {
-                            client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()).ToString());
-                            request= RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
-                        }
-
-                        var resource = MappingResourceDTO(drivers);
-                        try
-                        {
-                            //Need to Map the Model and convert to Json Format
-                            var json = JsonConvert.SerializeObject(resource);
-                            var body = json;
-                            request.AddParameter("application/json", body, ParameterType.RequestBody);
-                            IRestResponse response = client.Execute(request);
-                            root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
-                            if (resourceResponse.Errors == null)
+                            if (drivers.FCResourceID != null)
                             {
-                                result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                                var client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()));
+                                client.Timeout = -1;
+                                var resource = MappingResourceDTO(drivers, 0);
+                                var json = JsonConvert.SerializeObject(resource);
+                                var body = json;
+                                request.AddParameter("application/json", body, ParameterType.RequestBody);
+
+                                client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()).ToString());
+                                client.Timeout = -1;
+                                IRestResponse response = client.Execute(request);
+                                root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
+                                if (resourceResponse.Errors == null)
+                                {
+                                    result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                                }
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            logger.Error(ex.ToString());
-                        }                       
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex.ToString());
                     }
                 }
+
+
                 result = true;
             }
             catch (Exception ex)
@@ -214,11 +216,11 @@ namespace FC_NDIS.Action
             DBAction dba = new DBAction(_integrationAppSettings);
             logger.Info("Scheduled Fleet complete Put Method for Resource");
 
-            var request = RestRequestMapping((int)Method.PUT, ClientID,UserID,Token);           
+            var request = RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
             foreach (var ResourceId in ResourceIds)
             {
                 var drivers = dba.GetDriverInformation(ResourceId);
-                var resource = MappingResourceDTO(drivers);
+                var resource = MappingResourceDTO(drivers, 0);
                 var client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()));
                 client.Timeout = -1;
                 var json = JsonConvert.SerializeObject(resource);
@@ -252,23 +254,42 @@ namespace FC_NDIS.Action
             var client = new RestClient(_integrationAppSettings.ResourcePost);
             client.Timeout = -1;
             var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
+            FCResourceModel resourcechildResponse = new FCResourceModel();
+            Dictionary<string, string> FCList = new Dictionary<string, string>();
+            Dictionary<string, string> FCOriginalList = new Dictionary<string, string>();
             try
             {
                 IRestResponse response = client.Execute(request);
                 OutputResource resourceResponse = JsonConvert.DeserializeObject<OutputResource>(response.Content);
-                Dictionary<string, string> FCList = new Dictionary<string, string>();              
+
                 if (resourceResponse.Errors == null)
                 {
-                    foreach(var resourceInp in resourceResponse.Data)
+                    foreach (var resourceInp in resourceResponse.Data)
                     {
                         var EmployeeCode = resourceInp.DriverName;
                         string[] EmployeeCodes = EmployeeCode.Split(null);
                         var idstring = EmployeeCodes[0].Replace("[", "").Replace("]", "").Trim();
-                        if(!FCList.ContainsKey(idstring))
-                        FCList.Add(idstring, resourceInp.ID);
+                        if (!FCList.ContainsKey(idstring))
+                            FCList.Add(idstring, resourceInp.ID);
+
                     }
-                    result = dba.UpdatedFCInformationintoDB(FCList);
                 }
+
+                foreach (var k in FCList)
+                {
+                    var url = _integrationAppSettings.ResourceGetDetails.Replace("{id}", k.Value);
+                    var clientchild = new RestClient(url);
+                    clientchild.Timeout = -1;
+                    var request1 = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
+                    IRestResponse responseChild = clientchild.Execute(request1);
+                    resourcechildResponse = JsonConvert.DeserializeObject<FCResourceModel>(responseChild.Content);
+                    if (resourcechildResponse != null)
+                    {
+                        if (!FCOriginalList.Keys.Contains(k.Value))  FCOriginalList.Add(k.Value, resourcechildResponse.Data.WorkInfo.MobileID); 
+                    }
+                }
+
+                result = dba.UpdatedFCInformationintoDB(FCList, FCOriginalList);
                 result = true;
             }
             catch (Exception ex)
@@ -277,16 +298,15 @@ namespace FC_NDIS.Action
                 result = false;
             }
 
-
             return result;
 
         }
-        public Resource MappingResourceDTO(Driver drivers)
+        public Resource MappingResourceDTO(Driver drivers, int Methodtype)
         {
             Resource resource = new Resource();
-            if(!string.IsNullOrEmpty(drivers.FCResourceID))
-                if(drivers.FCResourceID != null)
-            resource.ID = Guid.Parse(drivers.FCResourceID);
+            if (!string.IsNullOrEmpty(drivers.FCResourceID))
+                if (drivers.FCResourceID != null)
+                    resource.ID = Guid.Parse(drivers.FCResourceID);
             resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName : drivers.FirstName) + " " + drivers.LastName;
             resource.Description += " - Sword";
             resource.Code = "";
@@ -306,17 +326,31 @@ namespace FC_NDIS.Action
             resource.Details.IsStrongBox = true;
             resource.Details.OutsideCode = "";
             resource.Details.InsideCode = "";
-            resource.Details.Communication = new Communication
+            if (Methodtype == 1)
             {
-                Email = drivers.Username,
-                Phone = "",
-                Mobile = "",
-                Pager = "",
-                Fax = "",
-                MobileEmail = drivers.Username,
-                MailingAddress = "",
-                CommunicationMethod = 0
-            };
+                resource.Details.Communication = new Communication
+                {
+                    Email = drivers.Username,
+                    Phone = "",
+                    Mobile = "",
+                    Pager = "",
+                    Fax = "",
+                    MobileEmail = drivers.Username,
+                    MailingAddress = "",
+                    CommunicationMethod = 0
+                };
+                resource.Details.WorkInfo = new WorkInfo()
+                {
+                    WorkStatus = 0,
+                    IsCrewChief = true,
+                    EmploymentStartDate = DateTime.Now,
+                    EmploymentEndDate = DateTime.Now,
+                    DispatchDeviceID = "",
+                    PTTNumber = "",
+                    MobileID = drivers.RFID,
+                    PIN = ""
+                };
+            }
             //Insurance null
             resource.Details.License = new License
             {
@@ -327,17 +361,7 @@ namespace FC_NDIS.Action
                 ExpiryDate = DateTime.Now
             };
 
-            resource.Details.WorkInfo = new WorkInfo()
-            {
-                WorkStatus = 0,
-                IsCrewChief = true,
-                EmploymentStartDate = DateTime.Now,
-                EmploymentEndDate = DateTime.Now,
-                DispatchDeviceID = "",
-                PTTNumber = "",
-                MobileID = drivers.RFID,
-                PIN = ""
-            };
+
 
             resource.Details.ResourceTypeID = "10b48e80-6a5c-48c7-9604-5b5a8376be87";// Need to cross check
             resource.Details.Assets = new List<Asset>();
@@ -373,9 +397,9 @@ namespace FC_NDIS.Action
 
         }
 
-        public RestRequest RestRequestMapping(int Type,string ClientID,string UserID,string Token)
+        public RestRequest RestRequestMapping(int Type, string ClientID, string UserID, string Token)
         {
-            var request = new RestRequest(((Method)Type));           
+            var request = new RestRequest(((Method)Type));
             request.AddHeader("ClientID", ClientID);
             request.AddHeader("UserID", UserID);
             request.AddHeader("Token", Token);

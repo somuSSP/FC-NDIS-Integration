@@ -929,7 +929,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         CustomerServiceLine csl = new CustomerServiceLine();
                         var customerId = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Client__c;
                         csl.ServiceAgreementCustomerId = dba.GetCustomerId(customerId);
-                        csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c; ;
+                        csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c;
                         csl.ServiceAgreementName = rootObject.records[i].enrtcr__Support_Contract__r.Name;
                         csl.ServiceAgreementEndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__End_Date__c);
 
@@ -1041,33 +1041,19 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
         }
         private string QueryAllRecordforDelete(HttpClient client, string queryMessage)
         {
-            string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";
-            //client.DefaultRequestHeaders.Add("Authorization", "Bearer " + AuthToken);
+            string restQuery = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";          
             HttpResponseMessage response = client.GetAsync(restQuery).Result;
             return response.Content.ReadAsStringAsync().Result;
         }
 
         private string QueryNextRecord(HttpClient client, string NextURL)
         {
-            string restQuery = $"{ServiceUrl}" + NextURL;//{_integrationAppSettings.SFDCApiEndpoint}queryAll?q={queryMessage}";          
+            string restQuery = $"{ServiceUrl}" + NextURL;
             HttpResponseMessage response = client.GetAsync(restQuery).Result;
             return response.Content.ReadAsStringAsync().Result;
         }
 
 
-        private string CreateRecord(HttpClient client, string createMessage, string recordType)
-        {
-            HttpContent contentCreate = new StringContent(createMessage, Encoding.UTF8, "application/xml");
-            string uri = $"{ServiceUrl}{_integrationAppSettings.SFDCApiEndpoint}sobjects/{recordType}";
-            var clienttest = new RestClient(uri);
-            clienttest.Timeout = -1;
-            var request = new RestRequest(Method.POST);
-            request.AddHeader("Authorization", "Bearer " + AuthToken);
-            request.AddHeader("Content-Type", "application/json");
-            request.AddParameter("application/json", createMessage, ParameterType.RequestBody);
-            IRestResponse responses = clienttest.Execute(request);
-            return responses.Content;
-        }
 
         private string CreatePatchRecord(HttpClient clients, string createMessage, string entpointURL)
         {
@@ -1216,7 +1202,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 {
 
                     var json = JsonConvert.SerializeObject(PatchRoot);
-                    var response = CreatePatchRecord(Client, json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
+                    var response = CreatePatchRecord(Client,json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
                     {
                         NullValueHandling = NullValueHandling.Ignore,
@@ -1234,8 +1220,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             statusCode = res.statusCode;
                             if (statusCode == 201 || statusCode == 0)
                             {
-                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
-                                // dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);                              
                             }
                             recordcount++;
                         }

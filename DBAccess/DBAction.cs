@@ -56,7 +56,7 @@ namespace FC_NDIS.DBAccess
         /// <returns></returns>
         public bool IntegrateCustomerLineinfointoDB(List<CustomerServiceLine> cslines)
         {
-            // _logger.LogInformation("Method IntegrateCustomerLineinfointoDB");
+            
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
                 foreach (var csl in cslines)
@@ -151,7 +151,7 @@ namespace FC_NDIS.DBAccess
         }
         public bool IntegrateErrorCustomerLineinfointoDB(List<CustomerServiceLine> cslines)
         {
-            // _logger.LogInformation("Method IntegrateCustomerLineinfointoDB");
+           
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
 
@@ -665,7 +665,7 @@ namespace FC_NDIS.DBAccess
             List<Driver> dr = new List<Driver>();
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-                dr = dbc.Drivers.Where(k => k.FCResourceID == null).ToList();
+                dr = dbc.Drivers.ToList();
             }
             return dr;
         }
@@ -689,7 +689,7 @@ namespace FC_NDIS.DBAccess
             return result;
         }
 
-        public bool UpdatedFCInformationintoDB(Dictionary<string, string> FCLists)
+        public bool UpdatedFCInformationintoDB(Dictionary<string, string> FCLists, Dictionary<string, string> FCOriginalList)
         {
             Boolean result = true;
             try
@@ -699,9 +699,11 @@ namespace FC_NDIS.DBAccess
                     foreach (var input in FCLists)
                     {
                         var dr = dbc.Drivers.FirstOrDefault(k => k.EmployeeCode == input.Key);
+                        var rfid = FCOriginalList.FirstOrDefault(k => k.Key == input.Value);
                         if (dr != null)
                         {
                             dr.FCResourceID = input.Value;
+                            dr.RFID = rfid.Value;
                             dbc.SaveChanges();
                         }
                     }

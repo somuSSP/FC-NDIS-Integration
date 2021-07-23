@@ -96,7 +96,7 @@ namespace FC_NDIS.Controllers
 
                 var tokeninfo = fca.GetAccessToken(url);
                 _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
-                if (fca.PostResource(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token, ResourceIds))
+                if (fca.PostResource(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token))
                 {
                     rs.ResponseCode = 200;
                     rs.Message = "Integrated Successfully";

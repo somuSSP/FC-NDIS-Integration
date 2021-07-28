@@ -308,7 +308,6 @@ namespace FC_NDIS.Action
                 if (drivers.FCResourceID != null)
                     resource.ID = Guid.Parse(drivers.FCResourceID);
             resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName : drivers.FirstName) + " " + drivers.LastName;
-            resource.Description += " - Sword";
             resource.Code = "";
             resource.IsActive = true;
             resource.IsSettlementOnly = false;

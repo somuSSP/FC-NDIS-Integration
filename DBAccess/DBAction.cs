@@ -595,8 +595,12 @@ namespace FC_NDIS.DBAccess
                 var deletedCustomers = dbc.Customers.Where(p => !staticDBACTION.exitingList.Contains(p.CustomerId)).ToList();
                 foreach (var cs in deletedCustomers)
                 {
-                    cs.Status = 3;
-                    cs.Active = false;
+                    string NotList = "Customer Not Listed";
+                    if (!cs.Name.ToLower().Contains(NotList.ToLower().ToString()))
+                    {
+                        cs.Status = 3;
+                        cs.Active = false;
+                    }
                 }
                 dbc.SaveChanges();
                 staticDBACTION.exitingList.Clear();

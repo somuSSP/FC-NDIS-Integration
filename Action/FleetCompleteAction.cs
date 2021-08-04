@@ -162,7 +162,7 @@ namespace FC_NDIS.Action
                             }
                             else
                             {
-                                logger.Error("FC Record Status:" + resourceResponse.Errors.ToString());
+                                logger.Error("FC Insert Record Status:" + resourceResponse.Errors.ToString());
                             }
                         }
                         catch (Exception ex)
@@ -199,7 +199,7 @@ namespace FC_NDIS.Action
                                     }
                                     else
                                     {
-                                        logger.Error("FC Record Status:" + resourceResponse.Errors.ToString());
+                                        logger.Error("FC Update Record Status:" + resourceResponse.Errors.ToString());
                                     }
                                 }
                             }
@@ -241,9 +241,16 @@ namespace FC_NDIS.Action
                 {
                     IRestResponse response = client.Execute(request);
                     root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
-                    if (resourceResponse.Errors == null)
+                    if (resourceResponse != null)
                     {
-                        result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                        if (resourceResponse.Errors == null)
+                        {
+                            result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                        }
+                        else
+                        {
+                            logger.Error("FC Update Record Status:" + resourceResponse.Errors.ToString());
+                        }
                     }
                     result = true;
                 }
@@ -262,7 +269,7 @@ namespace FC_NDIS.Action
 
             DBAction dba = new DBAction(_integrationAppSettings);
             logger.Info("Scheduled Fleet complete Put Method for Resource");
-            var client = new RestClient(_integrationAppSettings.ResourcePost+ "?top=1000");
+            var client = new RestClient(_integrationAppSettings.ResourcePost + "?top=1000");
             client.Timeout = -1;
             var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
             FCResourceModel resourcechildResponse = new FCResourceModel();
@@ -295,7 +302,7 @@ namespace FC_NDIS.Action
                     resourcechildResponse = JsonConvert.DeserializeObject<FCResourceModel>(responseChild.Content);
                     if (resourcechildResponse != null)
                     {
-                        if (!FCOriginalList.Keys.Contains(k.Value))  FCOriginalList.Add(k.Value, resourcechildResponse.Data.WorkInfo.MobileID); 
+                        if (!FCOriginalList.Keys.Contains(k.Value)) FCOriginalList.Add(k.Value, resourcechildResponse.Data.WorkInfo.MobileID);
                     }
                 }
 
@@ -314,6 +321,7 @@ namespace FC_NDIS.Action
         public Resource MappingResourceDTO(Driver drivers, int Methodtype)
         {
             Resource resource = new Resource();
+
             if (!string.IsNullOrEmpty(drivers.FCResourceID))
                 if (drivers.FCResourceID != null)
                     resource.ID = Guid.Parse(drivers.FCResourceID);

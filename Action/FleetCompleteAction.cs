@@ -160,6 +160,10 @@ namespace FC_NDIS.Action
                             {
                                 result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
                             }
+                            else
+                            {
+                                logger.Error("FC Record Status:" + resourceResponse.Errors.ToString());
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -187,9 +191,16 @@ namespace FC_NDIS.Action
                                 client.Timeout = -1;
                                 IRestResponse response = client.Execute(request);
                                 root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
-                                if (resourceResponse.Errors == null)
+                                if (resourceResponse != null)
                                 {
-                                    result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                                    if (resourceResponse.Errors == null)
+                                    {
+                                        result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                                    }
+                                    else
+                                    {
+                                        logger.Error("FC Record Status:" + resourceResponse.Errors.ToString());
+                                    }
                                 }
                             }
                         }
@@ -271,7 +282,6 @@ namespace FC_NDIS.Action
                         var idstring = EmployeeCodes[0].Replace("[", "").Replace("]", "").Trim();
                         if (!FCList.ContainsKey(idstring))
                             FCList.Add(idstring, resourceInp.ID);
-
                     }
                 }
 
@@ -308,6 +318,7 @@ namespace FC_NDIS.Action
                 if (drivers.FCResourceID != null)
                     resource.ID = Guid.Parse(drivers.FCResourceID);
             resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName : drivers.FirstName) + " " + drivers.LastName;
+            resource.Description = resource.Description + " FC Test";
             resource.Code = "";
             resource.IsActive = true;
             resource.IsSettlementOnly = false;

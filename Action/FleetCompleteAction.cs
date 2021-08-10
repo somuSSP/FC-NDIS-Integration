@@ -211,7 +211,6 @@ namespace FC_NDIS.Action
                     }
                 }
 
-
                 result = true;
             }
             catch (Exception ex)
@@ -356,19 +355,19 @@ namespace FC_NDIS.Action
                     MobileEmail = drivers.Username,
                     MailingAddress = "",
                     CommunicationMethod = 0
-                };
-                resource.Details.WorkInfo = new WorkInfo()
-                {
-                    WorkStatus = 0,
-                    IsCrewChief = true,
-                    EmploymentStartDate = DateTime.Now,
-                    EmploymentEndDate = DateTime.Now,
-                    DispatchDeviceID = "",
-                    PTTNumber = "",
-                    MobileID = drivers.RFID,
-                    PIN = ""
-                };
+                };                
             }
+            resource.Details.WorkInfo = new WorkInfo()
+            {
+                WorkStatus = 0,
+                IsCrewChief = true,
+                EmploymentStartDate = DateTime.Now,
+                EmploymentEndDate = DateTime.Now,
+                DispatchDeviceID = "",
+                PTTNumber = "",
+                MobileID = drivers.RFID,
+                PIN = ""
+            };
             //Insurance null
             resource.Details.License = new License
             {

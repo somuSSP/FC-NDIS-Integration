@@ -1166,14 +1166,14 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
             logger.Info("Insert Data into SFDC");
 
             DBAction dba = new DBAction(_integrationAppSettings);
-
-            FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
-            PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
+          
             Login();
 
-            for (int i = 0; i < bllist.Count; i = i + 25)
+            for (int i = 0; i < bllist.Count; i = i + 20)
             {
-                var items = bllist.Skip(i).Take(25).ToList();
+                FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
+                PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
+                var items = bllist.Skip(i).Take(20).ToList();
                 foreach (var bl in items)
                 {
                     APIModels.Patch.BatchRequest br = new APIModels.Patch.BatchRequest();
@@ -1200,7 +1200,6 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 }
                 if (PatchRoot.batchRequests.Count > 0)
                 {
-
                     var json = JsonConvert.SerializeObject(PatchRoot);
                     var response = CreatePatchRecord(Client,json, _integrationAppSettings.SFDCApiEndpoint + "composite/batch/");
                     var settings = new JsonSerializerSettings
@@ -1208,6 +1207,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         NullValueHandling = NullValueHandling.Ignore,
                         MissingMemberHandling = MissingMemberHandling.Ignore
                     };
+                    List <int> ProcessingIds = items.Select(k => k.BillingID).ToList();
+                    logger.Info("Processing Ids :"+ string.Join(",", ProcessingIds.Select(n => n.ToString()).ToArray()) + "::"+ response);
                     var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
                     if (!rootObject.hasErrors)
                     {
@@ -1333,12 +1334,11 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
             logger.Info("Insert Data into SFDC");
 
             DBAction dba = new DBAction(_integrationAppSettings);
-
-            FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
-            PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
             Login();
             for (int i = 0; i < bllist.Count; i = i + 25)
             {
+                FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
+                PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
                 var items = bllist.Skip(i).Take(25).ToList();
                 foreach (var bl in items)
                 {
@@ -1373,6 +1373,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         NullValueHandling = NullValueHandling.Ignore,
                         MissingMemberHandling = MissingMemberHandling.Ignore
                     };
+                    List<int> ProcessingIds = items.Select(k => k.BillingID).ToList();
+                    logger.Info("Processing Ids :" + string.Join(",", ProcessingIds.Select(n => n.ToString()).ToArray()) + "::" + response);
                     var rootObject = JsonConvert.DeserializeObject<FC_NDIS.APIModels.AccessResult.Root>(response, settings);
                     if (!rootObject.hasErrors)
                     {

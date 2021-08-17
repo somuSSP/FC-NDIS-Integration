@@ -364,10 +364,12 @@ namespace FC_NDIS.DBAccess
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
                 var objBillingLinesList = dbc.BillingLinesNews.Where(k => k.Approved == true && k.Billable == true).ToList();
+                
                 if (objBillingLinesList != null)
                 {
                     var objFinalBillingLinesList = objBillingLinesList.Where(k => k.SentToSalesForceStatus == false || k.SentToSalesForce == false || k.SentToSalesForce == null || k.SentToSalesForceStatus == null).ToList();
-                    foreach (var bl in objFinalBillingLinesList)
+                    objFinalBillingLinesList = objFinalBillingLinesList.Where(k => k.CustomerTripId != null).ToList();
+                    foreach (var bl in objFinalBillingLinesList)//need to verify the list.
                     {
                         var customerTrip = dbc.BillingCustomerTrips.Where(k => k.CustomerTripId == bl.CustomerTripId).FirstOrDefault();//done
                         var customer = dbc.Customers.Where(k => k.CustId == customerTrip.CustomerId).FirstOrDefault();

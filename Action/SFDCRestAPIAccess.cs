@@ -1335,11 +1335,11 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
 
             DBAction dba = new DBAction(_integrationAppSettings);
             Login();
-            for (int i = 0; i < bllist.Count; i = i + 25)
+            for (int i = 0; i < bllist.Count; i = i + 20)
             {
                 FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
                 PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
-                var items = bllist.Skip(i).Take(25).ToList();
+                var items = bllist.Skip(i).Take(20).ToList();
                 foreach (var bl in items)
                 {
                     APIModels.Patch.BatchRequest br = new APIModels.Patch.BatchRequest();

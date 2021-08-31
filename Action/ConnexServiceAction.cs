@@ -134,7 +134,7 @@ namespace FC_NDIS.Action
                         }
                         dr.CreatedDate = DateTime.Now;
                         dr.ModifiedDate = DateTime.Now;
-                        if (dr.IsTerminated != true && emppersonalDetails.Result.Items[i].EmployeeCode.StartsWith("DIR") != true)
+                        if (emppersonalDetails.Result.Items[i].EmployeeCode.StartsWith("DIR") != true)
                             Drivers.Add(dr);
 
                     }

@@ -114,7 +114,7 @@ namespace FC_NDIS.Action
                         dr.LastName = emppersonalDetails.Result.Items[i].Surname ?? "";
                         dr.PreferedName = emppersonalDetails.Result.Items[i].PreferredName;
                         dr.Username = emppersonalDetails.Result.Items[i].EmailWork;
-                        dr.Disabled = false;
+                        dr.Disabled = emppersonalDetails.Result.Items[i].IsTerminated == null ? false : Convert.ToBoolean(emppersonalDetails.Result.Items[i].IsTerminated);
                         dr.IsTerminated = emppersonalDetails.Result.Items[i].IsTerminated == null ? false : Convert.ToBoolean(emppersonalDetails.Result.Items[i].IsTerminated);
                         dr.Type = 1;
                         if (empEmploymentDetailNew != null)

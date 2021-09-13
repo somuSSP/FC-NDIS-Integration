@@ -499,6 +499,7 @@ namespace FC_NDIS.DBAccess
                         existingrecord.ManagerName = drv.ManagerName;
                         existingrecord.JobNumber = drv.JobNumber;
                         existingrecord.IsTerminated = drv.IsTerminated;
+                        existingrecord.Disabled = drv.Disabled;
                         existingrecord.PreferedName = drv.PreferedName;
                         existingrecord.ModifiedDate = drv.ModifiedDate;
 

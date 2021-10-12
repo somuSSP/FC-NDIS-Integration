@@ -64,7 +64,7 @@ namespace FC_NDIS.DBAccess
                     var cslinfo = dbc.CustomerServiceLines.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);
                     if (cslinfo == null)
                     {
-                        if (csl.ServiceAgreementStatus == 1)
+                        if (csl.ServiceAgreementStatus == 1 || csl.ServiceAgreementStatus == 7)
                         {
                             dbc.CustomerServiceLines.Add(csl);
                             dbc.SaveChanges();
@@ -150,11 +150,9 @@ namespace FC_NDIS.DBAccess
             }
         }
         public bool IntegrateErrorCustomerLineinfointoDB(List<CustomerServiceLine> cslines)
-        {
-           
+        {           
             using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
             {
-
                 foreach (var csl in cslines)
                 {
                     var cslinfo = dbc.CustomerServiceLinesErrors.FirstOrDefault(k => k.ServiceAgreementId == csl.ServiceAgreementId && k.ServiceAgreementItemId == csl.ServiceAgreementItemId && k.ServiceAgreementCustomerId == csl.ServiceAgreementCustomerId);

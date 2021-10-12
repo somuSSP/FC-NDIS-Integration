@@ -523,9 +523,11 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c; ;
                         csl.ServiceAgreementName = rootObject.records[i].enrtcr__Support_Contract__r.Name;
                         csl.ServiceAgreementEndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__End_Date__c);
-
+                       
                         if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Current")
                             csl.ServiceAgreementStatus = (int)CustomerStatus.Current;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Draft")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Draft;
                         if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Expired")
                             csl.ServiceAgreementStatus = (int)CustomerStatus.Expired;
                         if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Rollover")
@@ -1459,7 +1461,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
             Rollover = 3,
             Cancelled = 4,
             QuoteSubmitted = 5,
-            ClientDeclined = 6
+            ClientDeclined = 6,
+            Draft=7
         }
         public enum ItemServiceAgreement
         {

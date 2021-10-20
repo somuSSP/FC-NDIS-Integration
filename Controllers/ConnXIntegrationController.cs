@@ -82,6 +82,80 @@ namespace FC_NDIS.Controllers
             }
             return rs;
         }
+        //GetSpecificResourceDetails(string ClientID, string UserID, string Token,string ResourceId)
+        [HttpGet("GetSpecificResourceDetails/{ResourceId}")]
+        public Response GetSpecificResourceDetails(string ResourceId)
+        {
+            Response rs = new Response();
+            try
+            {
+                _logger.LogInformation("IntegerateResource_Get");
+                var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + _integrationAppSettings.UserName + "&userPassword=" + _integrationAppSettings.Password;
+                FleetCompleteAction fca = new FleetCompleteAction(_integrationAppSettings);
+                _logger.LogInformation("IntegerateAssets Appsettings:" + _integrationAppSettings.AppConnection.ToString());
+
+                var tokeninfo = fca.GetAccessToken(url);
+                _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
+
+                var result = fca.GetSpecificResourceDetails(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token, ResourceId);
+                if (!string.IsNullOrEmpty(result.ToString()))
+                {
+                    rs.Results = result;
+                    rs.ResponseCode = 200;
+                    rs.Message = "Integrated Successfully";
+                }
+                else
+                {
+                    rs.ResponseCode = 500;
+                    rs.Message = "Internal Server Error Occured";
+                }                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 500;
+                rs.Message = "Internal Server Error Occured";
+            }
+            return rs;
+        }
+
+
+
+
+        [HttpGet("GetResourceBackup")]
+        public Response IntegerateResource_GetBackup()
+        {
+            Response rs = new Response();
+            try
+            {
+                _logger.LogInformation("IntegerateResource_Get");
+                var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + _integrationAppSettings.UserName + "&userPassword=" + _integrationAppSettings.Password;
+                FleetCompleteAction fca = new FleetCompleteAction(_integrationAppSettings);
+                _logger.LogInformation("IntegerateAssets Appsettings:" + _integrationAppSettings.AppConnection.ToString());
+
+                var tokeninfo = fca.GetAccessToken(url);
+                _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
+                if (fca.GetBackupResourcetoExcel(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token))
+                {
+                    rs.ResponseCode = 200;
+                    rs.Message = "Integrated Successfully";
+                }
+                else
+                {
+                    rs.ResponseCode = 500;
+                    rs.Message = "Internal Server Error Occured";
+                }
+                rs.ResponseCode = 200;
+                rs.Message = "Integrated Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.ResponseCode = 500;
+                rs.Message = "Internal Server Error Occured";
+            }
+            return rs;
+        }
 
         [HttpPost("PostResource")]
         public Response IntegerateResource_Post(List<int> ResourceIds)

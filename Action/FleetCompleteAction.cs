@@ -15,11 +15,23 @@ using FC_NDIS.JsonModels;
 using NLog;
 using FC_NDIS.JsonModels.Resource;
 using FC_NDIS.APIModels.FCModel;
+using FC_NDIS.APIModels.ResourceDetailsModel;
+using FC_NDIS.APIModels;
+using System.Data;
+using System.ComponentModel;
+using Communication = FC_NDIS.JsonModels.Resource.Communication;
+using Excel = Microsoft.Office.Interop.Excel;
+using Word = Microsoft.Office.Interop.Word;
+using Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Reflection;
+using ClosedXML.Excel;
 
 namespace FC_NDIS.Action
 {
     public class FleetCompleteAction : IFleetComplete
     {
+   
         public string URL = "";
         private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly IntegrationAppSettings _integrationAppSettings;
@@ -133,19 +145,19 @@ namespace FC_NDIS.Action
                 logger.Info("Scheduled Fleet complete Post Method - Resource");
 
                 var allDrivers = dba.GetAllDriverInformation();
-                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID)).ToList();
-                var CreatedRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID)).ToList();
+                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID) && k.IsTerminated!=true).ToList();
+                var ExtingRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID) && k.IsTerminated != true).ToList();
 
                 if (NewRecords.Count > 0)
-                {
-                    var client = new RestClient(_integrationAppSettings.ResourcePost);
-                    var request = RestRequestMapping((int)Method.POST, ClientID, UserID, Token);
-                    client.Timeout = -1;
+                {                   
                     foreach (var drivers in NewRecords) //All Record will push to FC
                     {
+                        var client = new RestClient(_integrationAppSettings.ResourcePost);
+                        var request = RestRequestMapping((int)Method.POST, ClientID, UserID, Token);
+                        client.Timeout = -1;
                         if (drivers.FCResourceID != null)
                         {
-                            client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()).ToString());
+                            client = new RestClient(_integrationAppSettings.ResourcePost);
                         }
 
                         var resource = MappingResourceDTO(drivers, 1);
@@ -158,7 +170,8 @@ namespace FC_NDIS.Action
                             root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
                             if (resourceResponse.Errors == null)
                             {
-                                result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
+                                logger.Info("Created Record : "+ drivers.DriverId+", Response : "+response.Content.ToString());
+                               result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
                             }
                             else
                             {
@@ -171,13 +184,13 @@ namespace FC_NDIS.Action
                         }
                     }
                 }
-                if (CreatedRecords.Count > 0) //Update the records
+                if (ExtingRecords.Count > 0) //Update the records
                 {
                     try
-                    {
-                        var request = RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
-                        foreach (var drivers in CreatedRecords)
+                    {                       
+                        foreach (var drivers in ExtingRecords)
                         {
+                            var request = RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
                             if (drivers.FCResourceID != null)
                             {
                                 var client = new RestClient(_integrationAppSettings.ResourcePut.Replace("{id}", drivers.FCResourceID.ToString()));
@@ -195,6 +208,7 @@ namespace FC_NDIS.Action
                                 {
                                     if (resourceResponse.Errors == null)
                                     {
+                                        logger.Info("Modified Record : " + drivers.DriverId + ",Response : " + response.Content.ToString());
                                         result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
                                     }
                                     else
@@ -317,6 +331,123 @@ namespace FC_NDIS.Action
             return result;
 
         }
+
+        public object GetSpecificResourceDetails(string ClientID, string UserID, string Token,string ResourceId)
+        {
+            try
+            {
+                DBAction dba = new DBAction(_integrationAppSettings);
+                logger.Info("Scheduled Fleet complete Put Method for Resource");
+                var client = new RestClient(_integrationAppSettings.ResourceGetDetails.Replace("{id}", ResourceId));
+                client.Timeout = -1;
+                var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
+                IRestResponse response = client.Execute(request);
+                var resourceDetailsResponse = JsonConvert.DeserializeObject<FCDetailsModel>(response.Content);
+                return resourceDetailsResponse;
+            }
+            catch(Exception ex)
+            {
+                return ex;
+            }
+
+        }
+        public bool GetBackupResourcetoExcel(string ClientID, string UserID, string Token)
+        {
+            bool result = false;
+
+            DBAction dba = new DBAction(_integrationAppSettings);
+            logger.Info("Scheduled Fleet complete Put Method for Resource");
+            var client = new RestClient(_integrationAppSettings.ResourcePost + "?top=1000");
+            client.Timeout = -1;
+            var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
+            FCResourceModel resourcechildResponse = new FCResourceModel();
+            List<BackupModel> BCM = new List<BackupModel>();
+            try
+            {
+                IRestResponse response = client.Execute(request);
+                OutputResource resourceResponse = JsonConvert.DeserializeObject<OutputResource>(response.Content);
+
+                if (resourceResponse.Errors == null)
+                {
+                    foreach (var resourceInp in resourceResponse.Data)
+                    {
+                        BackupModel bc = new BackupModel();
+                        var EmployeeCode = resourceInp.DriverName;
+                        var Detailsurl = _integrationAppSettings.ResourceGetDetails.Replace("{id}", resourceInp.ID);
+
+                        client = new RestClient(Detailsurl);
+                        client.Timeout = -1;
+                        response = client.Execute(request);
+                        var resourceDetailsResponse = JsonConvert.DeserializeObject<FCDetailsModel>(response.Content);
+                        bc.EmployeeCode = resourceInp.DriverName;
+                        bc.RFID = resourceDetailsResponse.Data.WorkInfo.MobileID;
+                        bc.CommunicationEmail = resourceDetailsResponse.Data.Communication.MobileEmail;
+                        BCM.Add(bc);                        
+
+                    }
+                }              
+                System.Data.DataTable dt = ConvertoDataTable(BCM);               
+
+                DataSet ds = new DataSet();
+                ds.Tables.Add(dt);
+                ExportDataSetToExcel(ds);
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.ToString());
+                result = false;
+            }
+
+            return result;
+
+        }
+
+        public static void ExportDataSetToExcel(DataSet ds)
+        {
+            string AppLocation = "";
+            AppLocation = Directory.GetCurrentDirectory();
+            string date = DateTime.Now.ToShortDateString();
+            date = date.Replace("/", "_");
+            string filepath = AppLocation + "\\ExcelFiles\\" + "FleeteCompleteBackup" + date + ".xlsx";
+
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                for (int i = 0; i < ds.Tables.Count; i++)
+                {
+                    wb.Worksheets.Add(ds.Tables[i], ds.Tables[i].TableName);                   
+                }             
+                wb.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;               
+                wb.ColumnWidth = 50;                 
+                wb.Style.Font.Bold = true;
+                wb.SaveAs(filepath);
+            }
+        }
+    
+
+        public System.Data.DataTable ConvertoDataTable<T>(IList<T> data)
+        {
+            PropertyDescriptorCollection props =
+            TypeDescriptor.GetProperties(typeof(T));
+            System.Data.DataTable table = new System.Data.DataTable();
+            for (int i = 0; i < props.Count; i++)
+            {
+                PropertyDescriptor prop = props[i];
+                table.Columns.Add(prop.Name, prop.PropertyType);
+            }
+            object[] values = new object[props.Count];
+            foreach (T item in data)
+            {
+                for (int i = 0; i < values.Length; i++)
+                {
+                    values[i] = props[i].GetValue(item);
+                }
+                table.Rows.Add(values);               
+            }
+            return table;
+        }
+
         public Resource MappingResourceDTO(Driver drivers, int Methodtype)
         {
             Resource resource = new Resource();
@@ -325,7 +456,7 @@ namespace FC_NDIS.Action
                 if (drivers.FCResourceID != null)
                     resource.ID = Guid.Parse(drivers.FCResourceID);
             resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName : drivers.FirstName) + " " + drivers.LastName;
-            resource.Description = resource.Description + " FC Test";
+            resource.Description = resource.Description;
             resource.Code = "";
             resource.IsActive = true;
             resource.IsSettlementOnly = false;
@@ -355,9 +486,9 @@ namespace FC_NDIS.Action
                     MobileEmail = drivers.Username,
                     MailingAddress = "",
                     CommunicationMethod = 0
-                };                
+                };
             }
-            resource.Details.WorkInfo = new WorkInfo()
+            resource.Details.WorkInfo = new JsonModels.Resource.WorkInfo()
             {
                 WorkStatus = 0,
                 IsCrewChief = true,
@@ -369,7 +500,7 @@ namespace FC_NDIS.Action
                 PIN = ""
             };
             //Insurance null
-            resource.Details.License = new License
+            resource.Details.License = new JsonModels.Resource.License
             {
                 IsMale = true,
                 Class = "",
@@ -382,7 +513,7 @@ namespace FC_NDIS.Action
 
             resource.Details.ResourceTypeID = "10b48e80-6a5c-48c7-9604-5b5a8376be87";// Need to cross check
             resource.Details.Assets = new List<Asset>();
-            resource.Details.ResourceType = new ResourceType()
+            resource.Details.ResourceType = new JsonModels.Resource.ResourceType()
             {
                 ID = "10b48e80-6a5c-48c7-9604-5b5a8376be87",
                 Description = "",
@@ -403,7 +534,7 @@ namespace FC_NDIS.Action
                 Description = ""
             };
 
-            resource.Details.License = new License();
+            resource.Details.License = new JsonModels.Resource.License();
             // resource.Details.License.IssueDate = DateTime.Now.AddYears(10);
             // resource.Details.License.ExpiryDate = DateTime.Now.AddDays(10);
             resource.Details.License.IsMale = true;

@@ -10,6 +10,16 @@
   </ItemGroup>
 
   <ItemGroup>
+  <COMReference Include="Microsoft.Office.Core">
+      <Guid>{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  <PackageReference Include="ClosedXML" Version="0.95.4" />
     <PackageReference Include="Hangfire" Version="1.7.22" />
     <PackageReference Include="Hangfire.MemoryStorage" Version="1.7.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.5" />
@@ -17,6 +27,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="12.0.4518.1014" />
+    <PackageReference Include="Microsoft.Office.Interop.Word" Version="15.0.4797.1003" />
+    <PackageReference Include="MSOffice.Interop" Version="16.0.13328" />
     <PackageReference Include="NLog" Version="4.7.9" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.12.0" />
     <PackageReference Include="RestSharp" Version="106.11.7" />
@@ -28,6 +41,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ExcelFiles\" />
+    <Folder Include="FCBackup\NewFolder\" />
     <Folder Include="Log\" />
   </ItemGroup>
 

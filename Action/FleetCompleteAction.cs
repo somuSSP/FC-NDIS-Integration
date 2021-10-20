@@ -145,8 +145,8 @@ namespace FC_NDIS.Action
                 logger.Info("Scheduled Fleet complete Post Method - Resource");
 
                 var allDrivers = dba.GetAllDriverInformation();
-                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID) && k.IsTerminated!=true).ToList();
-                var ExtingRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID) && k.IsTerminated != true).ToList();
+                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID)).ToList();
+                var ExtingRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID)).ToList();
 
                 if (NewRecords.Count > 0)
                 {                   
@@ -455,7 +455,7 @@ namespace FC_NDIS.Action
             if (!string.IsNullOrEmpty(drivers.FCResourceID))
                 if (drivers.FCResourceID != null)
                     resource.ID = Guid.Parse(drivers.FCResourceID);
-            resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName : drivers.FirstName) + " " + drivers.LastName;
+            resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName.ToUpper().ToString() : drivers.FirstName.ToUpper().ToString()) + " " + drivers.LastName.ToUpper().ToString();
             resource.Description = resource.Description;
             resource.Code = "";
             resource.IsActive = true;

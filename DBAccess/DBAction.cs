@@ -675,6 +675,48 @@ namespace FC_NDIS.DBAccess
             return dr;
         }
 
+        public int GetIntegrationActivityId()
+        {
+            int IntegrationActivityId = 0;
+            using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+            {
+                IntegrationActivityId = dbc.IntegrationActivities.Where(k=>k.IntegrationActivityName==11).OrderByDescending(k=>k.IntegrationActivityId).FirstOrDefault().IntegrationActivityId;
+            }
+            return IntegrationActivityId;
+        }
+        public bool InsertLogIntoIntegrationActivityLog(IntegrationActivityLog log)
+        {
+            try
+            {
+                using (NDISINT18Apr2021Context dbc = new NDISINT18Apr2021Context(this._integrationAppSettings))
+                {
+                    var IntLog = dbc.IntegrationActivityLogs.Where(k => k.IntegrationActivityId == log.IntegrationActivityId).FirstOrDefault();
+                    if (IntLog == null)
+                    {
+                        dbc.IntegrationActivityLogs.Add(log);
+                        
+                    }
+                    else
+                    {                       
+                        IntLog.TotalPushedRecordCount = log.TotalPushedRecordCount;
+                        IntLog.IntegrationActivityId = log.IntegrationActivityId;
+                        IntLog.SuccessCount = log.SuccessCount;
+                        IntLog.FailedCount = log.FailedCount;
+                        IntLog.CreatedRecordCount = log.CreatedRecordCount;
+                        IntLog.ModifiedRecordCount = log.ModifiedRecordCount;
+                        IntLog.CreatedDate = DateTime.Now;
+                        IntLog.ModifiedDate = DateTime.Now;
+                    }
+                    dbc.SaveChanges();
+                }
+                return true;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+        }
+
         public bool UpdatedInformation(int driverId, string FCResourceID)
         {
             Boolean result = true;

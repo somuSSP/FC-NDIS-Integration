@@ -599,6 +599,11 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 }
                 if (ltsCusline.Count > 0)
                 {
+                    var draftlist = ltsCusline.Where(k => k.ServiceAgreementStatus == (int)CustomerStatus.Draft).GroupBy(k=>k.ServiceAgreementName).ToList();
+                    foreach (var drf in draftlist)
+                    {
+                        ltsCusline.Where(k => k.ServiceAgreementName == drf.Key).ToList().ForEach(k => k.ServiceAgreementStatus = (int)CustomerStatus.Draft);
+                    }
                     logger.Info("Triggered 'IntegrateCustomerLineinfointoDB' to update the CustomerServiceLineRecord");
                     dba.IntegrateCustomerLineinfointoDB(ltsCusline);
                     dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);
@@ -643,7 +648,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         CustomerServiceLine csl = new CustomerServiceLine();
                         var customerId = rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Client__c;
                         csl.ServiceAgreementCustomerId = dba.GetCustomerId(customerId);
-                        csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c; ;
+                        csl.ServiceAgreementId = rootObject.records[i].enrtcr__Support_Contract__c; 
                         csl.ServiceAgreementName = rootObject.records[i].enrtcr__Support_Contract__r.Name;
                         csl.ServiceAgreementEndDate = Convert.ToDateTime(rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__End_Date__c);
 
@@ -651,6 +656,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             csl.ServiceAgreementStatus = (int)CustomerStatus.Current;
                         if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Expired")
                             csl.ServiceAgreementStatus = (int)CustomerStatus.Expired;
+                        if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Draft")
+                            csl.ServiceAgreementStatus = (int)CustomerStatus.Draft;
                         if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Rollover")
                             csl.ServiceAgreementStatus = (int)CustomerStatus.Rollover;
                         if (rootObject.records[i].enrtcr__Support_Contract__r.enrtcr__Status__c == "Cancelled")
@@ -724,6 +731,12 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 }
                 if (ltsCusline.Count > 0)
                 {
+                    var driftlist = ltsCusline.Where(k => k.ServiceAgreementStatus == (int)CustomerStatus.Draft).GroupBy(k => k.ServiceAgreementName).ToList();
+                    foreach (var drf in driftlist)
+                    {
+                        ltsCusline.Where(k => k.ServiceAgreementName == drf.FirstOrDefault().ServiceAgreementName).ToList().ForEach(k => k.ServiceAgreementStatus = (int)CustomerStatus.Draft);
+                    }
+
                     logger.Info("Triggered 'IntegrateCustomerLineinfointoDB' to update the CustomerServiceLineRecord");
                     dba.IntegrateCustomerLineinfointoDB(ltsCusline);
                     dba.IntegrateErrorCustomerLineinfointoDB(errorltsCusline);

@@ -26,6 +26,7 @@ using Microsoft.Office.Interop.Excel;
 using System.IO;
 using System.Reflection;
 using ClosedXML.Excel;
+using System.Text;
 
 namespace FC_NDIS.Action
 {
@@ -139,19 +140,24 @@ namespace FC_NDIS.Action
         public bool PostResource(string ClientID, string UserID, string Token)
         {
             bool result = false;
+            List<RecordStatus> ListErrors = new List<RecordStatus>();
             try
             {
                 DBAction dba = new DBAction(_integrationAppSettings);
                 logger.Info("Scheduled Fleet complete Post Method - Resource");
 
                 var allDrivers = dba.GetAllDriverInformation();
-                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID)).ToList();
-                var ExtingRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID)).ToList();
+                var NewRecords = allDrivers.Where(k => string.IsNullOrEmpty(k.FCResourceID) && !string.IsNullOrEmpty(k.RFID) && k.Type==1).ToList();
+                var ExtingRecords = allDrivers.Where(k => !string.IsNullOrEmpty(k.FCResourceID) && k.Type == 1).ToList();
+                var IntegrationActivityID = dba.GetIntegrationActivityId();
 
                 if (NewRecords.Count > 0)
                 {                   
                     foreach (var drivers in NewRecords) //All Record will push to FC
                     {
+                        RecordStatus recordStatus = new RecordStatus();
+                        recordStatus.DriverId = drivers.DriverId;
+                        recordStatus.ActionStatus = 1;
                         var client = new RestClient(_integrationAppSettings.ResourcePost);
                         var request = RestRequestMapping((int)Method.POST, ClientID, UserID, Token);
                         client.Timeout = -1;
@@ -168,15 +174,19 @@ namespace FC_NDIS.Action
                             request.AddParameter("application/json", body, ParameterType.RequestBody);
                             IRestResponse response = client.Execute(request);
                             root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
+                            recordStatus.root = resourceResponse;
                             if (resourceResponse.Errors == null)
                             {
+                                recordStatus.Error = null;
                                 logger.Info("Created Record : "+ drivers.DriverId+", Response : "+response.Content.ToString());
                                result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
                             }
                             else
                             {
+                                recordStatus.Error = resourceResponse.Errors.ToString();
                                 logger.Error("FC Insert Record Status:" + resourceResponse.Errors.ToString());
                             }
+                            ListErrors.Add(recordStatus);
                         }
                         catch (Exception ex)
                         {
@@ -190,6 +200,9 @@ namespace FC_NDIS.Action
                     {                       
                         foreach (var drivers in ExtingRecords)
                         {
+                            RecordStatus recordStatus = new RecordStatus();
+                            recordStatus.DriverId = drivers.DriverId;
+                            recordStatus.ActionStatus = 2;
                             var request = RestRequestMapping((int)Method.PUT, ClientID, UserID, Token);
                             if (drivers.FCResourceID != null)
                             {
@@ -204,26 +217,45 @@ namespace FC_NDIS.Action
                                 client.Timeout = -1;
                                 IRestResponse response = client.Execute(request);
                                 root resourceResponse = JsonConvert.DeserializeObject<root>(response.Content);
+                                recordStatus.root = resourceResponse;
                                 if (resourceResponse != null)
                                 {
                                     if (resourceResponse.Errors == null)
                                     {
+                                        recordStatus.Error = null;
                                         logger.Info("Modified Record : " + drivers.DriverId + ",Response : " + response.Content.ToString());
                                         result = dba.UpdatedInformation(drivers.DriverId, resourceResponse.Data);
                                     }
                                     else
                                     {
+                                        recordStatus.Error = resourceResponse.Errors.ToString();
                                         logger.Error("FC Update Record Status:" + resourceResponse.Errors.ToString());
                                     }
                                 }
                             }
+                            ListErrors.Add(recordStatus);
                         }
+
                     }
                     catch (Exception ex)
                     {
                         logger.Error(ex.ToString());
                     }
                 }
+                IntegrationActivityLog log = new IntegrationActivityLog();
+                log.TotalPushedRecordCount= ListErrors.Count;
+                log.IntegrationActivityId = IntegrationActivityID;
+                log.SuccessCount = ListErrors.Where(k => k.Error == null).ToList().Count;
+                log.FailedCount = ListErrors.Where(k => k.Error != null).ToList().Count;
+                log.CreatedRecordCount = ListErrors.Where(k => k.ActionStatus == 1).ToList().Count;
+                log.ModifiedRecordCount= ListErrors.Where(k => k.ActionStatus == 2).ToList().Count;
+                log.CreatedDate =DateTime.Now;
+                log.ModifiedDate = DateTime.Now;
+                var exceptionRecords = ListErrors.Where(k => k.Error != null).ToList();
+               // StringBuilder builder = new StringBuilder("Error Results:");
+                var exceptionRecordinformation = Newtonsoft.Json.JsonConvert.SerializeObject(exceptionRecords).ToString();
+                log.ExceptionDescription = exceptionRecordinformation;
+                dba.InsertLogIntoIntegrationActivityLog(log);
 
                 result = true;
             }

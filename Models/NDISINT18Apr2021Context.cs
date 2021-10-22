@@ -52,6 +52,7 @@ namespace FC_NDIS.Models
         public virtual DbSet<HistoricalDriverTrip> HistoricalDriverTrips { get; set; }
         public virtual DbSet<IntegrationActivity> IntegrationActivities { get; set; }
         public virtual DbSet<IntegrationActivityList> IntegrationActivityLists { get; set; }
+        public virtual DbSet<IntegrationActivityLog> IntegrationActivityLogs { get; set; }
         public virtual DbSet<IntegrationActivityStatus> IntegrationActivityStatuses { get; set; }
         public virtual DbSet<ItemOverclaimStatus> ItemOverclaimStatuses { get; set; }
         public virtual DbSet<Job> Jobs { get; set; }
@@ -1134,6 +1135,19 @@ namespace FC_NDIS.Models
                 entity.Property(e => e.IntegrationActivityName).HasMaxLength(100);
 
                 entity.Property(e => e.IsCompleted).HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<IntegrationActivityLog>(entity =>
+            {
+                entity.ToTable("IntegrationActivityLog");
+
+                entity.Property(e => e.IntegrationActivityLogId).HasColumnName("IntegrationActivityLogID");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.IntegrationActivityId).HasColumnName("IntegrationActivityID");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             });

@@ -157,6 +157,45 @@ namespace FC_NDIS.Controllers
             return rs;
         }
 
+        [HttpGet("DownloadResourceBackup")]
+        public Response DownloadResourceBackup()
+        {
+            Response rs = new Response();
+            try
+            {
+                _logger.LogInformation("DownloadResourceBackup");
+                var url = "https://hosted.fleetcomplete.com.au/Authentication/v9/Authentication.svc/authenticate/user?clientId=" + 46135 + "&userLogin=" + _integrationAppSettings.UserName + "&userPassword=" + _integrationAppSettings.Password;
+                FleetCompleteAction fca = new FleetCompleteAction(_integrationAppSettings);
+                _logger.LogInformation("IntegerateAssets Appsettings:" + _integrationAppSettings.AppConnection.ToString());
+
+                var tokeninfo = fca.GetAccessToken(url);
+                _logger.LogInformation("IntegerateAssets Token:" + tokeninfo.Token);
+                var result = fca.GetBackupExcel(_integrationAppSettings.ClientID, tokeninfo.UserId, tokeninfo.Token);
+                if (!string.IsNullOrEmpty(result.ToString()))                  
+                {
+                    rs.Results = result;
+                    rs.ResponseCode = 200;
+                    rs.Message = "Download  Successfully";
+                }
+                else
+                {
+                    rs.Results = null;
+                    rs.ResponseCode = 500;
+                    rs.Message = "Internal Server Error Occured";
+                }
+                rs.ResponseCode = 200;
+                rs.Message = "Integrated Successfully";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                rs.Results = null;
+                rs.ResponseCode = 500;
+                rs.Message = "Internal Server Error Occured";
+            }
+            return rs;
+        }
+
         [HttpPost("PostResource")]
         public Response IntegerateResource_Post(List<int> ResourceIds)
         {

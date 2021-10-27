@@ -436,6 +436,52 @@ namespace FC_NDIS.Action
 
         }
 
+
+        public List<BackupModel> GetBackupExcel(string ClientID, string UserID, string Token)
+        {           
+            DBAction dba = new DBAction(_integrationAppSettings);
+            logger.Info("GetBackupExcel Method for Resource");
+            var client = new RestClient(_integrationAppSettings.ResourcePost + "?top=1000");
+            client.Timeout = -1;
+            var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
+            FCResourceModel resourcechildResponse = new FCResourceModel();
+            List<BackupModel> BCM = new List<BackupModel>();
+            try
+            {
+                IRestResponse response = client.Execute(request);
+                OutputResource resourceResponse = JsonConvert.DeserializeObject<OutputResource>(response.Content);
+
+                if (resourceResponse.Errors == null)
+                {
+                    foreach (var resourceInp in resourceResponse.Data)
+                    {
+                        BackupModel bc = new BackupModel();
+                        var EmployeeCode = resourceInp.DriverName;
+                        var Detailsurl = _integrationAppSettings.ResourceGetDetails.Replace("{id}", resourceInp.ID);
+
+                        client = new RestClient(Detailsurl);
+                        client.Timeout = -1;
+                        response = client.Execute(request);
+                        var resourceDetailsResponse = JsonConvert.DeserializeObject<FCDetailsModel>(response.Content);
+                        bc.EmployeeCode = resourceInp.DriverName;
+                        bc.RFID = resourceDetailsResponse.Data.WorkInfo.MobileID;
+                        bc.CommunicationEmail = resourceDetailsResponse.Data.Communication.MobileEmail;
+                        BCM.Add(bc);
+
+                    }
+                }               
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.ToString());
+                //result = false;
+            }
+
+            return BCM;
+
+        }
+
+
         public static void ExportDataSetToExcel(DataSet ds)
         {
             string AppLocation = "";

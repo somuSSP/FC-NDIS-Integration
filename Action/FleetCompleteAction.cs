@@ -441,7 +441,7 @@ namespace FC_NDIS.Action
         {           
             DBAction dba = new DBAction(_integrationAppSettings);
             logger.Info("GetBackupExcel Method for Resource");
-            var client = new RestClient(_integrationAppSettings.ResourcePost + "?top=1000");
+            var client = new RestClient(_integrationAppSettings.ResourcePost + "?top=10000");
             client.Timeout = -1;
             var request = RestRequestMapping((int)Method.GET, ClientID, UserID, Token);
             FCResourceModel resourcechildResponse = new FCResourceModel();

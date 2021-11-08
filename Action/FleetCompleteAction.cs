@@ -249,8 +249,9 @@ namespace FC_NDIS.Action
                 log.FailedCount = ListErrors.Where(k => k.Error != null).ToList().Count;
                 log.CreatedRecordCount = ListErrors.Where(k => k.ActionStatus == 1).ToList().Count;
                 log.ModifiedRecordCount= ListErrors.Where(k => k.ActionStatus == 2).ToList().Count;
-                log.CreatedDate =DateTime.Now;
-                log.ModifiedDate = DateTime.Now;
+                var ctDate = dba.GetEasterAustraliaTime(DateTime.UtcNow);
+                log.CreatedDate = ctDate;
+                log.ModifiedDate = ctDate;
                 var exceptionRecords = ListErrors.Where(k => k.Error != null).ToList();
                // StringBuilder builder = new StringBuilder("Error Results:");
                 var exceptionRecordinformation = Newtonsoft.Json.JsonConvert.SerializeObject(exceptionRecords).ToString();

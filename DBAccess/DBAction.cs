@@ -704,8 +704,9 @@ namespace FC_NDIS.DBAccess
                         IntLog.FailedCount = log.FailedCount;
                         IntLog.CreatedRecordCount = log.CreatedRecordCount;
                         IntLog.ModifiedRecordCount = log.ModifiedRecordCount;
-                        IntLog.CreatedDate = DateTime.Now;
-                        IntLog.ModifiedDate = DateTime.Now;
+                        var CCDate = GetEasterAustraliaTime(DateTime.UtcNow);
+                        IntLog.CreatedDate = CCDate;
+                        IntLog.ModifiedDate = CCDate;
                     }
                     dbc.SaveChanges();
                 }
@@ -715,6 +716,12 @@ namespace FC_NDIS.DBAccess
             {
                 return false;
             }
+        }
+
+        public DateTime GetEasterAustraliaTime(DateTime CDate)
+        {
+            var tz = TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time");         
+            return TimeZoneInfo.ConvertTimeFromUtc(new DateTime(CDate.Year, CDate.Month, CDate.Day, CDate.Hour, CDate.Minute, CDate.Second, DateTimeKind.Utc), tz);
         }
 
         public bool UpdatedInformation(int driverId, string FCResourceID)

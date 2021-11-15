@@ -26,6 +26,7 @@ namespace FC_NDIS
         public string ConnexUserName { get; set; }
         public string ConnexUserPassword { get; set; }
         public string AppConnection { get; set; }
+        public string ApplicationTimeZone { get; set; }
         public string CustomerScheduleTime { get; set; }
         public string CustomerServiceLineScheduleTime { get; set; }
         public string DriverScheduleTime { get; set; }

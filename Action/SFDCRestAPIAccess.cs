@@ -388,7 +388,6 @@ namespace FC_NDIS.Action
             List<CustomerServiceLine> ltsCusline = new List<CustomerServiceLine>();
             List<CustomerServiceLine> errorltsCusline = new List<CustomerServiceLine>();
 
-
             Login();
             logger.Info("Scheduled Customer Service Line job triggered");
             var firstDownload = Convert.ToBoolean(_integrationAppSettings.FirstTimeDownload);
@@ -454,7 +453,7 @@ OR enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS'
                 else
                 {
                     var extistingdate = (DateTime)exitingDatetime;
-                    DateString = extistingdate.ToString("yyyy-MM-dd") + "T" + extistingdate.ToString("HH:MM:ss") + "Z";
+                    DateString = extistingdate.AddDays(-240).ToString("yyyy-MM-dd") + "T" + extistingdate.ToString("HH:MM:ss") + "Z";
 
                 }
                 queryCustomer = @"SELECT Id

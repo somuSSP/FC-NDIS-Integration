@@ -8,14 +8,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using FC_NDIS.Utility;
 
 namespace FC_NDIS.DBAccess
 {
     public class DBAction : IDBAction
     {
         private readonly IntegrationAppSettings _integrationAppSettings;
-        private readonly Microsoft.Extensions.Logging.ILogger _logger;
-
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;       
         public DBAction(IntegrationAppSettings integrationAppSettings)
         {
             this._integrationAppSettings = integrationAppSettings;
@@ -704,7 +704,8 @@ namespace FC_NDIS.DBAccess
                         IntLog.FailedCount = log.FailedCount;
                         IntLog.CreatedRecordCount = log.CreatedRecordCount;
                         IntLog.ModifiedRecordCount = log.ModifiedRecordCount;
-                        var CCDate = GetEasterAustraliaTime(DateTime.UtcNow);
+                        Utilitys uts = new Utilitys(_integrationAppSettings);
+                        var CCDate = uts.GetDateTime();
                         IntLog.CreatedDate = CCDate;
                         IntLog.ModifiedDate = CCDate;
                     }
@@ -718,11 +719,6 @@ namespace FC_NDIS.DBAccess
             }
         }
 
-        public DateTime GetEasterAustraliaTime(DateTime CDate)
-        {
-            var tz = TimeZoneInfo.FindSystemTimeZoneById("AUS Eastern Standard Time");         
-            return TimeZoneInfo.ConvertTimeFromUtc(new DateTime(CDate.Year, CDate.Month, CDate.Day, CDate.Hour, CDate.Minute, CDate.Second, DateTimeKind.Utc), tz);
-        }
 
         public bool UpdatedInformation(int driverId, string FCResourceID)
         {

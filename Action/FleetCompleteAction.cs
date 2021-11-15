@@ -27,6 +27,7 @@ using System.IO;
 using System.Reflection;
 using ClosedXML.Excel;
 using System.Text;
+using FC_NDIS.Utility;
 
 namespace FC_NDIS.Action
 {
@@ -249,7 +250,8 @@ namespace FC_NDIS.Action
                 log.FailedCount = ListErrors.Where(k => k.Error != null).ToList().Count;
                 log.CreatedRecordCount = ListErrors.Where(k => k.ActionStatus == 1).ToList().Count;
                 log.ModifiedRecordCount= ListErrors.Where(k => k.ActionStatus == 2).ToList().Count;
-                var ctDate = dba.GetEasterAustraliaTime(DateTime.UtcNow);
+                Utilitys uts = new Utilitys(_integrationAppSettings);
+                var ctDate = uts.GetDateTime();
                 log.CreatedDate = ctDate;
                 log.ModifiedDate = ctDate;
                 var exceptionRecords = ListErrors.Where(k => k.Error != null).ToList();

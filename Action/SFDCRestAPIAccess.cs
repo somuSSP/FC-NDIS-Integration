@@ -30,8 +30,7 @@ namespace FC_NDIS.Action
 
         private readonly IntegrationAppSettings _integrationAppSettings;
         private static NLog.ILogger logger = LogManager.GetCurrentClassLogger();
-        public List<Customer> FinalCustomer;
-        public Dictionary<int, string> BillingList = new Dictionary<int, string>();
+        public List<Customer> FinalCustomer;       
 
         public SFDCRestAPIAccess(IntegrationAppSettings integrationAppSettings)
         {
@@ -1188,6 +1187,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
                 PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
                 var items = bllist.Skip(i).Take(20).ToList();
+                Dictionary<int, string> BillingList = new Dictionary<int, string>();
                 foreach (var bl in items)
                 {
                     APIModels.Patch.BatchRequest br = new APIModels.Patch.BatchRequest();
@@ -1235,7 +1235,8 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             statusCode = res.statusCode;
                             if (statusCode == 201 || statusCode == 0)
                             {
-                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);                              
+                                BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
+                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
                             recordcount++;
                         }
@@ -1246,7 +1247,6 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         int recordcount = 0;
                         foreach (dynamic res in rootObject.results)
                         {
-
                             string errorCode = "";
                             string message = "";
                             int statusCode = 0;
@@ -1254,7 +1254,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                             if (statusCode == 201)
                             {
                                 BillingList.Add(items[recordcount].BillingID, (string)res.result.id);
-                                // dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
+                                dba.SFDCActionStatus(items[recordcount].BillingID, true, "Success", (string)res.result.id);
                             }
                             else
                             {
@@ -1278,14 +1278,14 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         Result = true;
                     }
                 }
-            }
-            if (UpdateExistingCratedRecord(BillingList))
-            {
-                Result = true;
-                BillingList.Clear();
-            }
-            else
-                Result = false;
+                if (UpdateExistingCratedRecord(BillingList))
+                {
+                    Result = true;
+                    BillingList.Clear();
+                }
+                else
+                    Result = false;
+            }           
 
             return Result; ;
         }
@@ -1354,6 +1354,7 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                 FC_NDIS.APIModels.Patch.Root PatchRoot = new APIModels.Patch.Root();
                 PatchRoot.batchRequests = new List<APIModels.Patch.BatchRequest>();
                 var items = bllist.Skip(i).Take(20).ToList();
+                Dictionary<int, string> BillingList = new Dictionary<int, string>();
                 foreach (var bl in items)
                 {
                     APIModels.Patch.BatchRequest br = new APIModels.Patch.BatchRequest();
@@ -1441,14 +1442,15 @@ OR (enrtcr__Support_Contract__r.enrtcr__Funding_Type__c != 'NDIS' )
                         Result = true;
                     }
                 }
+                if (UpdateExistingCratedRecord(BillingList))
+                {
+                    Result = true;
+                    BillingList.Clear();
+                }
+                else
+                    Result = false;
             }
-            if (UpdateExistingCratedRecord(BillingList))
-            {
-                Result = true;
-                BillingList.Clear();
-            }
-            else
-                Result = false;
+            
             return Result; ;
         }
 

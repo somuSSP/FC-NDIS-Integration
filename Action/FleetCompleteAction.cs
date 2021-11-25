@@ -536,7 +536,7 @@ namespace FC_NDIS.Action
             if (!string.IsNullOrEmpty(drivers.FCResourceID))
                 if (drivers.FCResourceID != null)
                     resource.ID = Guid.Parse(drivers.FCResourceID);
-            resource.Description = "[" + drivers.EmployeeCode + "] " + (drivers.PreferedName != null ? drivers.PreferedName.ToUpper().ToString() : drivers.FirstName.ToUpper().ToString()) + " " + drivers.LastName.ToUpper().ToString();
+            resource.Description = "[" + drivers.EmployeeCode + "] " +  drivers.FirstName.ToUpper().ToString() + " " + drivers.LastName.ToUpper().ToString();
             resource.Description = resource.Description;
             resource.Code = "";
             resource.IsActive = true;

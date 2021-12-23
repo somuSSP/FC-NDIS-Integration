@@ -577,7 +577,7 @@ namespace FC_NDIS.Action
                 EmploymentEndDate = DateTime.Now,
                 DispatchDeviceID = "",
                 PTTNumber = "",
-                MobileID = drivers.RFID,
+                MobileID = drivers.RFID??"",
                 PIN = ""
             };
             //Insurance null
